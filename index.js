@@ -12,18 +12,36 @@ function buildFetch (_url, opts = {}) {
 			method: opts.method || 'GET'
 		})
 
+		response.bodyUsed = false
+
+		async function arrayBuffer () {
+
+		}
+
+		async function buffer () {
+			const body = await readBody(response.body)
+			response.bodyUsed = true
+			return body
+		}
+
 		async function blob () {
 
 		}
-		async function json () {
 
+		async function json () {
+			const body = await readBody(response.body)
+			response.bodyUsed = true
+			return JSON.parse(body.toString('utf8'))
 		}
 
 		async function text () {
 			const body = await readBody(response.body)
+			response.bodyUsed = true
 			return body.toString('utf8')
 		}
 
+		response.buffer = buffer
+		response.arrayBuffer = arrayBuffer
 		response.blob = blob
 		response.json = json
 		response.text = text
