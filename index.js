@@ -36,7 +36,7 @@ function buildFetch (_url, opts = {}) {
 		for await (let chunk of body) {
 			chunks.push(chunk)
 		}
-		return Buffer.from(...chunks)
+		return Buffer.concat(chunks)
 	}
 
 	return fetch(url.pathname)
