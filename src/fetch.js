@@ -16,7 +16,7 @@ function fetch (resource, init = {}) {
       headers: init.headers,
       signal: init.signal
     }, (err, data) => {
-      if (err) reject(err)
+      if (err) return reject(err)
 
       resolve(new Response(data.body, {
         status: data.statusCode,
