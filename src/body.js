@@ -2,14 +2,19 @@
 
 const kBody = Symbol('body')
 const kBodyUsed = Symbol('bodyUsed')
+
 class Body {
-  constructor (stream) {
-    this[kBody] = stream
+  constructor (input = null) {
+    this[kBody] = input
     this[kBodyUsed] = false
   }
 
   get body() {
     return this[kBody]
+  }
+
+  get bodyUsed() {
+    return this[kBodyUsed]
   }
 
   async arrayBuffer () {
