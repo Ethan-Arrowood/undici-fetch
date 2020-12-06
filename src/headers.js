@@ -1,4 +1,7 @@
+'use strict'
+
 const { types } = require('util')
+
 function validateHeaderName (name) {
   if (!name || name.length === 0) throw TypeError(`Invalid header name ${name}`)
 
