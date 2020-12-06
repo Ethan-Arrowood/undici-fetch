@@ -2,9 +2,9 @@
   "name": "undici-fetch",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "src/fetch.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "standard"
   },
   "repository": {
     "type": "git",
@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/Ethan-Arrowood/undici-fetch#readme",
   "dependencies": {
-    "node-fetch": "^2.6.1",
     "undici": "^2.1.1"
+  },
+  "devDependencies": {
+    "standard": "^16.0.3"
   }
 }

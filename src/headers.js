@@ -41,42 +41,6 @@ function normalize (header) {
   return header.trim()
 }
 
-// // The spec calls this a list but its really a multimap
-// class HeadersList {
-//   constructor () {
-//     this._headersList = {}
-//   }
-
-//   get (name, type) {
-//     if (!type || typeof type !== string || type !== 'dictionary' || type !== 'list' || type !== 'item') {
-//       throw TypeError(`Parameter type must be one of 'dictionary', 'list', or 'item'`)
-//     }
-//     const value = this._headersList[name] || null // value needs to be null if name is not in headersList
-//     if (value === null) return null
-//     const result = parseStructuredFields(value, type)
-//     return result
-//   }
-
-//   set (name, structuredValue) {
-//     this._headersList[name] = serializeStructuredFields(structuredValue)
-//   }
-
-//   contains (name) {
-//     return Object.prototype.hasOwnProperty.call(this._headersList, name)
-//   }
-// }
-
-// function serializeStructuredFields(structuredValue) {
-//   // https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#name-serializing-structured-fiel
-//   return structuredValue
-// }
-
-// function parseStructuredFields(inputString, headerType) {
-//   // https://httpwg.org/http-extensions/draft-ietf-httpbis-header-structure.html#name-parsing-structured-fields
-//   // return null if fail to parse
-//   return value
-// }
-
 function isForbiddenHeaderName (name) {
   return (
     name === 'accept-charset' ||
@@ -111,22 +75,22 @@ function isForbiddenResponseHeaderName (name) {
   )
 }
 
+const kHeadersList = Symbol('headers list')
+
 class Headers {
   constructor (init) {
-    this.headersList = {}
+    this[kHeadersList] = {}
     this.guard = 'none'
-    if (init) this.fill(init)
-  }
-
-  fill (init) {
-    if (Array.isArray(init)) {
-      for (let i = 0, header = init[0]; i < init.length; i++, header = init[i]) {
-        if (header.length !== 2) throw TypeError('header entry must be of length two')
-        this.append(header[0], header[1])
-      }
-    } else if (typeof init === 'object' && !types.isBoxedPrimitive(init)) {
-      for (const [name, value] of Object.entries(init)) {
-        this.append(name, value)
+    if (init) {
+      if (Array.isArray(init)) {
+        for (let i = 0, header = init[0]; i < init.length; i++, header = init[i]) {
+          if (header.length !== 2) throw TypeError('header entry must be of length two')
+          this.append(header[0], header[1])
+        }
+      } else if (typeof init === 'object' && !types.isBoxedPrimitive(init)) {
+        for (const [name, value] of Object.entries(init)) {
+          this.append(name, value)
+        }
       }
     }
   }
@@ -146,9 +110,9 @@ class Headers {
     }
 
     if (Object.prototype.hasOwnProperty.call(this.headersList, name)) {
-      this.headersList[name].push(value)
+      this[kHeadersList][name].push(value)
     } else {
-      this.headersList[name] = [value]
+      this[kHeadersList][name] = [value]
     }
   }
 
@@ -168,14 +132,14 @@ class Headers {
       return
     }
 
-    delete this.headersList[name]
+    delete this[kHeadersList][name]
   }
 
   get (_name) {
     const name = _name.toLowerCase()
     validateHeaderName(name)
 
-    const values = this.headersList[name]
+    const values = this[kHeadersList][name]
     return values === undefined ? null : values.join(', ')
   }
 
@@ -200,11 +164,11 @@ class Headers {
       return
     }
 
-    this.headersList[name] = value
+    this[kHeadersList][name] = value
   }
 
   * [Symbol.iterator] () {
-    for (const header of Object.entries(this.headersList)) {
+    for (const header of Object.entries(this[kHeadersList])) {
       yield header
     }
   }
