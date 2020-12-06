@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/fetch.js",
   "scripts": {
+    "test": "tap",
     "lint": "standard"
   },
   "repository": {
