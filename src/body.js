@@ -1,9 +1,15 @@
 'use strict'
 
+const kBody = Symbol('body')
+const kBodyUsed = Symbol('bodyUsed')
 class Body {
   constructor (stream) {
-    this.body = stream
-    this.bodyUsed = false
+    this[kBody] = stream
+    this[kBodyUsed] = false
+  }
+
+  get body() {
+    return this[kBody]
   }
 
   async arrayBuffer () {
@@ -20,19 +26,19 @@ class Body {
 
   async json () {
     let res = ''
-    for await (const chunk of this.body) {
+    for await (const chunk of this[kBody]) {
       res += chunk
     }
-    this.bodyUsed = true
+    this[kBodyUsed] = true
     return JSON.parse(res)
   }
 
   async text () {
     let res = ''
-    for await (const chunk of this.body) {
+    for await (const chunk of this[kBody]) {
       res += chunk
     }
-    this.bodyUsed = true
+    this[kBodyUsed] = true
     return res
   }
 }

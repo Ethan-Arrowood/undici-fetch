@@ -21,6 +21,7 @@
     "undici": "^2.1.1"
   },
   "devDependencies": {
-    "standard": "^16.0.3"
+    "standard": "^16.0.3",
+    "tap": "^14.11.0"
   }
 }
