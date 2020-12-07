@@ -2,7 +2,7 @@
 
 const tap = require('tap')
 const http = require('http')
-const { fetch, clientMap } = require('../src/fetch')
+const fetch = require('../src/fetch')
 
 tap.test('can make basic get request', async t => {
 	t.plan(1)
@@ -13,7 +13,7 @@ tap.test('can make basic get request', async t => {
 	})
 	t.tearDown(() => {
 		server.close.bind(server)()
-		clientMap.forEach(client => client.close.bind(client)())
+		fetch.close()
 	})
 	server.listen(0)
 

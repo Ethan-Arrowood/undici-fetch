@@ -1,23 +1,22 @@
 'use strict'
 
-const { types } = require('util')
 const Undici = require('undici')
 const Request = require('./request')
 const Response = require('./response')
 
-const clientMap = new Map()
+function buildFetch () {
+  const clientMap = new Map()
 
-function buildFetch (resource, init = {}) {
-  const request = new Request(resource, init)
+  function fetch (resource, init = {}) {
+    const request = new Request(resource, init)
 
-  const origin = request.url.origin
-  let client = clientMap.get(origin)
-  if (client === undefined) {
-    client = new Undici.Pool(origin)
-    clientMap.set(origin, client)
-  }
+    const origin = request.url.origin
+    let client = clientMap.get(origin)
+    if (client === undefined) {
+      client = new Undici.Pool(origin)
+      clientMap.set(origin, client)
+    }
 
-  function fetch () {
     return new Promise((resolve, reject) => {
       client.request({
         path: request.url.pathname,
@@ -36,12 +35,11 @@ function buildFetch (resource, init = {}) {
     })
   }
 
-  return fetch()
+  fetch.close = () => {
+    clientMap.forEach(client => client.close.bind(client)())
+  }
+
+  return fetch
 }
 
-
-module.exports = {
-  default: buildFetch,
-  fetch: buildFetch,
-  clientMap
-}
+module.exports = buildFetch()

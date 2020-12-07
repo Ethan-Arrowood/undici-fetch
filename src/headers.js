@@ -2,6 +2,8 @@
 
 const { types } = require('util')
 
+const hasOwnProperty = Object.prototype.hasOwnProperty
+
 function validateHeaderName (name) {
   if (!name || name.length === 0) throw TypeError(`Invalid header name ${name}`)
 
@@ -112,7 +114,7 @@ class Headers {
       return
     }
 
-    if (Object.prototype.hasOwnProperty.call(this[kHeadersList], name)) {
+    if (hasOwnProperty.call(this[kHeadersList], name)) {
       this[kHeadersList][name].push(value)
     } else {
       this[kHeadersList][name] = [value]
@@ -131,7 +133,7 @@ class Headers {
       return
     }
 
-    if (!Object.prototype.hasOwnProperty.call(this.headersList, name)) {
+    if (!hasOwnProperty.call(this.headersList, name)) {
       return
     }
 
@@ -150,7 +152,7 @@ class Headers {
     const name = _name.toLowerCase()
     validateHeaderName(name)
 
-    return Object.prototype.hasOwnProperty.call(this.headersList, name)
+    return hasOwnProperty.call(this.headersList, name)
   }
 
   set (_name, _value) {

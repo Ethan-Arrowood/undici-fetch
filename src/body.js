@@ -30,13 +30,7 @@ class Body {
   }
 
   async json () {
-    this[kBody].setEncoding('utf8')
-    let res = ''
-    for await (const chunk of this[kBody]) {
-      res += chunk
-    }
-    this[kBodyUsed] = true
-    return JSON.parse(res)
+    return JSON.parse(await this.text())
   }
 
   async text () {
