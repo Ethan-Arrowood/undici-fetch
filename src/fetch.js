@@ -5,33 +5,26 @@ const Undici = require('undici')
 const Request = require('./request')
 const Response = require('./response')
 
-function buildFetch (basepath, pool = false, opts = {}) {
-  if (typeof pool === 'object' && !types.isBoxedPrimitive(pool)) {
-    opts = pool
-    pool = false
+const clientMap = new Map()
+
+function buildFetch (resource, init = {}) {
+  const request = new Request(resource, init)
+
+  const origin = request.url.origin
+  let client = clientMap.get(origin)
+  if (client === undefined) {
+    client = new Undici.Pool(origin)
+    clientMap.set(origin, client)
   }
-  const buildURL = path => new URL(path, basepath)
-  const undici = pool ? new Undici.Pool(basepath, opts) : new Undici.Client(basepath, opts)
 
-  function fetch (resource, init = {}) {
-    if (typeof resource === 'string') {
-      // Undici doesn't need a full Request instance
-      resource = {
-        url: { pathname: resource },
-        method: init.method || 'GET',
-        body: init.body,
-        headers: init.headers,
-        signal: init.signal
-      }
-    }
-
+  function fetch () {
     return new Promise((resolve, reject) => {
-      undici.request({
-        path: resource.url.pathname,
-        method: resource.method || 'GET',
-        body: resource.body,
-        headers: resource.headers,
-        signal: resource.signal
+      client.request({
+        path: request.url.pathname,
+        method: request.method,
+        body: request.body,
+        headers: request.headers,
+        signal: init.signal
       }, (err, data) => {
         if (err) return reject(err)
 
@@ -43,12 +36,12 @@ function buildFetch (basepath, pool = false, opts = {}) {
     })
   }
 
-  fetch.close = () => {
-    undici.close()
-  }
-
-  return fetch
+  return fetch()
 }
 
 
-module.exports = buildFetch
+module.exports = {
+  default: buildFetch,
+  fetch: buildFetch,
+  clientMap
+}

@@ -22,7 +22,7 @@ class Request extends Body {
     this.headers = new Headers(init.headers)
     this.headers.guard = this.mode === 'no-cors' ? 'request-no-cors' : 'request'
 
-    if ((this.method === 'GET' || this.method === 'HEAD') && this.body !== undefined) {
+    if ((this.method === 'GET' || this.method === 'HEAD') && this.body !== null) {
       throw TypeError(`${this.method} Request cannot have a body`)
     }
 
@@ -33,8 +33,6 @@ class Request extends Body {
     this.redirect = init.redirect || 'follow'
     this.referrer = init.referrer || 'about:client'
     this.referrerPolicy = init.referrerPolicy || ''
-
-    Object.freeze(this)
   }
 
   clone () {

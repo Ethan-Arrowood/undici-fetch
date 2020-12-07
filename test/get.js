@@ -2,7 +2,7 @@
 
 const tap = require('tap')
 const http = require('http')
-const buildFetch = require('../src/fetch')
+const { fetch, clientMap } = require('../src/fetch')
 
 tap.test('can make basic get request', async t => {
 	t.plan(1)
@@ -11,14 +11,14 @@ tap.test('can make basic get request', async t => {
 		res.write(wanted)
 		res.end()
 	})
-	server.listen(3000)
+	t.tearDown(() => {
+		server.close.bind(server)()
+		clientMap.forEach(client => client.close.bind(client)())
+	})
+	server.listen(0)
 
-	const fetch = buildFetch('http://localhost:3000')
-	const res = await fetch('/')
+	const res = await fetch(`http://localhost:${server.address().port}`)
 	const found = await res.text()
 
 	t.strictEquals(found, wanted)
-
-	server.close()
-	fetch.close()
 })
