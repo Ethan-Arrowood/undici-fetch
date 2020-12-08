@@ -11,17 +11,44 @@ class Response extends Body {
     this.redirected = false // something with a url list
     this.status = init.status
     this.statusText = init.statusText
-
-    this.trailers = init.trailers
-
-    this.type = null
+    this.type = null // one of 'basic', 'cors', 'default', 'error', 'opaque', 'opaquedredirect'
     this.url = init.url
-    this.useFinalURL = true
   }
 
-  clone () {}
-  error () {}
-  redirect () {}
+  clone () {
+    if (this.bodyUsed) {
+      throw TypeError('Cannot clone Response - bodyUsed is true')
+    }
+
+    return new Response(this.body, {
+      status: this.status,
+      statusText: this.statusText,
+      trailers: this.trailers,
+      url: this.url,
+    })
+  }
+
+  error () {
+    const response = new Response(null)
+    response.headers.guard = 'immutable'
+    response.type = 'error'
+    return response
+  }
+
+  redirect (url, status) {
+    if (!((status >= 301 && status <= 303) || status === 307 || status === 308)) {
+      throw RangeError(`redirect status must be 301, 302, 303, 307, or 308. Found ${status}`)
+    }
+
+    const response = new Response(null, {
+      headers: {
+        location: new URL(url).toString()
+      },
+      status
+    })
+    response.headers.guard = 'immutable'
+    return response
+  }
 }
 
 module.exports = Response

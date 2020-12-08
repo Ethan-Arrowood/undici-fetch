@@ -18,15 +18,21 @@ class Body {
   }
 
   async arrayBuffer () {
-
+    let acc = []
+    for await (const chunk of this[kBody]) {
+      acc.push(chunk)
+    }
+    return Buffer.from(acc)
   }
 
   async blob () {
-
+    // discuss later
+    throw Error('.blob() is not supported yet by undici-fetch')
   }
 
   async formData () {
-
+    // discuss later
+    throw Error('.formData() is not supported yet by undici-fetch')
   }
 
   async json () {
