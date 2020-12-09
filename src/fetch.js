@@ -37,7 +37,7 @@ function buildFetch () {
 
   fetch.close = () => {
     const clientClosePromises = []
-    for (const [ , client ] of clientMap) {
+    for (const [, client] of clientMap) {
       clientClosePromises.push(client.close.bind(client)())
     }
     return Promise.all(clientClosePromises)

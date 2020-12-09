@@ -23,7 +23,7 @@ class Response extends Body {
       headers: this.headers,
       status: this.status,
       statusText: this.statusText,
-      url: this.url,
+      url: this.url
     })
   }
 

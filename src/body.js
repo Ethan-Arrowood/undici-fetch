@@ -9,16 +9,16 @@ class Body {
     this[kBodyUsed] = false
   }
 
-  get body() {
+  get body () {
     return this[kBody]
   }
 
-  get bodyUsed() {
+  get bodyUsed () {
     return this[kBodyUsed]
   }
 
   async arrayBuffer () {
-    let acc = []
+    const acc = []
     for await (const chunk of this[kBody]) {
       acc.push(chunk)
     }
