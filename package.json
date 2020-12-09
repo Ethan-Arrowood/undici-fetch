@@ -1,0 +1,28 @@
+{
+  "name": "undici-fetch",
+  "version": "0.0.1",
+  "description": "",
+  "main": "src/fetch.js",
+  "scripts": {
+    "lint": "standard --verbose",
+    "test": "tap"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ethan-Arrowood/undici-fetch.git"
+  },
+  "keywords": [],
+  "author": "Ethan Arrowood <ethan@arrowood.dev>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Ethan-Arrowood/undici-fetch/issues"
+  },
+  "homepage": "https://github.com/Ethan-Arrowood/undici-fetch#readme",
+  "dependencies": {
+    "undici": "^2.1.1"
+  },
+  "devDependencies": {
+    "standard": "^16.0.3",
+    "tap": "^14.11.0"
+  }
+}
