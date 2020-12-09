@@ -27,12 +27,12 @@ class Body {
 
   async blob () {
     // discuss later
-    throw Error('.blob() is not supported yet by undici-fetch')
+    throw Error('Body.blob() is not supported yet by undici-fetch')
   }
 
   async formData () {
     // discuss later
-    throw Error('.formData() is not supported yet by undici-fetch')
+    throw Error('Body.formData() is not supported yet by undici-fetch')
   }
 
   async json () {

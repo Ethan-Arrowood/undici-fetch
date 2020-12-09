@@ -1,8 +1,11 @@
 'use strict'
 
+const { promisify } = require('util')
 const tap = require('tap')
 const http = require('http')
-const fetch = require('../src/fetch')
+const fetch = require('../src/fetch')()
+
+const promisifyServerClose = server => promisify(server.close.bind(server))
 
 tap.test('basic get request', t => {
 	t.plan(2)
@@ -12,9 +15,9 @@ tap.test('basic get request', t => {
 		res.write(wanted)
 		res.end()
 	})
-	t.tearDown(() => {
-		server.close.bind(server)()
-		fetch.close()
+	t.tearDown(async () => {
+		await fetch.close()
+		await promisifyServerClose(server)()
 	})
 	server.listen(0, async () => {
 		const res = await fetch(`http://localhost:${server.address().port}`)
@@ -39,9 +42,9 @@ tap.test('basic post request', t => {
 		})
 	})
 
-	t.tearDown(() => {
-		server.close.bind(server)()
-		fetch.close()
+	t.tearDown(async () => {
+		await fetch.close()
+		await promisifyServerClose(server)()
 	})
 
 	server.listen(0, () => {

@@ -36,10 +36,14 @@ function buildFetch () {
   }
 
   fetch.close = () => {
-    clientMap.forEach(client => client.close.bind(client)())
+    const clientClosePromises = []
+    for (const [ , client ] of clientMap) {
+      clientClosePromises.push(client.close.bind(client)())
+    }
+    return Promise.all(clientClosePromises)
   }
 
   return fetch
 }
 
-module.exports = buildFetch()
+module.exports = buildFetch

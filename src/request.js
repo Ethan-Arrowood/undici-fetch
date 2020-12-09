@@ -25,14 +25,6 @@ class Request extends Body {
     if ((this.method === 'GET' || this.method === 'HEAD') && this.body !== null) {
       throw TypeError(`${this.method} Request cannot have a body`)
     }
-
-    this.cache = init.cache
-    this.credentials = init.credentials || 'same-origin'
-    this.destination = ''
-    this.integrity = init.integrity
-    this.redirect = init.redirect || 'follow'
-    this.referrer = init.referrer || 'about:client'
-    this.referrerPolicy = init.referrerPolicy || ''
   }
 
   clone () {
