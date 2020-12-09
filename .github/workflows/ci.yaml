@@ -34,6 +34,10 @@ jobs:
         run: |
           npm install --ignore-scripts
 
+      - name: Run linter
+        run: |
+          npm run lint
+
       - name: Run tests
         run: |
-          npm run test:ci
+          npm run test
