@@ -1,10 +1,19 @@
 'use strict'
 
+const { isStream } = require('./util')
+
 const kBody = Symbol('body')
 const kBodyUsed = Symbol('bodyUsed')
 
 class Body {
+  /**
+   * @param {import('stream').Readable | null} input 
+   */
   constructor (input = null) {
+    if (input != null && !isStream(input)) {
+      throw Error('body must be nul or a readable stream')
+    }
+
     this[kBody] = input
     this[kBodyUsed] = false
   }
@@ -18,11 +27,14 @@ class Body {
   }
 
   async arrayBuffer () {
+    if (this[kBody] == null) return null
+
     const acc = []
     for await (const chunk of this[kBody]) {
-      acc.push(chunk)
+      if (!this[kBodyUsed]) this[kBodyUsed] = true
+      acc.push(Buffer.from(chunk))
     }
-    return Buffer.from(acc)
+    return Buffer.concat(acc)
   }
 
   async blob () {
@@ -40,12 +52,14 @@ class Body {
   }
 
   async text () {
+    if (this[kBody] == null) return null
+
     this[kBody].setEncoding('utf8')
     let res = ''
     for await (const chunk of this[kBody]) {
+      if (!this[kBodyUsed]) this[kBodyUsed] = true
       res += chunk
     }
-    this[kBodyUsed] = true
     return res
   }
 }

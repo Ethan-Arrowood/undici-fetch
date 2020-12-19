@@ -1,11 +1,9 @@
 'use strict'
 
-const { promisify } = require('util')
 const tap = require('tap')
 const http = require('http')
 const fetch = require('../src/fetch')()
-
-const promisifyServerClose = server => promisify(server.close.bind(server))
+const { promisifyServerClose } = require('./util')
 
 tap.test('basic get request', t => {
   t.plan(2)
