@@ -9,7 +9,7 @@ function isStream (body) {
 
 class Body {
   /**
-   * @param {import('stream').Readable | null} input 
+   * @param {import('stream').Readable | null} input
    */
   constructor (input = null) {
     if (input != null && !isStream(input)) {
