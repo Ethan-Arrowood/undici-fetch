@@ -5,7 +5,7 @@
   "main": "src/fetch.js",
   "scripts": {
     "lint": "standard --verbose",
-    "test": "tap"
+    "test": "tap -J"
   },
   "repository": {
     "type": "git",

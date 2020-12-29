@@ -1,5 +1,9 @@
-function isStream (body) {
-  return !!(body && typeof body.on === 'function')
+'use strict'
+
+const stream = require('stream')
+
+function isReadable (obj) {
+  return obj instanceof stream.Stream && typeof obj._read == 'function' && typeof obj._readableState == 'object'
 }
 
 function HeaderNameValidationError (name) {
@@ -14,9 +18,10 @@ function validateHeaderName (name) {
   if (!name || name.length === 0) throw HeaderNameValidationError(name)
 
   for (let i = 0, cc = name.charCodeAt(0); i < name.length; i++, cc = name.charCodeAt(i)) {
+    /* istanbul ignore else */
     if (
-    // check most common characters first
-      (cc >= 97 && cc <= 122) || // a-z
+      // check most common characters first
+      (cc >= 94 && cc <= 122) || // ^ _ ` a-z
       (cc >= 65 && cc <= 90) || // A-z
       cc === 45 || // -
       cc === 33 || // !
@@ -25,7 +30,6 @@ function validateHeaderName (name) {
       cc === 43 || // +
       cc === 46 || // .
       (cc >= 48 && cc <= 57) || // 0-9
-      (cc >= 94 && cc <= 96) || // ^ _ `
       cc === 124 || // |
       cc === 126 // ~
     ) {
@@ -40,6 +44,7 @@ function validateHeaderValue (name, value) {
   if (!value || value.length === 0) throw HeaderValueValidationError(name, value)
 
   for (let i = 0, cc = value.charCodeAt(0); i < value.length; i++, cc = value.charCodeAt(i)) {
+    /* istanbul ignore else */
     if ((cc >= 32 && cc <= 126) || (cc >= 128 && cc <= 255) || cc === 9) {
       continue
     } else {
@@ -65,7 +70,7 @@ function normalizeAndValidateHeaderArguments (name, value) {
 }
 
 module.exports = {
-  isStream,
+  isReadable,
   HeaderNameValidationError,
   HeaderValueValidationError,
   validateHeaderName,

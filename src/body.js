@@ -1,18 +1,16 @@
 'use strict'
 
+const { isReadable } = require('./utils')
+
 const kBody = Symbol('body')
 const kBodyUsed = Symbol('bodyUsed')
-
-function isStream (body) {
-  return !!(body && typeof body.on === 'function')
-}
 
 class Body {
   /**
    * @param {import('stream').Readable | null} input
    */
   constructor (input = null) {
-    if (input != null && !isStream(input)) {
+    if (input != null && !isReadable(input)) {
       throw Error('body must be undefined, null, or a readable stream')
     }
 
