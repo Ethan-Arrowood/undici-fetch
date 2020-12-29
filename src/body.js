@@ -1,9 +1,11 @@
 'use strict'
 
-const { isStream } = require('./util')
-
 const kBody = Symbol('body')
 const kBodyUsed = Symbol('bodyUsed')
+
+function isStream (body) {
+  return !!(body && typeof body.on === 'function')
+}
 
 class Body {
   /**
@@ -11,7 +13,7 @@ class Body {
    */
   constructor (input = null) {
     if (input != null && !isStream(input)) {
-      throw Error('body must be nul or a readable stream')
+      throw Error('body must be undefined, null, or a readable stream')
     }
 
     this[kBody] = input
@@ -32,7 +34,7 @@ class Body {
     const acc = []
     for await (const chunk of this[kBody]) {
       if (!this[kBodyUsed]) this[kBodyUsed] = true
-      acc.push(Buffer.from(chunk))
+      acc.push(chunk)
     }
     return Buffer.concat(acc)
   }

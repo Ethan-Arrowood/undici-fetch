@@ -2,11 +2,10 @@
 
 const tap = require('tap')
 const { Readable } = require('stream')
-const { isStream } = require('../src/util')
 const Body = require('../src/body')
 
 tap.test('Body initialization', t => {
-	t.plan(4)
+	t.plan(5)
 
 	t.test('defaults to null', t => {
 		t.plan(2)
@@ -24,18 +23,29 @@ tap.test('Body initialization', t => {
 		t.strictEqual(body.bodyUsed, false)
 	})
 
+	t.test('allows undefined', t => {
+		t.plan(4)
+		const body1 = new Body(undefined)
+		t.strictEqual(body1.body, null)
+		t.strictEqual(body1.bodyUsed, false)
+
+		const body2 = new Body()
+		t.strictEqual(body2.body, null)
+		t.strictEqual(body2.bodyUsed, false)
+	})
+
 	t.test('allows stream.Readable', t => {
 		t.plan(2)
 		const readable = new Readable()
 		const body = new Body(readable)
 	
-		t.ok(isStream(body.body))
+		t.ok(!!(body.body && typeof body.body.on === 'function'))
 		t.strictEqual(body.bodyUsed, false)
 	})
 
 	t.test('throws for other inputs', t => {
 		t.plan(6)
-		const err = Error('body must be nul or a readable stream')
+		const err = Error('body must be undefined, null, or a readable stream')
 		t.throws(() => new Body('string'), err, 'throws on string')
 		t.throws(() => new Body(100), err, 'throws on number')
 		t.throws(() => new Body(true), err, 'throws on boolean')
@@ -56,7 +66,7 @@ tap.test('Body.arrayBuffer', t => {
 			yield '-'
 			yield 'fetch'
 		}
-		const readable = Readable.from(gen())
+		const readable = Readable.from(gen(), { objectMode: false })
 		const body = new Body(readable)
 	
 		t.ok(!body.bodyUsed)
@@ -66,7 +76,7 @@ tap.test('Body.arrayBuffer', t => {
 		t.strictEqual(res.toString(), 'undici-fetch')
 	})
 
-	t.test('returns null when body is null', async t => {
+	t.test('returns null when body does not exist', async t => {
 		t.plan(2)
 	
 		const body = new Body(null)
@@ -88,7 +98,7 @@ tap.test('Body.text', t => {
 			yield '-'
 			yield 'fetch'
 		}
-		const readable = Readable.from(gen())
+		const readable = Readable.from(gen(), { objectMode: false })
 		const body = new Body(readable)
 	
 		t.ok(!body.bodyUsed)
@@ -98,7 +108,7 @@ tap.test('Body.text', t => {
 		t.strictEqual(res, 'undici-fetch')
 	})
 
-	t.test('returns null when body is null', async t => {
+	t.test('returns null when body does not exist', async t => {
 		t.plan(2)
 	
 		const body = new Body(null)
@@ -108,8 +118,6 @@ tap.test('Body.text', t => {
 		t.strictEqual(res, null)
 	})
 })
-
-
 
 tap.test('Body.json returns a json object', async t => {
 	t.plan(4)
