@@ -29,7 +29,6 @@ class Response extends Body {
 
   error () {
     const response = new Response(null)
-    response.headers.guard = 'immutable'
     response.type = 'error'
     return response
   }
@@ -45,7 +44,7 @@ class Response extends Body {
       },
       status
     })
-    response.headers.guard = 'immutable'
+
     return response
   }
 }

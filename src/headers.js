@@ -2,8 +2,6 @@
 
 const { types } = require('util')
 
-const hasOwnProperty = Object.prototype.hasOwnProperty
-
 function validateHeaderName (name) {
   if (!name || name.length === 0) throw TypeError(`Invalid header name ${name}`)
 
@@ -42,50 +40,30 @@ function validateHeaderValue (name, value) {
   }
 }
 
-function normalize (header) {
-  return header.trim()
+function normalizeAndValidateArguments(name, value) {
+  const normalizedHeaderName = name.toLowerCase()
+  validateHeaderName(normalizedHeaderName)
+
+  if (value) {
+    const normalizedHeaderValue = value.trim()
+    validateHeaderValue(normalizedHeaderName, normalizedHeaderValue)
+
+    return [normalizedHeaderName, normalizedHeaderValue]
+  }
+
+  return normalizedHeaderName
 }
 
-function isForbiddenHeaderName (name) {
-  return (
-    name === 'accept-charset' ||
-    name === 'accept-encoding' ||
-    name === 'access-control-request-headers' ||
-    name === 'access-control-request-method' ||
-    name === 'connection' ||
-    name === 'content-length' ||
-    name === 'cookie' ||
-    name === 'cookie2' ||
-    name === 'data' ||
-    name === 'dnt' ||
-    name === 'expect' ||
-    name === 'host' ||
-    name === 'keep-alive' ||
-    name === 'origin' ||
-    name === 'referer' ||
-    name === 'te' ||
-    name === 'trailer' ||
-    name === 'transfer-encoding' ||
-    name === 'upgrade' ||
-    name === 'via' ||
-    String.prototype.includes.call(name, 'proxy-') ||
-    String.prototype.includes.call(name, 'sec-')
-  )
-}
-
-function isForbiddenResponseHeaderName (name) {
-  return (
-    name === 'set-cookie' ||
-    name === 'set-cookie2'
-  )
-}
-
-const kHeadersList = Symbol('headers list')
+const kHeaders = Symbol('headers')
 
 class Headers {
+  /**
+   * 
+   * @param {[string, string][] | Record<string, string>} init Initial header list to be cloned into the new instance
+   */
   constructor (init) {
-    this[kHeadersList] = {}
-    this.guard = 'none'
+    this[kHeaders] = new Map()
+
     if (init) {
       if (Array.isArray(init)) {
         for (let i = 0, header = init[0]; i < init.length; i++, header = init[i]) {
@@ -100,80 +78,44 @@ class Headers {
     }
   }
 
-  append (_name, _value) {
-    const name = _name.toLowerCase()
-    validateHeaderName(name)
-    const value = normalize(_value)
-    validateHeaderValue(name, value)
+  append (name, value) {
+    const [ normalizedHeaderName, normalizedHeaderValue ] = normalizeAndValidateArguments(name, value)
 
-    if (this.guard === 'immutable') {
-      throw TypeError('headers instance is immutable')
-    } else if (this.guard === 'request' && isForbiddenHeaderName(name)) {
-      return
-    } else if (this.guard === 'response' && isForbiddenResponseHeaderName(name)) {
-      return
-    }
-
-    if (hasOwnProperty.call(this[kHeadersList], name)) {
-      this[kHeadersList][name].push(value)
+    const existingHeaderValue = Map.prototype.get.call(this[kHeaders], normalizedHeaderName)
+    if (existingHeaderValue) {
+      Map.prototype.set.call(this[kHeaders], normalizedHeaderName, existingHeaderValue.concat([normalizedHeaderValue]))
     } else {
-      this[kHeadersList][name] = [value]
+      Map.prototype.set.call(this[kHeaders], normalizedHeaderName, [normalizedHeaderValue])
     }
   }
 
-  delete (_name) {
-    const name = _name.toLowerCase()
-    validateHeaderName(name)
+  delete (name) {
+    const normalizedHeaderName = normalizeAndValidateArguments(name)
 
-    if (this.guard === 'immutable') {
-      throw TypeError('headers instance is immutable')
-    } else if (this.guard === 'request' && isForbiddenHeaderName(name)) {
-      return
-    } else if (this.guard === 'response' && isForbiddenResponseHeaderName(name)) {
-      return
-    }
-
-    if (!hasOwnProperty.call(this.headersList, name)) {
-      return
-    }
-
-    delete this[kHeadersList][name]
+    Map.prototype.delete.call(this[kHeaders], normalizedHeaderName)
   }
 
-  get (_name) {
-    const name = _name.toLowerCase()
-    validateHeaderName(name)
+  get (name) {
+    const normalizedHeaderName = normalizeAndValidateArguments(name)
 
-    const values = this[kHeadersList][name]
+    const values = Map.prototype.get.call(this[kHeaders], normalizedHeaderName)
     return values === undefined ? null : values.join(', ')
   }
 
-  has (_name) {
-    const name = _name.toLowerCase()
-    validateHeaderName(name)
+  has (name) {
+    const normalizedHeaderName = normalizeAndValidateArguments(name)
 
-    return hasOwnProperty.call(this.headersList, name)
+    return Map.prototype.has.call(this[kHeaders], normalizedHeaderName)
   }
 
-  set (_name, _value) {
-    const name = _name.toLowerCase()
-    validateHeaderName(name)
-    const value = normalize(_value)
-    validateHeaderValue(value)
+  set (name, value) {
+    const [ normalizedHeaderName, normalizedHeaderValue ] = normalizeAndValidateArguments(name, value)
 
-    if (this.guard === 'immutable') {
-      throw TypeError('headers instance is immutable')
-    } else if (this.guard === 'request' && isForbiddenHeaderName(name)) {
-      return
-    } else if (this.guard === 'response' && isForbiddenResponseHeaderName(name)) {
-      return
-    }
-
-    this[kHeadersList][name] = value
+    Map.prototype.set.call(this[kHeaders], normalizedHeaderName, normalizedHeaderValue)
   }
 
   * [Symbol.iterator] () {
-    for (const header of Object.entries(this[kHeadersList])) {
+    for (const header of this[kHeaders]) {
       yield header
     }
   }

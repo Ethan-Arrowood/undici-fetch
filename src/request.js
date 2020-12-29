@@ -20,7 +20,6 @@ class Request extends Body {
     this.mode = init.mode || 'cors'
 
     this.headers = new Headers(init.headers)
-    this.headers.guard = this.mode === 'no-cors' ? 'request-no-cors' : 'request'
 
     if ((this.method === 'GET' || this.method === 'HEAD') && this.body !== null) {
       throw TypeError(`${this.method} Request cannot have a body`)
