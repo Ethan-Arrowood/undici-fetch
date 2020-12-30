@@ -3,9 +3,10 @@
 const tap = require('tap')
 const { Readable } = require('stream')
 const Body = require('../src/body')
+const { isReadable } = require('../src/utils')
 
 tap.test('Body initialization', t => {
-  t.plan(5)
+  t.plan(4)
 
   t.test('defaults to null', t => {
     t.plan(2)
@@ -15,31 +16,19 @@ tap.test('Body initialization', t => {
     t.strictEqual(body.bodyUsed, false)
   })
 
-  t.test('allows null', t => {
-    t.plan(2)
-    const body = new Body(null)
+  t.test('allows null, undefined, and stream.Readable', t => {
+    t.plan(3)
 
-    t.strictEqual(body.body, null)
-    t.strictEqual(body.bodyUsed, false)
+    t.notThrow(() => new Body(new Readable()))
+    t.notThrow(() => new Body(null))
+    t.notThrow(() => new Body(undefined))
   })
 
-  t.test('allows undefined', t => {
-    t.plan(4)
-    const body1 = new Body(undefined)
-    t.strictEqual(body1.body, null)
-    t.strictEqual(body1.bodyUsed, false)
-
-    const body2 = new Body()
-    t.strictEqual(body2.body, null)
-    t.strictEqual(body2.bodyUsed, false)
-  })
-
-  t.test('allows stream.Readable', t => {
+  t.test('assigns Readable input to body property', t => {
     t.plan(2)
-    const readable = new Readable()
-    const body = new Body(readable)
+    const body = new Body(new Readable())
 
-    t.ok(!!(body.body && typeof body.body.on === 'function'))
+    t.ok(isReadable(body.body))
     t.strictEqual(body.bodyUsed, false)
   })
 
