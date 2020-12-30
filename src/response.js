@@ -7,12 +7,25 @@ class Response extends Body {
   constructor (body, init = {}) {
     super(body)
 
-    this.headers = new Headers(init.headers)
-    this.ok = this.status >= 200 && this.status <= 299
+    init = {
+      status: init.status || 200,
+      statusText: init.statusText || '',
+      ...init
+    }
+
+    if (typeof init.status !== 'number' || init.status < 200 || init.status > 599) {
+      throw RangeError(`Response status must be between 200 and 599 inclusive. Found: ${init.status}`)
+    }
+
+    if (typeof init.statusText !== 'string') {
+      throw TypeError(`Response statusText must be of type string. Found type: ${typeof init.statusText}`)
+    }
+
+    this.headers = init.headers instanceof Headers ? init.headers : new Headers(init.headers)
+    this.ok = init.status >= 200 && init.status <= 299
     this.status = init.status
     this.statusText = init.statusText
-    this.type = null
-    this.url = init.url
+    this.type = 'default'
   }
 
   clone () {
@@ -28,13 +41,13 @@ class Response extends Body {
     })
   }
 
-  error () {
+  static error () {
     const response = new Response(null)
     response.type = 'error'
     return response
   }
 
-  redirect (url, status) {
+  static redirect (url, status) {
     if (!((status >= 301 && status <= 303) || status === 307 || status === 308)) {
       throw RangeError(`redirect status must be 301, 302, 303, 307, or 308. Found ${status}`)
     }

@@ -3,6 +3,7 @@
 const Undici = require('undici')
 const Request = require('./request')
 const Response = require('./response')
+const { STATUS_CODES } = require('http')
 
 function buildFetch () {
   const clientMap = new Map()
@@ -29,6 +30,7 @@ function buildFetch () {
 
         resolve(new Response(data.body, {
           status: data.statusCode,
+          statusText: STATUS_CODES[data.statusCode],
           headers: data.headers
         }))
       })
