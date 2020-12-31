@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Ethan-Arrowood/undici-fetch#readme",
   "dependencies": {
+    "semver": "^7.3.2",
     "undici": "^3.0.0"
   },
   "devDependencies": {

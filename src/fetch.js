@@ -6,6 +6,10 @@ const Response = require('./response')
 const { STATUS_CODES } = require('http')
 
 function buildFetch () {
+  if (arguments.length > 0) {
+    throw Error('Did you forget to build the instance? Try: `const fetch = require(\'fetch\')()`')
+  }
+
   const clientMap = new Map()
 
   function fetch (resource, init = {}) {
