@@ -3,8 +3,13 @@
 const Undici = require('undici')
 const Request = require('./request')
 const Response = require('./response')
+const { STATUS_CODES } = require('http')
 
 function buildFetch () {
+  if (arguments.length > 0) {
+    throw Error('Did you forget to build the instance? Try: `const fetch = require(\'fetch\')()`')
+  }
+
   const clientMap = new Map()
 
   function fetch (resource, init = {}) {
@@ -29,6 +34,7 @@ function buildFetch () {
 
         resolve(new Response(data.body, {
           status: data.statusCode,
+          statusText: STATUS_CODES[data.statusCode],
           headers: data.headers
         }))
       })

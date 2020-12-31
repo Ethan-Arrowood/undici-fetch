@@ -5,7 +5,7 @@
   "main": "src/fetch.js",
   "scripts": {
     "lint": "standard --verbose",
-    "test": "tap"
+    "test": "tap -J --test-ignore='testUtils.js'"
   },
   "repository": {
     "type": "git",
@@ -19,7 +19,8 @@
   },
   "homepage": "https://github.com/Ethan-Arrowood/undici-fetch#readme",
   "dependencies": {
-    "undici": "^2.1.1"
+    "semver": "^7.3.2",
+    "undici": "^3.0.0"
   },
   "devDependencies": {
     "standard": "^16.0.3",
