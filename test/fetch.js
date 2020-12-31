@@ -177,3 +177,49 @@ tap.test('fetch supports multiple requests to same origin', t => {
     t.strictEquals(found2, wanted)
   })
 })
+
+tap.test('fetch supports many requests to many servers', t => {
+  /*
+   * 3 servers
+   * 2 requests per server
+   * 2 tests per request
+   * 3*2*2=12
+   */
+  t.plan(12)
+
+  const fetch = buildFetch()
+
+  const wanted = 'undici-fetch'
+
+  const createServer = () => http.createServer((req, res) => {
+    t.strictEqual(req.method, 'GET')
+    res.write(wanted)
+    res.end()
+  })
+
+  const servers = [
+    createServer(),
+    createServer(),
+    createServer()
+  ]
+
+  t.tearDown(async () => {
+    await Promise.all([
+      fetch.close(),
+      ...servers.map(server => promisifyServerClose(server)())
+    ])
+  })
+
+  for (const server of servers) {
+    server.listen(0, async () => {
+      const res1 = await fetch(`http://localhost:${server.address().port}`)
+      const res2 = await fetch(`http://localhost:${server.address().port}`)
+
+      const found1 = await res1.text()
+      const found2 = await res2.text()
+
+      t.strictEquals(found1, wanted)
+      t.strictEquals(found2, wanted)
+    })
+  }
+})
