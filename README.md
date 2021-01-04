@@ -257,7 +257,17 @@ for (const [name, value] of headers) {
 Represents a WHATWG Fetch Spec [Body Mixin](https://fetch.spec.whatwg.org/#body-mixin)
 
 ### `new Body([input])`
+
 * **input** `Readable | null | undefined` (optional) - Defaults to `null`
+
+This class is the core for the [Request](#class-request) and [Response](#class-response) classes. Since this class is only ever going to recieve response data from Undici requests, it only supports Readable streams.
+
+```js
+new Body()
+new Body(undefined)
+new Body(null)
+new Body(Readable.from('undici-fetch', { objectMode: false }))
+```
 
 ### Instance Properties
 
@@ -279,21 +289,76 @@ A property representing the consumption state of the Body instance. Do not confu
 
 Returns: `Promise<Buffer | null>`
 
+Returns the `Body.body` content as a Node.js [Buffer](https://nodejs.org/api/buffer.html#buffer_class_buffer) instance.
+
+```js
+const body = new Body(Readable.from('undici-fetch', { objectMode: false }))
+
+const buf = await body.arrayBuffer()
+console.log(buf instanceof Buffer) // -> true
+console.log(buf.toString('utf8')) // -> 'undici-fetch'
+```
+
 #### `Body.blob()`
 
 Returns: `never`
+
+Currently, this implementation does not support returning content as a blob. Calling this method will throw an error. This may change in future API updates.
+
+```js
+const body = new Body(new Readable())
+
+try {
+	await body.blob()
+} catch (err) {
+	console.log(err.message) // -> 'Body.blob() is not supported yet by undici-fetch'
+}
+```
 
 #### `Body.formData()`
 
 Returns: `never`
 
+Currently, this implementation does not support returning content as a blob. Calling this method will throw an error. This may change in future API updates.
+
+```js
+const body = new Body(new Readable())
+
+try {
+	await body.formData()
+} catch (err) {
+	console.log(err.message) // -> 'Body.formData() is not supported yet by undici-fetch'
+}
+```
+
 #### `Body.json()`
 
 Returns: `Promise<unknown | null>`
 
+Returns the `Body.body` content as a JSON object.
+
+```js
+const content = JSON.stringify({ undici: 'fetch' })
+const body = new Body(Readable.from(content))
+
+const res = await body.json()
+
+console.log(res) // -> { undici: 'fetch' }
+```
+
 #### `Body.text()`
 
 Returns: `Promise<string | null>`
+
+Returns the `Body.body` content as a UTF-8 string.
+
+```js
+const body = new Body(Readable.from('undici-fetch'))
+
+const res = await body.text()
+
+console.log(res) // -> 'undici-fetch'
+```
 
 ## Class: Request
 
