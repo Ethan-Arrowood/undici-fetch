@@ -19,10 +19,12 @@
   },
   "homepage": "https://github.com/Ethan-Arrowood/undici-fetch#readme",
   "dependencies": {
+    "microtime": "^3.0.0",
     "semver": "^7.3.2",
     "undici": "^3.0.0"
   },
   "devDependencies": {
+    "node-fetch": "^2.6.1",
     "standard": "^16.0.3",
     "tap": "^14.11.0"
   }
