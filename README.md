@@ -43,9 +43,6 @@ Built on [Undici](https://github.com/nodejs/undici)
 			- [`Request.clone()`](#requestclone)
 	- [Class: Response](#class-response)
 		- [`new Response(body, [init])`](#new-responsebody-init)
-		- [Static Methods](#static-methods)
-			- [`Response.error()`](#responseerror)
-			- [`Response.redirect(url, status)`](#responseredirecturl-status)
 		- [Instance Properties](#instance-properties-2)
 			- [`Response.headers`](#responseheaders)
 			- [`Response.ok`](#responseok)
@@ -54,6 +51,9 @@ Built on [Undici](https://github.com/nodejs/undici)
 			- [`Response.type`](#responsetype)
 		- [Instance Methods](#instance-methods-3)
 			- [`Response.clone()`](#responseclone)
+		- [Static Methods](#static-methods)
+			- [`Response.error()`](#responseerror)
+			- [`Response.redirect(url, status)`](#responseredirecturl-status)
 - [Spec Omissions](#spec-omissions)
 
 # API
@@ -80,6 +80,8 @@ run()
 ```
 
 > All mentions of `stream.Readable` or `Readable` in this documentation is referring to the Node.js Stream API [Readable Class](https://nodejs.org/api/stream.html#stream_class_stream_readable)
+
+Keep in mind that many of these classes were designed to be directly integrated with Undici and thus may not offer the best stand-alone dev experience. They follow the fetch spec as close as possible and should not deviate from that spec API.
 
 ## Default Method: `buildFetch()`
 
@@ -339,7 +341,7 @@ Returns the `Body.body` content as a JSON object.
 
 ```js
 const content = JSON.stringify({ undici: 'fetch' })
-const body = new Body(Readable.from(content))
+const body = new Body(Readable.from(content, { objectMode: false }))
 
 const res = await body.json()
 
@@ -353,7 +355,7 @@ Returns: `Promise<string | null>`
 Returns the `Body.body` content as a UTF-8 string.
 
 ```js
-const body = new Body(Readable.from('undici-fetch'))
+const body = new Body(Readable.from('undici-fetch', { objectMode: false }))
 
 const res = await body.text()
 
@@ -373,7 +375,16 @@ Represents a WHATWG Fetch Spec [Request Class](https://fetch.spec.whatwg.org/#re
   * **headers** `Headers | HeadersInit` (optional)
   * **body** `Readable | null | undefined` (optional)
 
-Creates a new `Request` object.
+Creates a new `Request` object. The resulting instance can be passed directly to the [fetch](#method-fetchresource-init) method. The input string will be transformed into a Node.js [URL](https://nodejs.org/api/url.html#url_class_url) instance.
+
+```js
+const request = new Request('https://example.com', {
+	method: 'POST',
+	body: Readable.from('undici-fetch', { objectMode: false })
+})
+
+const res = await fetch(request)
+```
 
 ### Instance Properties:
 
@@ -401,7 +412,15 @@ A [Headers](#class-headers) class instance representing the Headers instance for
 
 Returns: `Request`
 
-Will throw an `Error` if the current instance `Responce.bodyUsed` is `true`.
+Will throw an `Error` if the current instance `Responce.bodyUsed` is `true`. Returns a new Request instance based on the existing instance.
+
+```js
+const request = new Request('https://example.com')
+
+const newRequest = request.clone()
+
+console.log(newRequest.url) // => 'https://example.com'
+```
 
 ## Class: Response
 
@@ -413,26 +432,21 @@ Represents a WHATWG Fetch Spec [Response Class](https://fetch.spec.whatwg.org/#r
 
 * **body** `Readable | null | undefined`
 * **init** `object` (optional)
-  * **status** `number` - Defaults to `200`
-  * **statusText** `string` - Defaults to `''`
+  * **status** `number` (optional) - Defaults to `200`
+  * **statusText** `string` (optional) - Defaults to `''`
   * **headers** `Headers | HeadersInit` (optional)
 
-Creates a new `Response` object
+Creates a new `Response` object. This is the result resolved from a successful `fetch()` call. Remember that this class extends from [Body](#class-body) so you can use methods such as `.text()` and `.json()`.
 
-### Static Methods
+```js
+const response = new Response(Readable.from('undici-fetch', { objectMode: false }))
 
-#### `Response.error()`
+if (response.ok) {
+	const text = await response.text()
 
-Returns: `Response`
-
-Generates a Response instance with `type` set to `'error'` and a `body` set to `null`.
-
-#### `Response.redirect(url, status)`
-
-* **url** `string` - The redirect location--will be assigned to a `'location'` header
-* **status** `number` - Must be one of: 301, 302, 303, 307, or 308
-
-Returns: `Response`
+	console.log(text) // -> 'undici-fetch'
+}
+```
 
 ### Instance Properties
 
@@ -440,7 +454,7 @@ Returns: `Response`
 
 * `Headers`
 
-A property representing a Header instance for the response instance
+A property representing a [Headers](#class-headers) instance for the response.
 
 #### `Response.ok`
 
@@ -452,7 +466,7 @@ A property representing if the response is _ok_. A Response is considered _ok_ i
 
 * `number`
 
-A property representing the status code of the response instance.
+A property representing the status code of the response.
 
 #### `Response.statusText`
 
@@ -464,7 +478,7 @@ A property representing the status of the response instance based on [`http.STAT
 
 * `string`
 
-Defaults to `'default'`. A property representing the type of response instance. Currently only used to indicate an error response from [`Response.error()`](#responseerror)
+Defaults to `'default'`. A property representing the type of response instance. Currently only used to indicate an error response from [`Response.error()`](#responseerror).
 
 ### Instance Methods
 
@@ -473,6 +487,29 @@ Defaults to `'default'`. A property representing the type of response instance. 
 Returns: `Response`
 
 Will throw an `Error` if the current instance `Responce.bodyUsed` is `true`.
+
+### Static Methods
+
+#### `Response.error()`
+
+Returns: `Response`
+
+Generates a Response instance with `type` set to `'error'` and a `body` set to `null`.
+
+```js
+const errorResponse = Response.error()
+```
+
+#### `Response.redirect(url, status)`
+
+* **url** `string` - The redirect location--will be assigned to a `'location'` header
+* **status** `number` - Must be one of: 301, 302, 303, 307, or 308
+
+Returns: `Response`
+
+```js
+const redirectResponse = Response.redirect('https://example.com', 301)
+```
 
 ---
 
