@@ -4,20 +4,7 @@
 npm i undici-fetch
 ```
 
-Quick Start:
-
-```js
-const fetch = require('undici-fetch')() // be sure to instantiate the undici-fetch instance
-
-async function run () {
-	const res = await fetch('https://github.com')
-	const text = await res.text()
-
-	console.log(text)
-}
-
-run()
-```
+Built on [Undici](https://github.com/nodejs/undici)
 
 ## Table of Contents
 
@@ -76,6 +63,21 @@ The default export for this module is a function called `buildFetch` that return
 Behind the scenes, `undici-fetch` reuses [Undici.Pool](https://github.com/nodejs/undici#new-undicipoolurl-opts) instances for every unique request url origin. The request pools are memoized in a [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) that is initialized in the `buildFetch` closure.
 
 **Notice:** You must call `fetch.close()` at the end of your project in order to safely close all of the Undici request pools. This step is will be removed before v1 release when an auto-close feature is added.
+
+```js
+const fetch = require('undici-fetch')()
+
+async function run() {
+	const res = await fetch('https://example.com')
+	const json = await res.json()
+
+	console.log(json)
+
+	await fetch.close()
+}
+
+run()
+```
 
 > All mentions of `stream.Readable` or `Readable` in this documentation is referring to the Node.js Stream API [Readable Class](https://nodejs.org/api/stream.html#stream_class_stream_readable)
 
