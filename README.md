@@ -99,10 +99,21 @@ Returns: `Promise<Response>`
 
 ```js
 // import and initialize all-at-once
-const fetch = require('undici-fetch')() 
+const fetch = require('undici-fetch')()
+
+// Promise Chain
+fetch('https://example.com')
+	.then(res => res.json())
+	.then(json => console.log(json))
+
+// Async/Await
+const res = await fetch('https://example.com')
+const json = await res.json()
 ```
 
 ## Class: Headers
+
+Represents a WHATWG Fetch Spec [Headers Class](https://fetch.spec.whatwg.org/#headers-class)
 
 ### `new Headers([init])`
 
@@ -129,23 +140,74 @@ new Headers({
 
 Returns: `void`
 
+Non-destructive operation for adding header entries. When called multiple times with the same _name_, the values will be collected in a list and returned together when retrieved using [Headers.get](#headersgetname).
+
+```js
+const headers = new Headers()
+
+headers.append('undici', 'fetch')
+headers.get('undici') // -> 'fetch'
+
+headers.append('foobar', 'fuzz')
+headers.append('foobar', 'buzz')
+headers.get('foobar') // -> 'fuzz, buzz'
+```
+
 #### `Headers.delete(name)`
 
 * **name** `string`
 
 Returns: `void`
 
+Removes a header entry. This operation is destructive and cannot be restored. Does **not** throw an error if the given _name_ does not exist. Reminder that [Headers.get](#headersgetname) will return `null` if the _name_ does not exist.
+
+```js
+const headers = new Headers()
+
+headers.append('undici', 'fetch')
+
+headers.get('undici') // -> 'fetch'
+
+headers.delete('undici')
+
+headers.get('undici') // -> null
+```
+
 #### `Headers.get(name)`
 
 * **name** `string`
 
-Returns: `string`
+Returns: `string | null`
+
+Retrieves a header entry. If the entry _name_ has multiple values, they are returned as a string joined by `','` characters. If the _name_ does not exist, this method returns null.
+
+```js
+const headers = new Headers()
+
+headers.append('undici', 'fetch')
+headers.get('undici') // -> 'fetch'
+
+headers.append('foobar', 'fuzz')
+headers.append('foobar', 'buzz')
+headers.get('foobar') // -> 'fuzz, buzz'
+
+headers.get('nodejs') // -> null
+```
 
 #### `Headers.has(name)`
 
 * **name** `string`
 
 Returns `boolean`
+
+Checks for the existence of a given entry _name_.
+
+```js
+const headers = new Headers()
+
+headers.append('undici', 'fetch')
+headers.has('undici') // -> true
+```
 
 #### `Headers.set(name, value)`
 
@@ -154,9 +216,39 @@ Returns `boolean`
 
 Returns: `void`
 
+Destructive operation that will override any existing values for the given entry _name_. For a non-destructive alternative see [Headers.append](#headersappendname-value).
+
+```js
+const headers = new Headers()
+
+headers.set('foobar', 'fuzz')
+headers.get('foobar') // -> 'fuzz'
+
+headers.set('foobar', 'buzz')
+headers.get('foobar') // -> 'buzz'
+```
+
 #### `Headers[Symbol.iterator]`
 
 Returns: `[string, string[]]`
+
+A Headers class instance is iterable. It yields each of its entries as a pair where the first value is the entry _name_ and the second value is an array of the entry _values_.
+
+```js
+const headers = new Headers()
+
+headers.set('abc', '123')
+headers.set('def', '456')
+headers.set('ghi', '789')
+
+for (const [name, value] of headers) {
+	console.log(name, value)
+}
+
+// -> 'abc', [ '123' ]
+// -> 'def', [ '456' ]
+// -> 'ghi', [ '789' ]
+```
 
 ## Class: Body
 
@@ -177,7 +269,7 @@ A property representing the payload of the Body instance
 
 * `boolean`
 
-A property representing the consumption state of the Body instance. Do not confuse this property with the Node.js [stream]() state of `Body.body`. This property is used by the other instance methods for indicating to other parts of the API if the body has been consumed or not.
+A property representing the consumption state of the Body instance. Do not confuse this property with the Node.js [stream](https://nodejs.org/api/stream.html#stream_three_states) state of `Body.body`. This property is used by the other instance methods for indicating to other parts of the API if the body has been consumed or not.
 
 ### Instance Methods
 
