@@ -53,7 +53,7 @@ run()
 			- [`Request.method`](#requestmethod)
 			- [`Request.headers`](#requestheaders)
 		- [Instance Methods:](#instance-methods-2)
-			- [`clone()`](#clone)
+			- [`Request.clone()`](#requestclone)
 	- [Class: Response](#class-response)
 		- [`new Response(body, [init])`](#new-responsebody-init)
 		- [Static Methods](#static-methods)
@@ -238,7 +238,7 @@ A [Headers](#class-headers) class instance representing the Headers instance for
 
 ### Instance Methods:
 
-#### `clone()`
+#### `Request.clone()`
 
 Returns: `Request`
 
