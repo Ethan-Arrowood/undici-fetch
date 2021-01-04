@@ -5,8 +5,7 @@
   "main": "src/fetch.js",
   "scripts": {
     "lint": "standard --verbose",
-    "test": "tap -J --test-ignore='testUtils.js'",
-    "docs": "electron-docs-parser"
+    "test": "tap -J --test-ignore='testUtils.js'"
   },
   "repository": {
     "type": "git",
@@ -24,7 +23,6 @@
     "undici": "^3.0.0"
   },
   "devDependencies": {
-    "@electron/docs-parser": "^0.10.1",
     "standard": "^16.0.3",
     "tap": "^14.11.0"
   }
