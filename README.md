@@ -289,7 +289,7 @@ A property representing the consumption state of the Body instance. Do not confu
 
 #### `Body.arrayBuffer()`
 
-Returns: `Promise<Buffer | null>`
+Returns: `Promise<Buffer>`
 
 Returns the `Body.body` content as a Node.js [Buffer](https://nodejs.org/api/buffer.html#buffer_class_buffer) instance.
 
@@ -335,7 +335,7 @@ try {
 
 #### `Body.json()`
 
-Returns: `Promise<unknown | null>`
+Returns: `Promise<any>`
 
 Returns the `Body.body` content as a JSON object.
 
@@ -350,7 +350,7 @@ console.log(res) // -> { undici: 'fetch' }
 
 #### `Body.text()`
 
-Returns: `Promise<string | null>`
+Returns: `Promise<string>`
 
 Returns the `Body.body` content as a UTF-8 string.
 

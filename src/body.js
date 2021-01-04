@@ -27,7 +27,7 @@ class Body {
   }
 
   async arrayBuffer () {
-    if (this[kBody] == null) return null
+    if (this[kBody] == null) return Buffer.alloc(0)
 
     const acc = []
     for await (const chunk of this[kBody]) {
@@ -52,7 +52,7 @@ class Body {
   }
 
   async text () {
-    if (this[kBody] == null) return null
+    if (this[kBody] == null) return ''
 
     this[kBody].setEncoding('utf8')
     let res = ''
