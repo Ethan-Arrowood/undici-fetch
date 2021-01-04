@@ -27,25 +27,28 @@ run()
 	- [Default Method: `buildFetch()`](#default-method-buildfetch)
 	- [Method: `fetch(resource, [init])`](#method-fetchresource-init)
 	- [Class: Headers](#class-headers)
-		- [`new Headers()`](#new-headers)
+		- [`new Headers([init])`](#new-headersinit)
 		- [Instance Methods](#instance-methods)
-			- [`Headers.`](#headers)
-		- [Instance Properties](#instance-properties)
-			- [`Headers.`](#headers-1)
+			- [`Headers.append(name, value)`](#headersappendname-value)
+			- [`Headers.delete(name)`](#headersdeletename)
+			- [`Headers.get(name)`](#headersgetname)
+			- [`Headers.has(name)`](#headershasname)
+			- [`Headers.set(name, value)`](#headerssetname-value)
+			- [`Headers[Symbol.iterator]`](#headerssymboliterator)
 	- [Class: Body](#class-body)
 		- [`new Body([input])`](#new-bodyinput)
-		- [Instance Properties](#instance-properties-1)
+		- [Instance Properties](#instance-properties)
 			- [`Body.body`](#bodybody)
 			- [`Body.bodyUsed`](#bodybodyused)
 		- [Instance Methods](#instance-methods-1)
-			- [`arrayBuffer()`](#arraybuffer)
-			- [`blob()`](#blob)
-			- [`formData()`](#formdata)
-			- [`json()`](#json)
-			- [`text()`](#text)
+			- [`Body.arrayBuffer()`](#bodyarraybuffer)
+			- [`Body.blob()`](#bodyblob)
+			- [`Body.formData()`](#bodyformdata)
+			- [`Body.json()`](#bodyjson)
+			- [`Body.text()`](#bodytext)
 	- [Class: Request](#class-request)
 		- [`new Request(input, [init])`](#new-requestinput-init)
-		- [Instance Properties:](#instance-properties-2)
+		- [Instance Properties:](#instance-properties-1)
 			- [`Request.url`](#requesturl)
 			- [`Request.method`](#requestmethod)
 			- [`Request.headers`](#requestheaders)
@@ -56,7 +59,7 @@ run()
 		- [Static Methods](#static-methods)
 			- [`Response.error()`](#responseerror)
 			- [`Response.redirect(url, status)`](#responseredirecturl-status)
-		- [Instance Properties](#instance-properties-3)
+		- [Instance Properties](#instance-properties-2)
 			- [`Response.headers`](#responseheaders)
 			- [`Response.ok`](#responseok)
 			- [`Response.status`](#responsestatus)
@@ -86,7 +89,7 @@ const fetch = buildFetch()
 ```
 ## Method: `fetch(resource, [init])`
 
-* **resource** `string` | [`Request`](#class-request)
+* **resource** `string | Request`
 * **init** `object` (optional)
   * **method** `string` (optional) - Defaults to `'GET'`
   * **headers** `Headers | HeadersInit` (optional)
@@ -101,16 +104,59 @@ const fetch = require('undici-fetch')()
 
 ## Class: Headers
 
-### `new Headers()`
+### `new Headers([init])`
+
+* **init** `[string, string][] | Record<string, string>` (optional) - Initial header list to be cloned into the new instance
+
+```js
+new Headers()
+
+new Headers([
+	["undici", "fetch"]
+])
+
+new Headers({
+	"undici": "fetch"
+})
+```
 
 ### Instance Methods
 
-#### `Headers.`
+#### `Headers.append(name, value)`
 
-### Instance Properties
+* **name** `string`
+* **value** `string`
 
-#### `Headers.`
+Returns: `void`
 
+#### `Headers.delete(name)`
+
+* **name** `string`
+
+Returns: `void`
+
+#### `Headers.get(name)`
+
+* **name** `string`
+
+Returns: `string`
+
+#### `Headers.has(name)`
+
+* **name** `string`
+
+Returns `boolean`
+
+#### `Headers.set(name, value)`
+
+* **name** `string`
+* **value** `string`
+
+Returns: `void`
+
+#### `Headers[Symbol.iterator]`
+
+Returns: `[string, string[]]`
 
 ## Class: Body
 
@@ -123,7 +169,7 @@ Represents a WHATWG Fetch Spec [Body Mixin](https://fetch.spec.whatwg.org/#body-
 
 #### `Body.body`
 
-* `Readable | null `
+* `Readable | null`
 
 A property representing the payload of the Body instance
 
@@ -135,23 +181,23 @@ A property representing the consumption state of the Body instance. Do not confu
 
 ### Instance Methods
 
-#### `arrayBuffer()`
+#### `Body.arrayBuffer()`
 
 Returns: `Promise<Buffer | null>`
 
-#### `blob()`
+#### `Body.blob()`
 
 Returns: `never`
 
-#### `formData()`
+#### `Body.formData()`
 
 Returns: `never`
 
-#### `json()`
+#### `Body.json()`
 
 Returns: `Promise<unknown | null>`
 
-#### `text()`
+#### `Body.text()`
 
 Returns: `Promise<string | null>`
 
