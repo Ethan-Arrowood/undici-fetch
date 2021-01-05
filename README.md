@@ -60,7 +60,7 @@ Built on [Undici](https://github.com/nodejs/undici)
 
 The default export for this module is a function called `buildFetch` that returns a `fetch` function instance. `buildFetch` should only be called once; the `fetch` instance can and should be used multiple times throughout a project.
 
-Behind the scenes, `undici-fetch` reuses [Undici.Pool](https://github.com/nodejs/undici#new-undicipoolurl-opts) instances for every unique request url origin. The request pools are memoized in a [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) that is initialized in the `buildFetch` closure.
+Behind the scenes, `undici-fetch` reuses [`undici.Pool()`](https://github.com/nodejs/undici#new-undicipoolurl-opts) instances for every unique request url origin. The request pools are memoized in a [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) that is initialized in the `buildFetch` closure.
 
 **Notice:** You must call `fetch.close()` at the end of your project in order to safely close all of the Undici request pools. This step is will be removed before v1 release when an auto-close feature is added.
 
