@@ -12,14 +12,14 @@ function printResults (results, n) {
   console.log(`undici-fetch | total time: ${undiciFetchTT}µs (${(undiciFetchTT * 0.001).toFixed(3)}ms)`)
   console.log(`node-fetch | total time: ${nodeFetchTT}µs (${(nodeFetchTT * 0.001).toFixed(3)}ms)`)
   console.log(`minipass-fetch | total time: ${minipassFetchTT}µs (${(minipassFetchTT * 0.001).toFixed(3)}ms)`)
-  console.log(`---`)
+  console.log('---')
   const pc1 = ((undiciFetchTT - nodeFetchTT) / nodeFetchTT) * 100
   console.log(`undici-fetch <> node-fetch percent change: ${pc1.toFixed(3)}%`)
   const pc2 = ((undiciFetchTT - minipassFetchTT) / minipassFetchTT) * 100
   console.log(`undici-fetch <> minipass-fetch percent change: ${pc2.toFixed(3)}%`)
 }
 
-function benchmarkParallel () {
+function benchmarkParallel () { // eslint-disable-line no-unused-vars
   const N = 1000
 
   const server = http.createServer((req, res) => {
