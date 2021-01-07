@@ -5,7 +5,8 @@
   "main": "src/fetch.js",
   "scripts": {
     "lint": "standard --verbose",
-    "test": "tap -J --test-ignore='testUtils.js'"
+    "test": "tap -J --test-ignore='testUtils.js'",
+    "bench": "npx concurrently -k -s first \"node benchmarks/server.js\" \"node -e 'setTimeout(() => {}, 1000)' && node benchmarks/bench.js\""
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,7 @@
     "undici": "^3.0.0"
   },
   "devDependencies": {
+    "benchmark": "^2.1.4",
     "node-fetch": "^2.6.1",
     "standard": "^16.0.3",
     "tap": "^14.11.0"
