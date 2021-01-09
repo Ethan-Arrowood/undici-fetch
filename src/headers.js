@@ -7,10 +7,6 @@ const { normalizeAndValidateHeaderName, normalizeAndValidateHeaderArguments } = 
 const kHeaders = Symbol('headers')
 
 class Headers {
-  /**
-   *
-   * @param {[string, string][] | Record<string, string>} init Initial header list to be cloned into the new instance
-   */
   constructor (init) {
     this[kHeaders] = new Map()
 

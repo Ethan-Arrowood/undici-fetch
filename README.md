@@ -12,8 +12,8 @@ Built on [Undici](https://github.com/nodejs/undici)
 	- [Table of Contents](#table-of-contents)
 - [Benchmarks](#benchmarks)
 - [API](#api)
-	- [Default Method: `buildFetch()`](#default-method-buildfetch)
-	- [Method: `fetch(resource, [init])`](#method-fetchresource-init)
+	- [Default Method: `fetch(resource, [init])`](#default-method-fetchresource-init)
+	- [Method: `buildFetch()`](#method-buildfetch)
 	- [Class: Headers](#class-headers)
 		- [`new Headers([init])`](#new-headersinit)
 		- [Instance Methods](#instance-methods)
@@ -55,6 +55,7 @@ Built on [Undici](https://github.com/nodejs/undici)
 		- [Static Methods](#static-methods)
 			- [`Response.error()`](#responseerror)
 			- [`Response.redirect(url, status)`](#responseredirecturl-status)
+- [TypeScript](#typescript)
 - [Spec Omissions](#spec-omissions)
 
 # Benchmarks
@@ -88,14 +89,14 @@ undici-fetch <> minipass-fetch percent change: -70.116%
 
 # API
 
-The default export for this module is a function called `buildFetch` that returns a `fetch` function instance. `buildFetch` should only be called once; the `fetch` instance can and should be used multiple times throughout a project.
+The default export for this module is a fetch client instance [`fetch`](). It uses the default `Undici.Pool()` options.
 
-Behind the scenes, `undici-fetch` reuses [`undici.Pool()`](https://github.com/nodejs/undici#new-undicipoolurl-opts) instances for every unique request url origin. The request pools are memoized in a [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) that is initialized in the `buildFetch` closure.
+In order to pass options to the underlying Pool instance, use the named export [`buildFetch`]() method. The fetch instance returned by this method should be used throughout a project. Behind the scenes, `undici-fetch` reuses the pool instances for similar url origins. The pools are memoized in a [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) that is initialized in the `buildFetch` closure.
 
-**Notice:** You must call `fetch.close()` at the end of your project in order to safely close all of the Undici request pools. This step is will be removed before v1 release when an auto-close feature is added.
+**Notice:** You must call `fetch.close()` at the end of your project in order to safely close all of the Undici request pools. This step is will be removed before v1 release when an auto-close feature is added (https://github.com/nodejs/undici/pull/508).
 
 ```js
-const fetch = require('undici-fetch')()
+const fetch = require('undici-fetch')
 
 async function run() {
 	const res = await fetch('https://example.com')
@@ -113,15 +114,7 @@ run()
 
 Keep in mind that many of these classes were designed to be directly integrated with Undici and thus may not offer the best stand-alone dev experience. They follow the fetch spec as close as possible and should not deviate from that spec API.
 
-## Default Method: `buildFetch()`
-
-Returns: [fetch](#fetchresource-init)
-
-```js
-const buildFetch = require('undici-fetch')
-const fetch = buildFetch()
-```
-## Method: `fetch(resource, [init])`
+## Default Method: `fetch(resource, [init])`
 
 * **resource** `string | Request`
 * **init** `object` (optional)
@@ -143,6 +136,15 @@ fetch('https://example.com')
 // Async/Await
 const res = await fetch('https://example.com')
 const json = await res.json()
+```
+
+## Method: `buildFetch()`
+
+Returns: [fetch](#default-method-fetchresource-init)
+
+```js
+const { buildFetch } = require('undici-fetch')
+const fetch = buildFetch({ /* Undici.Pool options */ })
 ```
 
 ## Class: Headers
@@ -399,7 +401,7 @@ Extends: `Body`
 Represents a WHATWG Fetch Spec [Request Class](https://fetch.spec.whatwg.org/#request-class)
 
 ### `new Request(input, [init])`
-* **input** `Request` | String
+* **input** `Request | string`
 * **init** `object` (optional)
   * **method** `string` (optional) - Defaults to `'GET'`
   * **headers** `Headers | HeadersInit` (optional)
@@ -542,6 +544,10 @@ const redirectResponse = Response.redirect('https://example.com', 301)
 ```
 
 ---
+
+# TypeScript
+
+Similar to Undici, this module ships with its own TypeScript definitions. Make sure to install `@types/node` as well.
 
 # Spec Omissions
 

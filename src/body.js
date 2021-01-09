@@ -6,9 +6,6 @@ const kBody = Symbol('body')
 const kBodyUsed = Symbol('bodyUsed')
 
 class Body {
-  /**
-   * @param {import('stream').Readable | null} input
-   */
   constructor (input = null) {
     if (input != null && !isReadable(input)) {
       throw Error('body must be undefined, null, or a readable stream')
