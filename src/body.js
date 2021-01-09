@@ -2,12 +2,17 @@
 
 const { isReadable } = require('./utils')
 
+/**
+ * @typedef {import('stream').Readable} Readable
+ * @typedef {Readable | null} BodyInput
+ */
+
 const kBody = Symbol('body')
 const kBodyUsed = Symbol('bodyUsed')
 
 class Body {
   /**
-   * @param {import('stream').Readable | null} input
+   * @param {BodyInput} [input]
    */
   constructor (input = null) {
     if (input != null && !isReadable(input)) {
@@ -18,14 +23,23 @@ class Body {
     this[kBodyUsed] = false
   }
 
+  /**
+   * @returns {Readable | null}
+   */
   get body () {
     return this[kBody]
   }
 
+  /**
+   * @returns {boolean}
+   */
   get bodyUsed () {
     return this[kBodyUsed]
   }
 
+  /**
+   * @returns {Promise<Buffer>}
+   */
   async arrayBuffer () {
     if (this[kBody] == null) return Buffer.alloc(0)
 
@@ -37,20 +51,32 @@ class Body {
     return Buffer.concat(acc)
   }
 
+  /**
+   * @returns {never}
+   */
   async blob () {
     // discuss later
     throw Error('Body.blob() is not supported yet by undici-fetch')
   }
 
+  /**
+   * @returns {never}
+   */
   async formData () {
     // discuss later
     throw Error('Body.formData() is not supported yet by undici-fetch')
   }
 
+  /**
+   * @returns {Promise<any>}
+   */
   async json () {
     return JSON.parse(await this.text())
   }
 
+  /**
+   * @returns {Promise<any>}
+   */
   async text () {
     if (this[kBody] == null) return ''
 

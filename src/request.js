@@ -1,8 +1,16 @@
 'use strict'
 
 const { METHODS } = require('http')
+
 const Body = require('./body')
 const Headers = require('./headers')
+
+/**
+ * @typedef RequestInit
+ * @property {string} [method] - Defaults to 'GET'
+ * @property {Headers | import('./headers').HeadersInit} [headers]
+ * @property {import('./body').BodyInput} [body]
+ */
 
 function normalizeAndValidateRequestMethod (method) {
   if (method === undefined) {
@@ -30,6 +38,10 @@ function RequestCloneError () {
 }
 
 class Request extends Body {
+  /**
+   * @param {Request | string} input 
+   * @param {RequestInit} [init]
+   */
   constructor (input, init = {}) {
     super(init.body)
 
@@ -53,6 +65,9 @@ class Request extends Body {
     }
   }
 
+  /**
+   * @returns {Request}
+   */
   clone () {
     if (this.bodyUsed) {
       throw RequestCloneError()

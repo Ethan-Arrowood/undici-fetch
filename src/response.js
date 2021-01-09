@@ -3,7 +3,19 @@
 const Body = require('./body')
 const Headers = require('./headers')
 
+/**
+ * @typedef ResponseInit
+ * @property {number} [status]
+ * @property {string} [statusText]
+ * @property {Headers | import('./headers').HeadersInit} [headers]
+ */
+
 class Response extends Body {
+  /**
+   * 
+   * @param {import('./body').BodyInput} body 
+   * @param {ResponseInit} [init]
+   */
   constructor (body, init = {}) {
     super(body)
 
@@ -28,6 +40,9 @@ class Response extends Body {
     this.type = 'default'
   }
 
+  /**
+   * @returns {Response}
+   */
   clone () {
     if (this.bodyUsed) {
       throw TypeError('Cannot clone Response - bodyUsed is true')
@@ -41,12 +56,20 @@ class Response extends Body {
     })
   }
 
+  /**
+   * @returns {Response}
+   */
   static error () {
     const response = new Response(null)
     response.type = 'error'
     return response
   }
 
+  /**
+   * @param {string} url 
+   * @param {number} status 
+   * @returns {Response}
+   */
   static redirect (url, status) {
     if (!((status >= 301 && status <= 303) || status === 307 || status === 308)) {
       throw RangeError(`redirect status must be 301, 302, 303, 307, or 308. Found ${status}`)

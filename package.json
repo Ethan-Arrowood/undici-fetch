@@ -6,6 +6,7 @@
   "scripts": {
     "lint": "standard --verbose",
     "test": "tap -J --test-ignore='testUtils.js'",
+    "types": "tsc",
     "bench": "node benchmarks"
   },
   "repository": {
