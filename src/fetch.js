@@ -5,7 +5,7 @@ const Request = require('./request')
 const Response = require('./response')
 const { STATUS_CODES } = require('http')
 
-function buildFetch () {
+function buildFetch (undiciPoolOpts) {
   if (arguments.length > 0) {
     throw Error('Did you forget to build the instance? Try: `const fetch = require(\'fetch\')()`')
   }
@@ -18,7 +18,7 @@ function buildFetch () {
     const origin = request.url.origin
     let client = clientMap.get(origin)
     if (client === undefined) {
-      client = new Undici.Pool(origin)
+      client = new Undici.Pool(origin, undiciPoolOpts)
       clientMap.set(origin, client)
     }
 

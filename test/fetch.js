@@ -11,12 +11,12 @@ const validURL = 'https://undici-fetch.dev'
 
 tap.test('throws error if user does not build instance before calling fetch', t => {
   t.plan(1)
-  const fetch = require('../src/fetch')
+  const { buildFetch } = require('../')
 
-  t.throw(() => fetch(validURL))
+  t.throw(() => buildFetch(validURL))
 })
 
-const buildFetch = require('../src/fetch')
+const { buildFetch } = require('../')
 
 tap.test('fetch instance is a function', t => {
   t.plan(1)
