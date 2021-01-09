@@ -65,14 +65,14 @@ tap.test('Body.arrayBuffer', t => {
     t.strictEqual(res.toString(), 'undici-fetch')
   })
 
-  t.test('returns null when body does not exist', async t => {
+  t.test('returns empty buffer when body does not exist', async t => {
     t.plan(2)
 
     const body = new Body(null)
 
     t.ok(!body.bodyUsed)
     const res = await body.arrayBuffer()
-    t.strictEqual(res, null)
+    t.strictEqual(res.length, 0)
   })
 })
 
@@ -97,14 +97,14 @@ tap.test('Body.text', t => {
     t.strictEqual(res, 'undici-fetch')
   })
 
-  t.test('returns null when body does not exist', async t => {
+  t.test('returns empty string when body does not exist', async t => {
     t.plan(2)
 
     const body = new Body(null)
 
     t.ok(!body.bodyUsed)
     const res = await body.text()
-    t.strictEqual(res, null)
+    t.strictEqual(res, '')
   })
 })
 
