@@ -5,10 +5,6 @@ const Request = require('./request')
 const Response = require('./response')
 const { STATUS_CODES } = require('http')
 
-/**
- * @param {import('undici').Pool.Options} undiciPoolOpts
- * @returns {fetch}
- */
 function buildFetch (undiciPoolOpts) {
   if (arguments.length > 0) {
     throw Error('Did you forget to build the instance? Try: `const fetch = require(\'fetch\')()`')
@@ -16,11 +12,6 @@ function buildFetch (undiciPoolOpts) {
 
   const clientMap = new Map()
 
-  /**
-   * @typedef {Function} fetch
-   * @param {string | Request} resource 
-   * @param {{ signal?: AbortSignal} & import('./request').RequestInit} init 
-   */
   function fetch (resource, init = {}) {
     const request = new Request(resource, init)
 
@@ -50,9 +41,6 @@ function buildFetch (undiciPoolOpts) {
     })
   }
 
-  /**
-   * @returns {Promise<void[]>}
-   */
   fetch.close = () => {
     const clientClosePromises = []
     for (const [, client] of clientMap) {

@@ -55,6 +55,7 @@ Built on [Undici](https://github.com/nodejs/undici)
 		- [Static Methods](#static-methods)
 			- [`Response.error()`](#responseerror)
 			- [`Response.redirect(url, status)`](#responseredirecturl-status)
+- [TypeScript](#typescript)
 - [Spec Omissions](#spec-omissions)
 
 # Benchmarks
@@ -400,7 +401,7 @@ Extends: `Body`
 Represents a WHATWG Fetch Spec [Request Class](https://fetch.spec.whatwg.org/#request-class)
 
 ### `new Request(input, [init])`
-* **input** `Request` | String
+* **input** `Request | string`
 * **init** `object` (optional)
   * **method** `string` (optional) - Defaults to `'GET'`
   * **headers** `Headers | HeadersInit` (optional)
@@ -543,6 +544,10 @@ const redirectResponse = Response.redirect('https://example.com', 301)
 ```
 
 ---
+
+# TypeScript
+
+Similar to Undici, this module ships with its own TypeScript definitions. Make sure to install `@types/node` as well.
 
 # Spec Omissions
 

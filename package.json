@@ -3,17 +3,19 @@
   "version": "0.0.1",
   "description": "A WHATWG Fetch implementation based on @nodejs/undici",
   "main": "./index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "lint": "standard --verbose",
     "test": "tap -J --test-ignore='testUtils.js'",
-    "types": "tsc",
     "bench": "node benchmarks"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Ethan-Arrowood/undici-fetch.git"
   },
-  "keywords": [ "nodejs" ],
+  "keywords": [
+    "nodejs"
+  ],
   "author": "Ethan Arrowood <ethan@arrowood.dev>",
   "license": "MIT",
   "bugs": {
