@@ -10,6 +10,7 @@ Built on [Undici](https://github.com/nodejs/undici)
 
 - [undici-fetch](#undici-fetch)
 	- [Table of Contents](#table-of-contents)
+- [Benchmarks](#benchmarks)
 - [API](#api)
 	- [Default Method: `buildFetch()`](#default-method-buildfetch)
 	- [Method: `fetch(resource, [init])`](#method-fetchresource-init)
@@ -55,6 +56,35 @@ Built on [Undici](https://github.com/nodejs/undici)
 			- [`Response.error()`](#responseerror)
 			- [`Response.redirect(url, status)`](#responseredirecturl-status)
 - [Spec Omissions](#spec-omissions)
+
+# Benchmarks
+
+`npm run benchmarks`
+
+On my personal machine:
+
+```
+MacBook Pro (15-inch, 2018)
+Processor 2.9 GHz 6-Core Intel Core i9
+Memory 32 GB 2400 MHz DDR4
+```
+
+Results:
+
+```
+{
+  undici: { startTime: 72530288319510n, endTime: 72544207363031n },
+  node: { startTime: 72530283341532n, endTime: 72575809241450n },
+  minipass: { startTime: 72530290384674n, endTime: 72576867597178n }
+}
+Results for 10000 subsequent requests: 
+undici-fetch | total time: 13919043521ns (13919.044ms)
+node-fetch | total time: 45525899918ns (45525.900ms)
+minipass-fetch | total time: 46577212504ns (46577.213ms)
+---
+undici-fetch <> node-fetch percent change: -69.426%
+undici-fetch <> minipass-fetch percent change: -70.116%
+```
 
 # API
 
