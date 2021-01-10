@@ -21,7 +21,7 @@ class Response extends Body {
       throw TypeError(`Response statusText must be of type string. Found type: ${typeof init.statusText}`)
     }
 
-    this.headers = init.headers instanceof Headers ? init.headers : new Headers(init.headers)
+    this.headers = new Headers(init.headers)
     this.ok = init.status >= 200 && init.status <= 299
     this.status = init.status
     this.statusText = init.statusText

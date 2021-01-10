@@ -37,7 +37,7 @@ class Request extends Body {
     if (input instanceof Request) {
       return new Request(input.url, {
         method: input.method,
-        headers: input.headers,
+        headers: new Headers(input.headers),
         body: input.body,
         ...init
       })

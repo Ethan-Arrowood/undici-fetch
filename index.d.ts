@@ -34,7 +34,7 @@ declare class Headers {
 	get(name: string): string | null;
 	has(name: string): boolean;
 	set(name: string, value: string): void;
-	[Symbol.iterator](): [string, string[]];
+	[Symbol.iterator](): Iterator<[string, string]>;
 }
 
 type RequestInit = {

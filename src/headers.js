@@ -10,13 +10,17 @@ class Headers {
   constructor (init) {
     this[kHeaders] = new Map()
 
-    if (init) {
+    if (init && typeof init === 'object') {
       if (Array.isArray(init)) {
         for (let i = 0, header = init[0]; i < init.length; i++, header = init[i]) {
           if (header.length !== 2) throw TypeError('header entry must be of length two')
           this.append(header[0], header[1])
         }
-      } else if (typeof init === 'object' && !types.isBoxedPrimitive(init)) {
+      } else if (kHeaders in init) {
+        for (const [name, values] of init[kHeaders]) {
+          this[kHeaders].set(name, values.slice())
+        }
+      } else if (!types.isBoxedPrimitive(init)) {
         for (const [name, value] of Object.entries(init)) {
           this.append(name, value)
         }
@@ -27,12 +31,9 @@ class Headers {
   append (name, value) {
     const [normalizedHeaderName, normalizedHeaderValue] = normalizeAndValidateHeaderArguments(name, value)
 
-    const existingHeaderValue = Map.prototype.get.call(this[kHeaders], normalizedHeaderName)
-    if (existingHeaderValue) {
-      Map.prototype.set.call(this[kHeaders], normalizedHeaderName, existingHeaderValue.concat([normalizedHeaderValue]))
-    } else {
-      Map.prototype.set.call(this[kHeaders], normalizedHeaderName, [normalizedHeaderValue])
-    }
+    const existingHeaderValue = (Map.prototype.get.call(this[kHeaders], normalizedHeaderName) || []).slice()
+    existingHeaderValue.push(normalizedHeaderValue)
+    Map.prototype.set.call(this[kHeaders], normalizedHeaderName, existingHeaderValue)
   }
 
   delete (name) {
@@ -61,8 +62,8 @@ class Headers {
   }
 
   * [Symbol.iterator] () {
-    for (const header of this[kHeaders]) {
-      yield header
+    for (const [name, values] of this[kHeaders]) {
+      yield [name, values.join(', ')]
     }
   }
 }

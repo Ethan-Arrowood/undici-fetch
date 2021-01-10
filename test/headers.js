@@ -4,7 +4,7 @@ const tap = require('tap')
 const Headers = require('../src/headers')
 
 tap.test('Headers initialization', t => {
-  t.plan(4)
+  t.plan(6)
 
   t.test('allows undefined', t => {
     t.plan(1)
@@ -37,13 +37,31 @@ tap.test('Headers initialization', t => {
     t.notThrow(() => new Headers(init))
   })
 
-  t.test('fails silently if primitive object is passed', t => {
-    t.plan(5)
-    t.notThrow(() => new Headers(Number))
-    t.notThrow(() => new Headers(Boolean))
-    t.notThrow(() => new Headers(String))
-    t.notThrow(() => new Headers(Array))
+  t.test('with existing headers object', t => {
+    t.plan(1)
+    const init = new Headers({
+      undici: 'fetch',
+      fetch: 'undici'
+    })
+    const clone = new Headers(init)
+    t.strictDeepEqual(init, clone)
+  })
+
+  t.test('fails silently if a boxed primitive object is passed', t => {
+    t.plan(3)
+    /* eslint-disable no-new-wrappers */
+    t.notThrow(() => new Headers(new Number()))
+    t.notThrow(() => new Headers(new Boolean()))
+    t.notThrow(() => new Headers(new String()))
+    /* eslint-enable no-new-wrappers */
+  })
+
+  t.test('fails silently if function or primitive is passed', t => {
+    t.plan(4)
     t.notThrow(() => new Headers(Function))
+    t.notThrow(() => new Headers(function () {}))
+    t.notThrow(() => new Headers(1))
+    t.notThrow(() => new Headers('1'))
   })
 })
 
@@ -204,6 +222,6 @@ tap.test('Headers [Symbol.iterator]', t => {
   }
   const headers = new Headers(init)
   for (const [name, value] of headers) {
-    t.strictDeepEqual(value, [init[name]])
+    t.strictDeepEqual(value, init[name])
   }
 })

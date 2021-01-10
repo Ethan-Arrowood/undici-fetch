@@ -26,9 +26,10 @@ tap.test('Response.clone', t => {
   t.plan(2)
 
   t.test('returns new response instance when bodyUsed is false', t => {
-    t.plan(1)
+    t.plan(2)
     const response1 = new Response(new Readable(), { headers: [['undici', 'fetch']] })
     const response2 = response1.clone()
+    t.notEqual(response1.headers, response2.headers)
     t.strictDeepEqual(response1, response2)
   })
 
