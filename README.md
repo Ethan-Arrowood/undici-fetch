@@ -1,7 +1,9 @@
 # undici-fetch
 
+⚠️ This module is currently in beta. It is **not** spec compliant yet. v1 will be released when this can be a drop-in replacement for other Node.js fetch implementations.
+
 ```sh
-npm i undici-fetch
+npm i undici-fetch@beta
 ```
 
 Built on [Undici](https://github.com/nodejs/undici)
