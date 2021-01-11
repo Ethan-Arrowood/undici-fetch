@@ -213,15 +213,49 @@ tap.test('Headers set', t => {
   })
 })
 
-tap.test('Headers [Symbol.iterator]', t => {
-  t.plan(3)
-  const init = {
-    abc: '123',
-    def: '456',
-    ghi: '789'
-  }
-  const headers = new Headers(init)
-  for (const [name, value] of headers) {
-    t.strictDeepEqual(value, init[name])
-  }
+tap.test('Headers as Iterable', t => {
+  t.plan(4)
+
+  t.test('entries', t => {
+    t.plan(1)
+    const init = {
+      abc: '123',
+      def: '456',
+      ghi: '789'
+    }
+    t.strictDeepEqual(Object.entries(init), [...new Headers(init).entries()])
+  })
+
+  t.test('keys', t => {
+    t.plan(1)
+    const init = {
+      abc: '123',
+      def: '456',
+      ghi: '789'
+    }
+    t.strictDeepEqual(Object.keys(init), [...new Headers(init).keys()])
+  })
+
+  t.test('values', t => {
+    t.plan(1)
+    const init = {
+      abc: '123',
+      def: '456',
+      ghi: '789'
+    }
+    t.strictDeepEqual(Object.values(init), [...new Headers(init).values()])
+  })
+
+  t.test('iterator', t => {
+    t.plan(3)
+    const init = {
+      abc: '123',
+      def: '456',
+      ghi: '789'
+    }
+    const headers = new Headers(init)
+    for (const [name, value] of headers) {
+      t.strictDeepEqual(value, init[name])
+    }
+  })
 })

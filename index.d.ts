@@ -26,14 +26,16 @@ declare class Body {
 
 type HeadersInit = [string, string][] | Record<string, string>;
 
-declare class Headers {
+declare class Headers implements Iterable<[string,string]> {
 	constructor (init?: HeadersInit);
-
 	append(name: string, value: string): void;
 	delete(name: string): void;
 	get(name: string): string | null;
 	has(name: string): boolean;
 	set(name: string, value: string): void;
+	entries(): IterableIterator<[string, string]>;
+	keys(): IterableIterator<string>;
+	values(): IterableIterator<string>;
 	[Symbol.iterator](): Iterator<[string, string]>;
 }
 
