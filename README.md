@@ -23,9 +23,10 @@ Built on [Undici](https://github.com/nodejs/undici)
 			- [`Headers.has(name)`](#headershasname)
 			- [`Headers.set(name, value)`](#headerssetname-value)
 			- [`Headers.values()`](#headersvalues)
-			- [`Headers.entries()`](#headersentries)
 			- [`Headers.keys()`](#headerskeys)
+			- [`Headers.forEach(callback, [thisArg])`](#headersforeachcallback-thisarg)
 			- [`Headers[Symbol.iterator]`](#headerssymboliterator)
+			- [`Headers.entries()`](#headersentries)
 	- [Class: Body](#class-body)
 		- [`new Body([input])`](#new-bodyinput)
 		- [Instance Properties](#instance-properties)
@@ -161,11 +162,11 @@ Represents a WHATWG Fetch Spec [Headers Class](https://fetch.spec.whatwg.org/#he
 ```js
 new Headers()
 
-const headers = new Headers([
+new Headers([
 	["undici", "fetch"]
 ])
 
-new Headers({
+const headers = new Headers({
 	"undici": "fetch"
 })
 
@@ -313,6 +314,24 @@ for (const name of headers.keys()) {
 // -> 'abc'
 // -> 'def'
 // -> 'ghi'
+```
+#### `Headers.forEach(callback, [thisArg])`
+
+Returns: `void`
+
+A Headers class can be iterated using `.forEach(callback, [thisArg])` where the callback has the following signature
+
+`(value: string, key: string, iterable: Headers) => void`
+
+Optionally a `thisArg` can be passed which will be assigned to the this context of the callback
+
+```js
+const headers = new Headers([['abc', '123']])
+
+headers.forEach(function (value, key, headers) {
+	console.log(key, value)
+})
+// -> 'abc', '123'
 ```
 
 #### `Headers[Symbol.iterator]`

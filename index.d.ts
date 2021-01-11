@@ -34,6 +34,10 @@ declare class Headers implements Iterable<[string,string]> {
 	has(name: string): boolean;
 	set(name: string, value: string): void;
 	entries(): IterableIterator<[string, string]>;
+	forEach(
+		callbackfn: (value: string, key: string, iterable: Headers) => void,
+		thisArg?: any
+	): void;
 	keys(): IterableIterator<string>;
 	values(): IterableIterator<string>;
 	[Symbol.iterator](): Iterator<[string, string]>;

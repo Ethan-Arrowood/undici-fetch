@@ -214,7 +214,23 @@ tap.test('Headers set', t => {
 })
 
 tap.test('Headers as Iterable', t => {
-  t.plan(4)
+  t.plan(5)
+
+  t.test('forEach', t => {
+    t.plan(9)
+    const init = {
+      abc: '123',
+      def: '456',
+      ghi: '789'
+    }
+    const that = {}
+    const headers = new Headers(init)
+    headers.forEach(function (v, k, h) {
+      t.strictEqual(init[k], v)
+      t.equal(headers, h)
+      t.equal(this, that)
+    }, that)
+  })
 
   t.test('entries', t => {
     t.plan(1)

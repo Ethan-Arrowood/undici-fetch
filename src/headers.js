@@ -71,6 +71,12 @@ class Headers {
     return this[kHeaders].entries()
   }
 
+  forEach (callback, thisArg) {
+    for (const [key, value] of this) {
+      callback.call(thisArg, value, key, this)
+    }
+  }
+
   [Symbol.iterator] () {
     return this[kHeaders][Symbol.iterator]()
   }
