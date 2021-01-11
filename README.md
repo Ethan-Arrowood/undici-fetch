@@ -317,13 +317,14 @@ for (const name of headers.keys()) {
 ```
 #### `Headers.forEach(callback, [thisArg])`
 
+* **callback** `(value: string, key: string, iterable: Headers) => void`
+* **thisArg** `any` (optional)
+
 Returns: `void`
 
-A Headers class can be iterated using `.forEach(callback, [thisArg])` where the callback has the following signature
+A Headers class can be iterated using `.forEach(callback, [thisArg])`
 
-`(value: string, key: string, iterable: Headers) => void`
-
-Optionally a `thisArg` can be passed which will be assigned to the this context of the callback
+Optionally a `thisArg` can be passed which will be assigned to the `this` context of callback
 
 ```js
 const headers = new Headers([['abc', '123']])
