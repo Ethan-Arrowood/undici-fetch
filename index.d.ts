@@ -24,7 +24,7 @@ declare class Body {
 	text(): Promise<string>;
 }
 
-type HeadersInit = [string, string][] | Record<string, string>;
+type HeadersInit = Iterable<[string, string]> | Record<string, string>;
 
 declare class Headers implements Iterable<[string,string]> {
 	constructor (init?: HeadersInit);
