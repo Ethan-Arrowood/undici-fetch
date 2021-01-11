@@ -24,17 +24,23 @@ declare class Body {
 	text(): Promise<string>;
 }
 
-type HeadersInit = [string, string][] | Record<string, string>;
+type HeadersInit = Iterable<[string, string]> | Record<string, string>;
 
-declare class Headers {
+declare class Headers implements Iterable<[string,string]> {
 	constructor (init?: HeadersInit);
-
 	append(name: string, value: string): void;
 	delete(name: string): void;
 	get(name: string): string | null;
 	has(name: string): boolean;
 	set(name: string, value: string): void;
-	[Symbol.iterator](): [string, string[]];
+	entries(): IterableIterator<[string, string]>;
+	forEach(
+		callbackfn: (value: string, key: string, iterable: Headers) => void,
+		thisArg?: any
+	): void;
+	keys(): IterableIterator<string>;
+	values(): IterableIterator<string>;
+	[Symbol.iterator](): Iterator<[string, string]>;
 }
 
 type RequestInit = {

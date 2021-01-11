@@ -39,13 +39,13 @@ tap.test('Request initialization', t => {
   })
 
   t.test('new request inherits from request input', t => {
-    t.plan(5)
+    t.plan(6)
 
     const request1 = new Request(validURL, { headers: [['undici', 'fetch']] })
 
     const request2 = new Request(request1)
     t.strictDeepEqual(request1, request2)
-
+    t.notEqual(request1.headers, request2.headers)
     const request3 = new Request(request1, { method: 'POST' })
     t.strictDeepEqual(request1.url, request3.url)
     t.strictDeepEqual(request1.headers, request3.headers)

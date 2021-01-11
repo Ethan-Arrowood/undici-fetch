@@ -22,7 +22,11 @@ Built on [Undici](https://github.com/nodejs/undici)
 			- [`Headers.get(name)`](#headersgetname)
 			- [`Headers.has(name)`](#headershasname)
 			- [`Headers.set(name, value)`](#headerssetname-value)
+			- [`Headers.values()`](#headersvalues)
+			- [`Headers.keys()`](#headerskeys)
+			- [`Headers.forEach(callback, [thisArg])`](#headersforeachcallback-thisarg)
 			- [`Headers[Symbol.iterator]`](#headerssymboliterator)
+			- [`Headers.entries()`](#headersentries)
 	- [Class: Body](#class-body)
 		- [`new Body([input])`](#new-bodyinput)
 		- [Instance Properties](#instance-properties)
@@ -153,7 +157,7 @@ Represents a WHATWG Fetch Spec [Headers Class](https://fetch.spec.whatwg.org/#he
 
 ### `new Headers([init])`
 
-* **init** `[string, string][] | Record<string, string>` (optional) - Initial header list to be cloned into the new instance
+* **init** `Iterable<[string, string]> | Record<string, string>` (optional) - Initial header list to be cloned into the new instance
 
 ```js
 new Headers()
@@ -162,9 +166,11 @@ new Headers([
 	["undici", "fetch"]
 ])
 
-new Headers({
+const headers = new Headers({
 	"undici": "fetch"
 })
+
+new Headers(headers)
 ```
 
 ### Instance Methods
@@ -264,11 +270,11 @@ headers.set('foobar', 'buzz')
 headers.get('foobar') // -> 'buzz'
 ```
 
-#### `Headers[Symbol.iterator]`
+#### `Headers.values()`
 
-Returns: `[string, string[]]`
+Returns: `IteratableIterator<string>`
 
-A Headers class instance is iterable. It yields each of its entries as a pair where the first value is the entry _name_ and the second value is an array of the entry _values_.
+Each iteration of the headers `values()` iterator yields a header _value_
 
 ```js
 const headers = new Headers()
@@ -276,15 +282,86 @@ const headers = new Headers()
 headers.set('abc', '123')
 headers.set('def', '456')
 headers.set('ghi', '789')
+headers.append('ghi', '012')
+
+for (const value of headers.values()) {
+	console.log(value)
+}
+
+// -> '123'
+// -> '456'
+// -> '789, 012'
+```
+
+#### `Headers.keys()`
+
+Returns: `IteratableIterator<string>`
+
+Each iteration of the headers `keys()` iterator yields a header _name_
+
+```js
+const headers = new Headers()
+
+headers.set('abc', '123')
+headers.set('def', '456')
+headers.set('ghi', '789')
+headers.append('ghi', '012')
+
+for (const name of headers.keys()) {
+	console.log(name)
+}
+
+// -> 'abc'
+// -> 'def'
+// -> 'ghi'
+```
+#### `Headers.forEach(callback, [thisArg])`
+
+* **callback** `(value: string, key: string, iterable: Headers) => void`
+* **thisArg** `any` (optional)
+
+Returns: `void`
+
+A Headers class can be iterated using `.forEach(callback, [thisArg])`
+
+Optionally a `thisArg` can be passed which will be assigned to the `this` context of callback
+
+```js
+const headers = new Headers([['abc', '123']])
+
+headers.forEach(function (value, key, headers) {
+	console.log(key, value)
+})
+// -> 'abc', '123'
+```
+
+#### `Headers[Symbol.iterator]`
+
+Returns: `Iterator<[string, string]>`
+
+A Headers class instance is iterable. It yields each of its entries as a pair where the first value is the entry _name_ and the second value is the header _value_.
+
+```js
+const headers = new Headers()
+
+headers.set('abc', '123')
+headers.set('def', '456')
+headers.set('ghi', '789')
+headers.append('ghi', '012')
 
 for (const [name, value] of headers) {
 	console.log(name, value)
 }
 
-// -> 'abc', [ '123' ]
-// -> 'def', [ '456' ]
-// -> 'ghi', [ '789' ]
+// -> 'abc', '123'
+// -> 'def', '456'
+// -> 'ghi', '789, 012'
 ```
+#### `Headers.entries()`
+
+Returns: `IteratableIterator<[string, string]>`
+
+Each iteration of the headers `entries()` iterator yields the same entry result as the default iterator
 
 ## Class: Body
 
