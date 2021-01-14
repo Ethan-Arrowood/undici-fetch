@@ -5,6 +5,8 @@ const Request = require('./request')
 const Response = require('./response')
 const { STATUS_CODES } = require('http')
 
+const kAgent = Symbol('agent')
+
 function buildFetch (undiciPoolOpts) {
   if (arguments.length > 0) {
     throw Error('Did you forget to build the instance? Try: `const fetch = require(\'fetch\')()`')
@@ -30,11 +32,9 @@ function buildFetch (undiciPoolOpts) {
     })
   }
 
-  fetch.close = async () => {
-    // TODO: await agent.close()
-  }
+  fetch[kAgent] = agent
 
   return fetch
 }
 
-module.exports = buildFetch
+module.exports = { buildFetch, kAgent }

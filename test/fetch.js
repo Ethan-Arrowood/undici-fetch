@@ -16,7 +16,7 @@ tap.test('throws error if user does not build instance before calling fetch', t 
   t.throw(() => buildFetch(validURL))
 })
 
-const { buildFetch } = require('../')
+const { buildFetch, kAgent } = require('../')
 
 tap.test('fetch instance is a function', t => {
   t.plan(1)
@@ -40,7 +40,7 @@ tap.test('fetch can handle basic requests', t => {
     })
 
     t.tearDown(async () => {
-      await fetch.close()
+      await fetch[kAgent].close()
       await promisifyServerClose(server)()
     })
 

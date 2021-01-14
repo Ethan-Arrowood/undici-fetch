@@ -1,13 +1,13 @@
 import { Readable } from 'stream';
 import { Pool } from 'undici';
 
+declare const kAgent: unique symbol;
 declare function buildFetch (undiciPoolOpts: Pool.Options): typeof fetch;
 declare const fetch: {
 	(
 		resource: string | Request,
 		init?: { signal?: AbortSignal } & RequestInit
 	): Promise<Response>;
-	close(): Promise<void[]>;
 }
 
 type BodyInput = Readable | null | undefined;
@@ -81,7 +81,7 @@ declare class Response extends Body {
 }
 
 export default fetch;
-export { buildFetch };
+export { buildFetch, kAgent };
 export type {
 	Body,
 	Headers,
