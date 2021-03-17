@@ -5,6 +5,17 @@ const Request = require('./request')
 const Response = require('./response')
 const { STATUS_CODES } = require('http')
 
+function toUndiciHeaders (headers) {
+  if (headers == null) {
+    return undefined
+  }
+  const result = []
+  headers.forEach((value, name) => {
+    result.push(name, value)
+  })
+  return result
+}
+
 function buildFetch (undiciPoolOpts) {
   if (arguments.length > 0) {
     throw Error('Did you forget to build the instance? Try: `const fetch = require(\'fetch\')()`')
@@ -27,7 +38,7 @@ function buildFetch (undiciPoolOpts) {
         path: request.url.pathname,
         method: request.method,
         body: request.body,
-        headers: request.headers,
+        headers: toUndiciHeaders(request.headers),
         signal: init.signal
       }, (err, data) => {
         if (err) return reject(err)
