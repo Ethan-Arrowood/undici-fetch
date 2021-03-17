@@ -24,7 +24,7 @@ function buildFetch (undiciPoolOpts) {
 
     return new Promise((resolve, reject) => {
       client.request({
-        path: request.url.pathname,
+        path: request.url.pathname + request.url.search,
         method: request.method,
         body: request.body,
         headers: request.headers,
