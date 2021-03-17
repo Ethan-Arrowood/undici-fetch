@@ -1,7 +1,7 @@
 'use strict'
 
 const Body = require('./body')
-const Headers = require('./headers')
+const { Headers } = require('./headers')
 
 class Response extends Body {
   constructor (body, init = {}) {

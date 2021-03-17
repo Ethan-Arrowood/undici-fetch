@@ -1,10 +1,14 @@
 'use strict'
 
 const tap = require('tap')
-const Headers = require('../src/headers')
+const {
+  Headers,
+  normalizeAndValidateHeaderName,
+  normalizeAndValidateHeaderValue
+} = require('../src/headers')
 
 tap.test('Headers initialization', t => {
-  t.plan(6)
+  t.plan(5)
 
   t.test('allows undefined', t => {
     t.plan(1)
@@ -35,16 +39,6 @@ tap.test('Headers initialization', t => {
       fetch: 'undici'
     }
     t.notThrow(() => new Headers(init))
-  })
-
-  t.test('with existing headers object', t => {
-    t.plan(1)
-    const init = new Headers({
-      undici: 'fetch',
-      fetch: 'undici'
-    })
-    const clone = new Headers(init)
-    t.strictDeepEqual(init, clone)
   })
 
   t.test('fails silently if a boxed primitive object is passed', t => {
@@ -225,9 +219,9 @@ tap.test('Headers as Iterable', t => {
     }
     const that = {}
     const headers = new Headers(init)
-    headers.forEach(function (v, k, h) {
-      t.strictEqual(init[k], v)
-      t.equal(headers, h)
+    headers.forEach(function (value, key, _headers) {
+      t.strictEqual(init[key], value)
+      t.equal(headers, _headers)
       t.equal(this, that)
     }, that)
   })
@@ -274,4 +268,18 @@ tap.test('Headers as Iterable', t => {
       t.strictDeepEqual(value, init[name])
     }
   })
+})
+
+tap.test('Headers normalize and validate', t => {
+  t.plan(2)
+  const name = 'UNDICI'
+  const value = '    fetch	' // eslint-disable-line no-tabs
+  t.strictEqual(
+    normalizeAndValidateHeaderName(name),
+    'undici'
+  )
+  t.strictDeepEqual(
+    normalizeAndValidateHeaderValue(name, value),
+    ['undici', 'fetch']
+  )
 })

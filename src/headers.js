@@ -1,8 +1,33 @@
 'use strict'
 
 const { types } = require('util')
+const { validateHeaderName, validateHeaderValue } = require('http')
 
-const { normalizeAndValidateHeaderName, normalizeAndValidateHeaderArguments } = require('./utils')
+function normalizeAndValidateHeaderName (name) {
+  const normalizedHeaderName = name.toLowerCase()
+  validateHeaderName(normalizedHeaderName)
+  return normalizedHeaderName
+}
+
+function normalizeAndValidateHeaderValue (name, value) {
+  const normalizedHeaderName = normalizeAndValidateHeaderName(name)
+  const normalizedHeaderValue= value.replace(/^[\n\t\r\x20]+|[\n\t\r\x20]+$/g, '')
+  validateHeaderValue(normalizedHeaderName, normalizedHeaderValue)
+  return [normalizedHeaderName, normalizedHeaderValue]
+}
+
+function fill (headers, object) {
+  if (Array.isArray(object)) {
+    for (let i = 0, header = object[0]; i < object.length; i++, header = object[i]) {
+      if (header.length !== 2) throw TypeError('header entry must be of length two')
+      headers.append(header[0], header[1])
+    }
+  } else if (!types.isBoxedPrimitive(object)) {
+    for (const [name, value] of Object.entries(object)) {
+      headers.append(name, value)
+    }
+  }
+}
 
 const kHeaders = Symbol('headers')
 
@@ -11,23 +36,12 @@ class Headers {
     this[kHeaders] = new Map()
 
     if (init && typeof init === 'object') {
-      if (Array.isArray(init)) {
-        for (let i = 0, header = init[0]; i < init.length; i++, header = init[i]) {
-          if (header.length !== 2) throw TypeError('header entry must be of length two')
-          this.append(header[0], header[1])
-        }
-      } else if (kHeaders in init) {
-        this[kHeaders] = new Map(init[kHeaders])
-      } else if (!types.isBoxedPrimitive(init)) {
-        for (const [name, value] of Object.entries(init)) {
-          this.append(name, value)
-        }
-      }
+      fill(this, init)
     }
   }
 
   append (name, value) {
-    const [normalizedHeaderName, normalizedHeaderValue] = normalizeAndValidateHeaderArguments(name, value)
+    const [normalizedHeaderName, normalizedHeaderValue] = normalizeAndValidateHeaderValue(name, value)
 
     const existing = this[kHeaders].get(normalizedHeaderName)
     const newHeaderValue = existing ? existing + ', ' + normalizedHeaderValue : normalizedHeaderValue
@@ -54,7 +68,7 @@ class Headers {
   }
 
   set (name, value) {
-    const [normalizedHeaderName, normalizedHeaderValue] = normalizeAndValidateHeaderArguments(name, value)
+    const [normalizedHeaderName, normalizedHeaderValue] = normalizeAndValidateHeaderValue(name, value)
 
     this[kHeaders].set(normalizedHeaderName, normalizedHeaderValue)
   }
@@ -77,9 +91,15 @@ class Headers {
     }
   }
 
-  [Symbol.iterator] () {
-    return this[kHeaders][Symbol.iterator]()
+  *[Symbol.iterator] () {
+    yield* this[kHeaders][Symbol.iterator]()
   }
 }
 
-module.exports = Headers
+module.exports = {
+  Headers,
+  fill,
+  kHeaders,
+  normalizeAndValidateHeaderName,
+  normalizeAndValidateHeaderValue
+}
