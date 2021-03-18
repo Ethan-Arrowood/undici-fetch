@@ -58,7 +58,7 @@ tap.test('fetch can handle basic requests', t => {
     t.plan(2)
 
     const wanted = 'undici-fetch'
-    
+
     const server = http.createServer((req, res) => {
       t.strictEqual(req.method, 'POST')
       req.setEncoding('utf8')
