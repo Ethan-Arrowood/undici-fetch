@@ -6,6 +6,13 @@ function isReadable (obj) {
   return obj instanceof stream.Stream && typeof obj._read === 'function' && typeof obj._readableState === 'object'
 }
 
+class AbortError extends Error {
+  constructor () {
+    super('The operation was aborted')
+    this.name = 'AbortError'
+  }
+}
+
 function HeaderNameValidationError (name) {
   return TypeError(`Invalid Header name: ${name}`)
 }
@@ -71,6 +78,7 @@ function normalizeAndValidateHeaderArguments (name, value) {
 
 module.exports = {
   isReadable,
+  AbortError,
   HeaderNameValidationError,
   HeaderValueValidationError,
   validateHeaderName,
