@@ -2,7 +2,7 @@
 
 const { promisify } = require('util')
 
-const promisifyServerClose = server => promisify(server.close.bind(server))
+const closeServer = server => promisify(server.close).call(server)
 
 // Header validation testing utils
 const validHeaderNameRanges = [
@@ -43,7 +43,7 @@ const allValidHeaderNameCharacters = generateCharacters(validHeaderNameRanges)
 const allValidHeaderValueCharacters = generateCharacters(validHeaderValueRanges)
 
 module.exports = {
-  promisifyServerClose,
+  closeServer,
   allValidHeaderNameCharacters,
   allValidHeaderValueCharacters
 }

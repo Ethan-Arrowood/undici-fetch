@@ -44,7 +44,9 @@ function buildFetch (undiciPoolOpts) {
   fetch.close = () => {
     const clientClosePromises = []
     for (const [, client] of clientMap) {
-      clientClosePromises.push(client.close.bind(client)())
+      if (!client.closed) {
+        clientClosePromises.push(client.close())
+      }
     }
     return Promise.all(clientClosePromises)
   }
