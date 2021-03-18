@@ -2,6 +2,8 @@
 
 const tap = require('tap')
 const stream = require('stream')
+const Request = require('../src/request')
+const Headers = require('../src/headers')
 const {
   isReadable,
   validateHeaderName,
@@ -10,7 +12,8 @@ const {
   normalizeAndValidateHeaderValue,
   normalizeAndValidateHeaderArguments,
   HeaderNameValidationError,
-  HeaderValueValidationError
+  HeaderValueValidationError,
+  createUndiciRequestOptions
 } = require('../src/utils')
 const {
   allValidHeaderNameCharacters,
@@ -98,4 +101,29 @@ tap.test('normalizeAndValidate utils', t => {
 
   const normalizedNameAndValue = normalizeAndValidateHeaderArguments(nonNormalizedName, nonNormalizedValue)
   t.strictDeepEqual(normalizedNameAndValue, ['undici', 'fetch'])
+})
+
+tap.test('createUndiciRequestOptions', t => {
+  t.plan(1)
+
+  t.test('handles GET request with query string', t => {
+    t.plan(1)
+
+    const origin = 'https://example.com'
+    const path = '/My%20Folder/index.html?foo=bar&Hello%20World=Hi%20There%3F'
+    const url = origin + path
+    const request = new Request(url)
+    const signal = undefined
+
+    const found = createUndiciRequestOptions(request, signal)
+    const wanted = {
+      method: 'GET',
+      path,
+      headers: new Headers(),
+      body: null,
+      signal
+    }
+
+    t.strictDeepEqual(found, wanted)
+  })
 })
