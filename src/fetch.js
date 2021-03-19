@@ -17,10 +17,8 @@ function buildFetch (undiciPoolOpts) {
     const request = new Request(resource, init)
 
     const { origin } = request.url
-    let client
-    if (clientMap.has(origin)) {
-      client = clientMap.get(origin)
-    } else {
+    let client = clientMap.get(origin)
+    if (client === undefined) {
       client = new Undici.Pool(origin, undiciPoolOpts)
       clientMap.set(origin, client)
     }
