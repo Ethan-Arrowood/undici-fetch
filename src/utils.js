@@ -70,17 +70,11 @@ function normalizeAndValidateHeaderArguments (name, value) {
 }
 
 function createUndiciRequestOptions (request, signal) {
-  const {
-    url: { pathname, search },
-    method,
-    headers,
-    body
-  } = request
   return {
-    path: pathname + search,
-    method,
-    body,
-    headers,
+    path: request.url.pathname + request.url.search,
+    method: request.method,
+    body: request.body,
+    headers: request.headers,
     signal
   }
 }
