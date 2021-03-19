@@ -5,9 +5,6 @@ const Request = require('./request')
 const Response = require('./response')
 const { createUndiciRequestOptions } = require('./utils')
 const { STATUS_CODES } = require('http')
-const { promisify } = require('util')
-
-const requestAsync = promisify(Undici.Pool.prototype.request)
 
 function buildFetch (undiciPoolOpts) {
   if (arguments.length > 0) {
@@ -30,7 +27,7 @@ function buildFetch (undiciPoolOpts) {
 
     const requestOptions = createUndiciRequestOptions(request, init.signal)
 
-    return requestAsync.call(client, requestOptions)
+    return client.request(requestOptions)
       .then(data => new Response(data.body, {
         status: data.statusCode,
         statusText: STATUS_CODES[data.statusCode],
