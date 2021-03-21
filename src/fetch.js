@@ -31,6 +31,10 @@ function buildFetch (undiciPoolOpts) {
         statusText: STATUS_CODES[data.statusCode],
         headers: data.headers
       }))
+      .catch(err => {
+        // TODO Convert Undici error to Fetch API error
+        throw err
+      })
   }
 
   fetch.close = () => Promise.all(
