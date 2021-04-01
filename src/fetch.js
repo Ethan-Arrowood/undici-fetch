@@ -3,11 +3,12 @@
 const Undici = require('undici')
 const Request = require('./request')
 const Response = require('./response')
+const { createUndiciRequestOptions } = require('./utils')
 const { STATUS_CODES } = require('http')
 
 function buildFetch (undiciPoolOpts) {
   if (arguments.length > 0) {
-    throw Error('Did you forget to build the instance? Try: `const fetch = require(\'fetch\')()`')
+    throw Error('Did you forget to build the instance? Try: `const fetch = require(\'undici-fetch\')()`')
   }
 
   const clientMap = new Map()
@@ -15,39 +16,32 @@ function buildFetch (undiciPoolOpts) {
   function fetch (resource, init = {}) {
     const request = new Request(resource, init)
 
-    const origin = request.url.origin
+    const { origin } = request.url
     let client = clientMap.get(origin)
     if (client === undefined) {
       client = new Undici.Pool(origin, undiciPoolOpts)
       clientMap.set(origin, client)
     }
 
-    return new Promise((resolve, reject) => {
-      client.request({
-        path: request.url.pathname,
-        method: request.method,
-        body: request.body,
-        headers: request.headers,
-        signal: init.signal
-      }, (err, data) => {
-        if (err) return reject(err)
+    const requestOptions = createUndiciRequestOptions(request, init.signal)
 
-        resolve(new Response(data.body, {
-          status: data.statusCode,
-          statusText: STATUS_CODES[data.statusCode],
-          headers: data.headers
-        }))
+    return client.request(requestOptions)
+      .then(data => new Response(data.body, {
+        status: data.statusCode,
+        statusText: STATUS_CODES[data.statusCode],
+        headers: data.headers
+      }))
+      .catch(err => {
+        // TODO Convert Undici error to Fetch API error
+        throw err
       })
-    })
   }
 
-  fetch.close = () => {
-    const clientClosePromises = []
-    for (const [, client] of clientMap) {
-      clientClosePromises.push(client.close.bind(client)())
-    }
-    return Promise.all(clientClosePromises)
-  }
+  fetch.close = () => Promise.all(
+    Array.from(clientMap.values())
+      .filter(client => !client.closed)
+      .map(client => client.close())
+  )
 
   return fetch
 }

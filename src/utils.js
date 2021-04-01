@@ -69,6 +69,16 @@ function normalizeAndValidateHeaderArguments (name, value) {
   return [normalizeAndValidateHeaderName(name), normalizeAndValidateHeaderValue(name, value)]
 }
 
+function createUndiciRequestOptions (request, signal) {
+  return {
+    path: request.url.pathname + request.url.search,
+    method: request.method,
+    body: request.body,
+    headers: request.headers,
+    signal
+  }
+}
+
 module.exports = {
   isReadable,
   HeaderNameValidationError,
@@ -77,5 +87,6 @@ module.exports = {
   validateHeaderValue,
   normalizeAndValidateHeaderName,
   normalizeAndValidateHeaderValue,
-  normalizeAndValidateHeaderArguments
+  normalizeAndValidateHeaderArguments,
+  createUndiciRequestOptions
 }
