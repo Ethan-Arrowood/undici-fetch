@@ -2,8 +2,8 @@
 
 const { promisify } = require('util')
 
-const promisifyServerClose = server => promisify(server.close.bind(server))
+const closeServer = server => promisify(server.close).call(server)
 
 module.exports = {
-  promisifyServerClose
+  closeServer
 }
