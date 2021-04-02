@@ -34,7 +34,7 @@ class Response extends Body {
     }
 
     return new Response(this.body, {
-      headers: this.headers,
+      headers: Array.from(this.headers.entries()),
       status: this.status,
       statusText: this.statusText,
       url: this.url

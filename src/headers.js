@@ -3,6 +3,8 @@
 const { types } = require('util')
 const { validateHeaderName, validateHeaderValue } = require('http')
 
+const { kHeaders } = require('./symbols')
+
 function normalizeAndValidateHeaderName (name) {
   const normalizedHeaderName = name.toLowerCase()
   validateHeaderName(normalizedHeaderName)
@@ -28,8 +30,6 @@ function fill (headers, object) {
     }
   }
 }
-
-const kHeaders = Symbol('headers')
 
 class Headers {
   constructor (init) {
@@ -99,7 +99,6 @@ class Headers {
 module.exports = {
   Headers,
   fill,
-  kHeaders,
   normalizeAndValidateHeaderName,
   normalizeAndValidateHeaderValue
 }

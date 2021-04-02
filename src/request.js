@@ -3,7 +3,7 @@
 const { METHODS } = require('http')
 
 const Body = require('./body')
-const Headers = require('./headers')
+const { Headers } = require('./headers')
 
 function normalizeAndValidateRequestMethod (method) {
   if (method === undefined) {
@@ -37,7 +37,7 @@ class Request extends Body {
     if (input instanceof Request) {
       return new Request(input.url, {
         method: input.method,
-        headers: new Headers(input.headers),
+        headers: Array.from(input.headers.entries()),
         body: input.body,
         ...init
       })

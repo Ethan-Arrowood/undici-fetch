@@ -4,11 +4,12 @@ const tap = require('tap')
 const { Readable } = require('stream')
 
 const Request = require('../src/request')
+const { Headers } = require('../src/headers')
 
 const validURL = 'http://undici-fetch.dev'
 
 tap.test('Request initialization', t => {
-  t.plan(6)
+  t.plan(7)
 
   t.throw(() => new Request(), 'throw on missing input')
   t.notThrow(() => new Request(validURL), 'not throw on valid url input')
@@ -45,12 +46,20 @@ tap.test('Request initialization', t => {
 
     const request2 = new Request(request1)
     t.strictDeepEqual(request1, request2)
-    t.notEqual(request1.headers, request2.headers)
+    t.deepEqual(request1.headers, request2.headers)
     const request3 = new Request(request1, { method: 'POST' })
     t.strictDeepEqual(request1.url, request3.url)
     t.strictDeepEqual(request1.headers, request3.headers)
     t.notStrictEqual(request1.method, request3.method)
     t.strictEqual(request3.method, 'POST')
+  })
+
+  t.test('can be instantiated using an existing headers instance', t => {
+    t.plan(1)
+
+    const headers = new Headers([['undici', 'fetch']])
+    const request = new Request(validURL, { headers })
+    t.strictDeepEqual(headers, request.headers)
   })
 })
 
