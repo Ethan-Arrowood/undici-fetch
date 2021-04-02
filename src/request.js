@@ -41,7 +41,7 @@ class Request extends Body {
         ...init
       })
 
-      fill(request.headers, Array.from(input.headers.entries()))
+      fill(request.headers, input.headers)
 
       return request
     }

@@ -39,7 +39,7 @@ class Response extends Body {
       url: this.url
     })
 
-    fill(response.headers, Array.from(this.headers.entries()))
+    fill(response.headers, this.headers)
 
     return response
   }

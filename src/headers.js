@@ -24,6 +24,8 @@ function fill (headers, object) {
       if (header.length !== 2) throw TypeError('header entry must be of length two')
       headers.append(header[0], header[1])
     }
+  } else if (kHeaders in object) {
+    headers[kHeaders] = new Map(object[kHeaders])
   } else if (!types.isBoxedPrimitive(object)) {
     for (const [name, value] of Object.entries(object)) {
       headers.append(name, value)
