@@ -210,62 +210,105 @@ tap.test('Headers set', t => {
 tap.test('Headers as Iterable', t => {
   t.plan(5)
 
-  t.test('forEach', t => {
-    t.plan(9)
-    const init = {
-      abc: '123',
-      def: '456',
-      ghi: '789'
-    }
-    const that = {}
+  t.test('returns combined and sorted entries using .forEach()', t => {
+    t.plan(12)
+    const init = [
+      ['a', '1'],
+      ['b', '2'],
+      ['c', '3'],
+      ['abc', '4'],
+      ['b', '5']
+    ]
+    const expected = [
+      ['a', '1'],
+      ['abc', '4'],
+      ['b', '2, 5'],
+      ['c', '3']
+    ]
     const headers = new Headers(init)
+    const that = {}
+    let i = 0
     headers.forEach(function (value, key, _headers) {
-      t.strictEqual(init[key], value)
-      t.equal(headers, _headers)
+      t.strictDeepEqual(expected[i++], [key, value])
+      t.strictEqual(headers, _headers)
       t.equal(this, that)
     }, that)
   })
 
-  t.test('entries', t => {
-    t.plan(1)
-    const init = {
-      abc: '123',
-      def: '456',
-      ghi: '789'
-    }
-    t.strictDeepEqual(Object.entries(init), [...new Headers(init).entries()])
-  })
-
-  t.test('keys', t => {
-    t.plan(1)
-    const init = {
-      abc: '123',
-      def: '456',
-      ghi: '789'
-    }
-    t.strictDeepEqual(Object.keys(init), [...new Headers(init).keys()])
-  })
-
-  t.test('values', t => {
-    t.plan(1)
-    const init = {
-      abc: '123',
-      def: '456',
-      ghi: '789'
-    }
-    t.strictDeepEqual(Object.values(init), [...new Headers(init).values()])
-  })
-
-  t.test('iterator', t => {
-    t.plan(3)
-    const init = {
-      abc: '123',
-      def: '456',
-      ghi: '789'
-    }
+  t.test('returns combined and sorted entries using .entries()', t => {
+    t.plan(4)
+    const init = [
+      ['a', '1'],
+      ['b', '2'],
+      ['c', '3'],
+      ['abc', '4'],
+      ['b', '5']
+    ]
+    const expected = [
+      ['a', '1'],
+      ['abc', '4'],
+      ['b', '2, 5'],
+      ['c', '3']
+    ]
     const headers = new Headers(init)
-    for (const [name, value] of headers) {
-      t.strictDeepEqual(value, init[name])
+    let i = 0
+    for (const header of headers.entries()) {
+      t.strictDeepEqual(header, expected[i++])
+    }
+  })
+
+  t.test('returns combined and sorted keys using .keys()', t => {
+    t.plan(4)
+    const init = [
+      ['a', '1'],
+      ['b', '2'],
+      ['c', '3'],
+      ['abc', '4'],
+      ['b', '5']
+    ]
+    const expected = ['a', 'abc', 'b', 'c']
+    const headers = new Headers(init)
+    let i = 0
+    for (const key of headers.keys()) {
+      t.strictDeepEqual(key, expected[i++])
+    }
+  })
+
+  t.test('returns combined and sorted values using .values()', t => {
+    t.plan(4)
+    const init = [
+      ['a', '1'],
+      ['b', '2'],
+      ['c', '3'],
+      ['abc', '4'],
+      ['b', '5']
+    ]
+    const expected = ['1', '4', '2, 5', '3']
+    const headers = new Headers(init)
+    let i = 0
+    for (const value of headers.values()) {
+      t.strictDeepEqual(value, expected[i++])
+    }
+  })
+
+  t.test('returns combined and sorted entries using for...of loop', t => {
+    t.plan(4)
+    const init = [
+      ['a', '1'],
+      ['b', '2'],
+      ['c', '3'],
+      ['abc', '4'],
+      ['b', '5']
+    ]
+    const expected = [
+      ['a', '1'],
+      ['abc', '4'],
+      ['b', '2, 5'],
+      ['c', '3']
+    ]
+    let i = 0
+    for (const header of new Headers(init)) {
+      t.strictDeepEqual(header, expected[i++])
     }
   })
 })

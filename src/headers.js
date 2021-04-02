@@ -13,7 +13,7 @@ function normalizeAndValidateHeaderName (name) {
 
 function normalizeAndValidateHeaderValue (name, value) {
   const normalizedHeaderName = normalizeAndValidateHeaderName(name)
-  const normalizedHeaderValue= value.replace(/^[\n\t\r\x20]+|[\n\t\r\x20]+$/g, '')
+  const normalizedHeaderValue = value.replace(/^[\n\t\r\x20]+|[\n\t\r\x20]+$/g, '')
   validateHeaderValue(normalizedHeaderName, normalizedHeaderValue)
   return [normalizedHeaderName, normalizedHeaderValue]
 }
@@ -73,16 +73,18 @@ class Headers {
     this[kHeaders].set(normalizedHeaderName, normalizedHeaderValue)
   }
 
-  keys () {
-    return this[kHeaders].keys()
+  * keys () {
+    yield * Array.from(this[kHeaders].keys()).sort()
   }
 
-  values () {
-    return this[kHeaders].values()
+  * values () {
+    for (const header of this.entries()) {
+      yield header[1]
+    }
   }
 
-  entries () {
-    return this[kHeaders].entries()
+  * entries () {
+    yield * Array.from(this[kHeaders].entries()).sort()
   }
 
   forEach (callback, thisArg) {
@@ -91,8 +93,8 @@ class Headers {
     }
   }
 
-  *[Symbol.iterator] () {
-    yield* this[kHeaders][Symbol.iterator]()
+  [Symbol.iterator] () {
+    return this.entries()
   }
 }
 
