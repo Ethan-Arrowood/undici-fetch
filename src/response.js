@@ -1,7 +1,7 @@
 'use strict'
 
 const Body = require('./body')
-const { Headers } = require('./headers')
+const { Headers, fill } = require('./headers')
 
 class Response extends Body {
   constructor (body, init = {}) {
@@ -33,12 +33,15 @@ class Response extends Body {
       throw TypeError('Cannot clone Response - bodyUsed is true')
     }
 
-    return new Response(this.body, {
-      headers: Array.from(this.headers.entries()),
+    const response = new Response(this.body, {
       status: this.status,
       statusText: this.statusText,
       url: this.url
     })
+
+    fill(response.headers, Array.from(this.headers.entries()))
+
+    return response
   }
 
   static error () {

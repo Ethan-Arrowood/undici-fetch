@@ -276,7 +276,7 @@ headers.get('foobar') // -> 'buzz'
 
 Returns: `IteratableIterator<string>`
 
-Each iteration of the headers `values()` iterator yields a header _value_
+Yields a list of header values combined and sorted by their respective keys.
 
 ```js
 const headers = new Headers()
@@ -299,7 +299,7 @@ for (const value of headers.values()) {
 
 Returns: `IteratableIterator<string>`
 
-Each iteration of the headers `keys()` iterator yields a header _name_
+Yields a sorted list of header keys.
 
 ```js
 const headers = new Headers()
@@ -324,9 +324,11 @@ for (const name of headers.keys()) {
 
 Returns: `void`
 
-A Headers class can be iterated using `.forEach(callback, [thisArg])`
+A Headers class can be iterated using `.forEach(callback, [thisArg])`.
 
-Optionally a `thisArg` can be passed which will be assigned to the `this` context of callback
+Optionally a `thisArg` can be passed which will be assigned to the `this` context of callback.
+
+The headers are returned in a sorted order, and values are combined on similar keys.
 
 ```js
 const headers = new Headers([['abc', '123']])
@@ -341,7 +343,7 @@ headers.forEach(function (value, key, headers) {
 
 Returns: `Iterator<[string, string]>`
 
-A Headers class instance is iterable. It yields each of its entries as a pair where the first value is the entry _name_ and the second value is the header _value_.
+A Headers class instance is iterable. It yields each of its entries as a pair where the first value is the entry _name_ and the second value is the header _value_. They are sorted by _name_ or otherwise referred to as the header key.
 
 ```js
 const headers = new Headers()
@@ -359,11 +361,29 @@ for (const [name, value] of headers) {
 // -> 'def', '456'
 // -> 'ghi', '789, 012'
 ```
+
 #### `Headers.entries()`
 
 Returns: `IteratableIterator<[string, string]>`
 
-Each iteration of the headers `entries()` iterator yields the same entry result as the default iterator
+Yields a list of headers sorted and combined by key.
+
+```js
+const headers = new Headers()
+
+headers.set('abc', '123')
+headers.set('def', '456')
+headers.set('ghi', '789')
+headers.append('ghi', '012')
+
+for (const entry of headers.entries()) {
+	console.log(entry)
+}
+
+// -> 'abc', '123'
+// -> 'def', '456'
+// -> 'ghi', '789, 012'
+```
 
 ## Class: Body
 
