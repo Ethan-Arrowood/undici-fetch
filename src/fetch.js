@@ -3,6 +3,7 @@
 const Undici = require('undici')
 const Request = require('./request')
 const Response = require('./response')
+const { AbortError } = require('./utils')
 const { createUndiciRequestOptions } = require('./utils')
 const { STATUS_CODES } = require('http')
 
@@ -32,7 +33,9 @@ function buildFetch (undiciPoolOpts) {
         headers: data.headers
       }))
       .catch(err => {
-        // TODO Convert Undici error to Fetch API error
+        if (err instanceof Undici.errors.RequestAbortedError) {
+          err = new AbortError()
+        }
         throw err
       })
   }

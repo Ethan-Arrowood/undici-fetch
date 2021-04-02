@@ -4,7 +4,7 @@ const tap = require('tap')
 const semver = require('semver')
 const http = require('http')
 const { Readable } = require('stream')
-const { errors } = require('undici')
+const { AbortError } = require('../src/utils')
 const { closeServer } = require('./testUtils')
 
 const validURL = 'https://undici-fetch.dev'
@@ -115,7 +115,7 @@ tap.test('fetch forwards abort signal', { skip: semver.lt(process.versions.node,
     try {
       await fetch(`http://localhost:${server.address().port}`, { signal: abortController.signal })
     } catch (err) {
-      t.ok(err instanceof errors.RequestAbortedError)
+      t.ok(err instanceof AbortError)
     }
   })
 })
