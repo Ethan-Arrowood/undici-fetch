@@ -29,8 +29,8 @@ tap.test('Response.clone', t => {
     t.plan(2)
     const response1 = new Response(new Readable(), { headers: [['undici', 'fetch']] })
     const response2 = response1.clone()
-    t.notEqual(response1.headers, response2.headers)
-    t.strictDeepEqual(response1, response2)
+    t.deepEqual(response1.headers, response2.headers)
+    t.deepEqual(response1, response2)
   })
 
   t.test('throws error if bodyUsed is true', async t => {
