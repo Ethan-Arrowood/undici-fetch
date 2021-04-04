@@ -145,15 +145,28 @@ class Headers {
 }
 
 function sort (headers) {
-  const names = []
+  const namesAndOriginalIndex = []
+  // O(n)
   for (let i = 0; i < headers.length; i += 2) {
-    names.push(headers[i])
+    namesAndOriginalIndex.push([headers[i], i])
   }
-  names.sort()
+  // O(n log n)
+  namesAndOriginalIndex.sort((a, b) => {
+    const nameA = a[0]
+    const nameB = b[0]
+    if (nameA < nameB) {
+      return -1
+    } else if (nameA > nameB) {
+      return 1
+    } else {
+      return 0
+    }
+  })
   const sorted = []
-  for (const name of names) {
+  // O(n/2)
+  for (const [name, index] of namesAndOriginalIndex) {
     sorted.push(name)
-    sorted.push(headers[headers.indexOf(name) + 1])
+    sorted.push(headers[index + 1])
   }
   return sorted
 }
