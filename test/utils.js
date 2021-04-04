@@ -50,6 +50,43 @@ tap.test('sort1d', t => {
   t.test('correctly sorts 1-dimensional header arrays', t => {
     t.plan(1)
 
+    const wanted = [
+      'header-1',
+      'value',
+      'header-5',
+      'value',
+      'header-a',
+      'value',
+      'header-b',
+      'value',
+      'header-c',
+      'value',
+      'header-d',
+      'value',
+      'header-e',
+      'value',
+      'header-f',
+      'value'
+    ]
+    const arr1d = [
+      'header-c',
+      'value',
+      'header-a',
+      'value',
+      'header-b',
+      'value',
+      'header-5',
+      'value',
+      'header-e',
+      'value',
+      'header-d',
+      'value',
+      'header-f',
+      'value',
+      'header-1',
+      'value'
+    ]
+    const found = sort1d(arr1d)
     t.strictDeepEqual(found, wanted)
   })
 })
