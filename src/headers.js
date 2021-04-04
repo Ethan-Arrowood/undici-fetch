@@ -146,7 +146,6 @@ class Headers {
 
 function sort (headers) {
   let i = headers.length
-  let previous
   while (i -= 2) {
     if (headers[i - 2] > headers[i]) {
       headers.push(...headers.splice(i - 2, 2))
