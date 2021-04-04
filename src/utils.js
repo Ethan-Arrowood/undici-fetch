@@ -31,11 +31,9 @@ function createUndiciRequestOptions (request, signal) {
 // and reset the counter so it can restart the traversal and not miss anything
 function sort1d (arr) {
   let i = arr.length
-  let previous
   while (i > 0) {
     if (arr[i - 2] > arr[i]) {
-      previous = arr.splice(i - 2, 2)
-      arr.push(...previous)
+      arr.push(...arr.splice(i - 2, 2))
       i = arr.length
     } else {
       i -= 2
