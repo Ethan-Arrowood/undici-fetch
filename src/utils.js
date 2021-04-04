@@ -25,7 +25,22 @@ function createUndiciRequestOptions (request, signal) {
   }
 }
 
+// Sorts 1-dimensional headers array by traversing it, from the end, and
+// comparing it to the previous pair. If the `>` comparison for the previous
+// pair is true, remove previous pair and move it to the end.
+function sort1d (arr) {
+  let i = arr.length
+  // eslint-disable-next-line no-cond-assign
+  while (i -= 2) {
+    if (arr[i - 2] > arr[i]) {
+      arr.push(...arr.splice(i - 2, 2))
+    }
+  }
+  return arr
+}
+
 module.exports = {
+  sort1d,
   isReadable,
   AbortError,
   createUndiciRequestOptions

@@ -5,6 +5,7 @@ const stream = require('stream')
 const Request = require('../src/request')
 
 const {
+  sortHeaders,
   isReadable,
   createUndiciRequestOptions
 } = require('../src/utils')
@@ -38,6 +39,16 @@ tap.test('createUndiciRequestOptions', t => {
       body: null,
       signal
     }
+
+    t.strictDeepEqual(found, wanted)
+  })
+})
+
+tap.test('sort1d', t => {
+  t.plan(1)
+
+  t.test('correctly sorts 1-dimensional header arrays', t => {
+    t.plan(1)
 
     t.strictDeepEqual(found, wanted)
   })

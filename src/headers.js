@@ -4,6 +4,7 @@ const { types } = require('util')
 const { validateHeaderName, validateHeaderValue } = require('http')
 
 const { kHeaders } = require('./symbols')
+const { sort1d } = require('./utils')
 
 function normalizeAndValidateHeaderName (name) {
   const normalizedHeaderName = name.toLowerCase()
@@ -130,32 +131,18 @@ class Headers {
   }
 
   forEach (callback, thisArg) {
-    this[kHeaders] = sort(this[kHeaders])
+    this[kHeaders] = sort1d(this[kHeaders])
     for (let i = 0; i < this[kHeaders].length; i += 2) {
       callback.call(thisArg, this[kHeaders][i + 1], this[kHeaders][i], this)
     }
   }
 
   * [Symbol.iterator] () {
-    this[kHeaders] = sort(this[kHeaders])
+    this[kHeaders] = sort1d(this[kHeaders])
     for (let i = 0; i < this[kHeaders].length; i += 2) {
       yield [this[kHeaders][i], this[kHeaders][i + 1]]
     }
   }
-}
-
-// Sort 1-dimensional headers array by traversing it, from the end, and
-// comparing it to the previous pair. If the `>` comparison for the previous
-// pair is true, remove previous pair and move it to the end.
-function sort (headers) {
-  let i = headers.length
-  // eslint-disable-next-line no-cond-assign
-  while (i -= 2) {
-    if (headers[i - 2] > headers[i]) {
-      headers.push(...headers.splice(i - 2, 2))
-    }
-  }
-  return headers
 }
 
 module.exports = {
