@@ -26,9 +26,9 @@ function createUndiciRequestOptions (request, signal) {
 }
 
 // Sorts 1-dimensional headers array by traversing it, from the end, and
-// comparing it to the previous pair. If the `>` comparison for the previous
-// pair is true, remove previous pair, move it to the end, and reset
-// the counter so it can restart the traversal and not miss anything
+// comparing each pair to the previous pair. If the `>` comparison for
+// the previous pair is true, remove previous pair, move it to the end,
+// and reset the counter so it can restart the traversal and not miss anything
 function sort1d (arr) {
   let i = arr.length
   let previous
