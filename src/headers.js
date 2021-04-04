@@ -145,7 +145,7 @@ class Headers {
 }
 
 // Sort 1-dimensional headers array by traversing it, from the end, and
-// comparing it to the previous pair. If the `>` comparison for the previous 
+// comparing it to the previous pair. If the `>` comparison for the previous
 // pair is true, remove previous pair and move it to the end.
 function sort (headers) {
   let i = headers.length
