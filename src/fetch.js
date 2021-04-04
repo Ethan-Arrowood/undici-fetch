@@ -3,50 +3,55 @@
 const Undici = require('undici')
 const Request = require('./request')
 const Response = require('./response')
-const { AbortError } = require('./utils')
-const { createUndiciRequestOptions } = require('./utils')
+const { AbortError, MockReadableStream } = require('./utils')
 const { STATUS_CODES } = require('http')
+const { kData } = require('./symbols')
 
-function buildFetch (undiciPoolOpts) {
-  if (arguments.length > 0) {
-    throw Error('Did you forget to build the instance? Try: `const fetch = require(\'undici-fetch\')()`')
-  }
+function fetch (resource, init = {}) {
+	return new Promise((resolve, reject) => {
+		const request = new Request(resource, init)
+		const client = new Undici.Client(request.url.origin)
 
-  const clientMap = new Map()
+		if (init.signal) {
+			init.signal.once('abort', () => {
+				client.close()
+				reject(new AbortError())
+			})
+		}
 
-  function fetch (resource, init = {}) {
-    const request = new Request(resource, init)
+		const mockRS = new MockReadableStream()
 
-    const { origin } = request.url
-    let client = clientMap.get(origin)
-    if (client === undefined) {
-      client = new Undici.Pool(origin, undiciPoolOpts)
-      clientMap.set(origin, client)
-    }
+		const responseInit = {}
 
-    const requestOptions = createUndiciRequestOptions(request, init.signal)
-
-    return client.request(requestOptions)
-      .then(data => new Response(data.body, {
-        status: data.statusCode,
-        statusText: STATUS_CODES[data.statusCode],
-        headers: data.headers
-      }))
-      .catch(err => {
-        if (err instanceof Undici.errors.RequestAbortedError) {
-          err = new AbortError()
-        }
-        throw err
-      })
-  }
-
-  fetch.close = () => Promise.all(
-    Array.from(clientMap.values())
-      .filter(client => !client.closed)
-      .map(client => client.close())
-  )
-
-  return fetch
+		client.dispatch({
+			path: request.url.pathname + request.url.search,
+			method: request.method,
+			headers: request.headers,
+			body: request.body,
+			signal: init.signal
+		}, {
+			onConnect: () => {},
+			onError: error => {
+				if (error instanceof Undici.errors.RequestAbortedError) {
+					error = new AbortError()
+				}
+				reject(error)
+			},
+			onHeaders: (statusCode, headers) => {
+				responseInit.status = statusCode
+				responseInit.statusText = STATUS_CODES[statusCode]
+				responseInit.headers = headers
+			},
+			onData: chunk => {
+				mockRS[kData].push(chunk)
+			},
+			onComplete: () => {
+				client.close(() => {
+					resolve(new Response(mockRS, responseInit))
+				})
+			}
+		})
+	})
 }
 
-module.exports = buildFetch
+module.exports = { fetch }

@@ -4,27 +4,21 @@ const Body = require('./body')
 const { Headers, fill } = require('./headers')
 
 class Response extends Body {
-  constructor (body, init = {}) {
-    super(body)
-
-    init = {
-      status: init.status || 200,
-      statusText: init.statusText || '',
-      ...init
-    }
-
-    if (typeof init.status !== 'number' || init.status < 200 || init.status > 599) {
+  constructor (body, { status = 200, statusText = '', headers } = {}) {
+    if (typeof status !== 'number' || status < 200 || status > 599) {
       throw RangeError(`Response status must be between 200 and 599 inclusive. Found: ${init.status}`)
     }
 
-    if (typeof init.statusText !== 'string') {
+    if (typeof statusText !== 'string') {
       throw TypeError(`Response statusText must be of type string. Found type: ${typeof init.statusText}`)
     }
 
-    this.headers = new Headers(init.headers)
-    this.ok = init.status >= 200 && init.status <= 299
-    this.status = init.status
-    this.statusText = init.statusText
+    super(body)
+
+    this.headers = new Headers(headers)
+    this.ok = status >= 200 && status <= 299
+    this.status = status
+    this.statusText = statusText
     this.type = 'default'
   }
 
