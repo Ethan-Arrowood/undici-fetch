@@ -32,7 +32,7 @@ function createUndiciRequestOptions (request, signal) {
 function sort1d (arr) {
   let i = arr.length
   let previous
-  while (i) {
+  while (i > 0) {
     if (arr[i - 2] > arr[i]) {
       previous = arr.splice(i - 2, 2)
       arr.push(...previous)

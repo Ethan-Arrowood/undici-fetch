@@ -131,14 +131,14 @@ class Headers {
   }
 
   forEach (callback, thisArg) {
-    this[kHeaders] = sort1d(this[kHeaders])
+    sort1d(this[kHeaders])
     for (let i = 0; i < this[kHeaders].length; i += 2) {
       callback.call(thisArg, this[kHeaders][i + 1], this[kHeaders][i], this)
     }
   }
 
   * [Symbol.iterator] () {
-    this[kHeaders] = sort1d(this[kHeaders])
+    sort1d(this[kHeaders])
     for (let i = 0; i < this[kHeaders].length; i += 2) {
       yield [this[kHeaders][i], this[kHeaders][i + 1]]
     }
