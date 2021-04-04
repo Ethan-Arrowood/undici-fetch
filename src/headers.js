@@ -144,8 +144,12 @@ class Headers {
   }
 }
 
+// Sort 1-dimensional headers array by traversing it, from the end, and
+// comparing it to the previous pair. If the the > comparison for previous pair 
+// is true, remove previous element and move it to the end.
 function sort (headers) {
   let i = headers.length
+  // eslint-disable-next-line no-cond-assign
   while (i -= 2) {
     if (headers[i - 2] > headers[i]) {
       headers.push(...headers.splice(i - 2, 2))
