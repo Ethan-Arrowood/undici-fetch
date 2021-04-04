@@ -5,7 +5,7 @@ const stream = require('stream')
 const Request = require('../src/request')
 
 const {
-  sortHeaders,
+  sort1d,
   isReadable,
   createUndiciRequestOptions
 } = require('../src/utils')
