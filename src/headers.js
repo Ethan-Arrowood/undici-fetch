@@ -145,17 +145,14 @@ class Headers {
 }
 
 function sort (headers) {
-  const names = []
-  for (let i = 0; i < headers.length; i += 2) {
-    names.push(headers[i])
+  let i = headers.length
+  let previous
+  while (i -= 2) {
+    if (headers[i - 2] > headers[i]) {
+      headers.push(...headers.splice(i - 2, 2))
+    }
   }
-  names.sort()
-  const sorted = []
-  for (const name of names) {
-    sorted.push(name)
-    sorted.push(headers[headers.indexOf(name) + 1])
-  }
-  return sorted
+  return headers
 }
 
 module.exports = {
