@@ -39,7 +39,7 @@ tap.test('Request initialization', t => {
     t.notThrow(() => new Request(validURL, { method: 'POST', body: new Readable() }), 'not throw when body present and method is not GET or HEAD')
   })
 
-  t.test('new request inherits from request input', {only: true}, t => {
+  t.test('new request inherits from request input', { only: true }, t => {
     t.plan(6)
 
     const request1 = new Request(validURL, { headers: [['undici', 'fetch']] })

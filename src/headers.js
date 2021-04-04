@@ -46,9 +46,9 @@ class Headers {
     const [normalizedName, normalizedValue] = normalizeAndValidateHeaderValue(name, value)
 
     let isNewEntry = true
-    for (let i = 0; i < this[kHeaders].length; i+=2) {
+    for (let i = 0; i < this[kHeaders].length; i += 2) {
       if (normalizedName === this[kHeaders][i]) {
-        this[kHeaders][i+1] += `, ${normalizedValue}`
+        this[kHeaders][i + 1] += `, ${normalizedValue}`
         isNewEntry = false
         break
       }
@@ -63,7 +63,7 @@ class Headers {
   delete (name) {
     const normalizedName = normalizeAndValidateHeaderName(name)
 
-    for (let i = 0; i < this[kHeaders].length; i+=2) {
+    for (let i = 0; i < this[kHeaders].length; i += 2) {
       if (normalizedName === this[kHeaders][i]) {
         this[kHeaders].splice(i, 2)
         break
@@ -74,9 +74,9 @@ class Headers {
   get (name) {
     const normalizedName = normalizeAndValidateHeaderName(name)
 
-    for (let i = 0; i < this[kHeaders].length; i+=2) {
+    for (let i = 0; i < this[kHeaders].length; i += 2) {
       if (normalizedName === this[kHeaders][i]) {
-        return this[kHeaders][i+1]
+        return this[kHeaders][i + 1]
       }
     }
 
@@ -86,7 +86,7 @@ class Headers {
   has (name) {
     const normalizedName = normalizeAndValidateHeaderName(name)
 
-    for (let i = 0; i < this[kHeaders].length; i+=2) {
+    for (let i = 0; i < this[kHeaders].length; i += 2) {
       if (normalizedName === this[kHeaders][i]) {
         return true
       }
@@ -99,9 +99,9 @@ class Headers {
     const [normalizedName, normalizedValue] = normalizeAndValidateHeaderValue(name, value)
 
     let isNewEntry = true
-    for (let i = 0; i < this[kHeaders].length; i+=2) {
+    for (let i = 0; i < this[kHeaders].length; i += 2) {
       if (normalizedName === this[kHeaders][i]) {
-        this[kHeaders][i+1] = normalizedValue
+        this[kHeaders][i + 1] = normalizedValue
         isNewEntry = false
         break
       }
@@ -131,22 +131,22 @@ class Headers {
 
   forEach (callback, thisArg) {
     this[kHeaders] = sort(this[kHeaders])
-    for (let i = 0; i < this[kHeaders].length; i+=2) {
-      callback.call(thisArg, this[kHeaders][i+1], this[kHeaders][i], this)
+    for (let i = 0; i < this[kHeaders].length; i += 2) {
+      callback.call(thisArg, this[kHeaders][i + 1], this[kHeaders][i], this)
     }
   }
 
   * [Symbol.iterator] () {
     this[kHeaders] = sort(this[kHeaders])
-    for (let i = 0; i < this[kHeaders].length; i+=2) {
-      yield [this[kHeaders][i], this[kHeaders][i+1]]
+    for (let i = 0; i < this[kHeaders].length; i += 2) {
+      yield [this[kHeaders][i], this[kHeaders][i + 1]]
     }
   }
 }
 
 function sort (headers) {
   const names = []
-  for (let i = 0; i < headers.length; i+=2) {
+  for (let i = 0; i < headers.length; i += 2) {
     names.push(headers[i])
   }
   names.sort()

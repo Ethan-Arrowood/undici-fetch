@@ -3,7 +3,7 @@
 const tap = require('tap')
 const stream = require('stream')
 const Request = require('../src/request')
-const { Headers } = require('../src/headers')
+
 const {
   isReadable,
   createUndiciRequestOptions
