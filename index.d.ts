@@ -7,7 +7,7 @@ declare const fetch: {
     resource: string | Request,
     init?: { signal?: AbortSignal } & RequestInit
   ): Promise<Response>
-  close: () => Array<Promise<void>>
+  close: () => Promise<Array<Promise<void>>>
 }
 
 type BodyInput = Readable | null | undefined

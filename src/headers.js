@@ -25,7 +25,7 @@ function fill (headers, object) {
       headers.append(header[0], header[1])
     }
   } else if (kHeaders in object) {
-    headers[kHeaders] = new Map(object[kHeaders])
+    headers[kHeaders] = new Array(...object[kHeaders])
   } else if (!types.isBoxedPrimitive(object)) {
     for (const [name, value] of Object.entries(object)) {
       headers.append(name, value)
@@ -35,7 +35,7 @@ function fill (headers, object) {
 
 class Headers {
   constructor (init) {
-    this[kHeaders] = new Map()
+    this[kHeaders] = []
 
     if (init && typeof init === 'object') {
       fill(this, init)
@@ -43,61 +43,119 @@ class Headers {
   }
 
   append (name, value) {
-    const [normalizedHeaderName, normalizedHeaderValue] = normalizeAndValidateHeaderValue(name, value)
+    const [normalizedName, normalizedValue] = normalizeAndValidateHeaderValue(name, value)
 
-    const existing = this[kHeaders].get(normalizedHeaderName)
-    const newHeaderValue = existing ? existing + ', ' + normalizedHeaderValue : normalizedHeaderValue
-    this[kHeaders].set(normalizedHeaderName, newHeaderValue)
+    let isNewEntry = true
+    for (let i = 0; i < this[kHeaders].length; i+=2) {
+      if (normalizedName === this[kHeaders][i]) {
+        this[kHeaders][i+1] += `, ${normalizedValue}`
+        isNewEntry = false
+        break
+      }
+    }
+
+    if (isNewEntry) {
+      this[kHeaders].push(normalizedName)
+      this[kHeaders].push(normalizedValue)
+    }
   }
 
   delete (name) {
-    const normalizedHeaderName = normalizeAndValidateHeaderName(name)
+    const normalizedName = normalizeAndValidateHeaderName(name)
 
-    this[kHeaders].delete(normalizedHeaderName)
+    for (let i = 0; i < this[kHeaders].length; i+=2) {
+      if (normalizedName === this[kHeaders][i]) {
+        this[kHeaders].splice(i, 2)
+        break
+      }
+    }
   }
 
   get (name) {
-    const normalizedHeaderName = normalizeAndValidateHeaderName(name)
+    const normalizedName = normalizeAndValidateHeaderName(name)
 
-    const value = this[kHeaders].get(normalizedHeaderName)
-    return value === undefined ? null : value
+    for (let i = 0; i < this[kHeaders].length; i+=2) {
+      if (normalizedName === this[kHeaders][i]) {
+        return this[kHeaders][i+1]
+      }
+    }
+
+    return null
   }
 
   has (name) {
-    const normalizedHeaderName = normalizeAndValidateHeaderName(name)
+    const normalizedName = normalizeAndValidateHeaderName(name)
 
-    return this[kHeaders].has(normalizedHeaderName)
+    for (let i = 0; i < this[kHeaders].length; i+=2) {
+      if (normalizedName === this[kHeaders][i]) {
+        return true
+      }
+    }
+
+    return false
   }
 
   set (name, value) {
-    const [normalizedHeaderName, normalizedHeaderValue] = normalizeAndValidateHeaderValue(name, value)
+    const [normalizedName, normalizedValue] = normalizeAndValidateHeaderValue(name, value)
 
-    this[kHeaders].set(normalizedHeaderName, normalizedHeaderValue)
+    let isNewEntry = true
+    for (let i = 0; i < this[kHeaders].length; i+=2) {
+      if (normalizedName === this[kHeaders][i]) {
+        this[kHeaders][i+1] = normalizedValue
+        isNewEntry = false
+        break
+      }
+    }
+
+    if (isNewEntry) {
+      this[kHeaders].push(normalizedName)
+      this[kHeaders].push(normalizedValue)
+    }
   }
 
   * keys () {
-    yield * Array.from(this[kHeaders].keys()).sort()
+    for (const header of this) {
+      yield header[0]
+    }
   }
 
   * values () {
-    for (const header of this.entries()) {
+    for (const header of this) {
       yield header[1]
     }
   }
 
   * entries () {
-    yield * Array.from(this[kHeaders].entries()).sort()
+    yield * this
   }
 
   forEach (callback, thisArg) {
-    for (const [key, value] of this) {
-      callback.call(thisArg, value, key, this)
+    this[kHeaders] = sort(this[kHeaders])
+    for (let i = 0; i < this[kHeaders].length; i+=2) {
+      callback.call(thisArg, this[kHeaders][i+1], this[kHeaders][i], this)
     }
   }
 
-  [Symbol.iterator] () {
-    return this.entries()
+  * [Symbol.iterator] () {
+    this[kHeaders] = sort(this[kHeaders])
+    for (let i = 0; i < this[kHeaders].length; i+=2) {
+      yield [this[kHeaders][i], this[kHeaders][i+1]]
+    }
   }
+}
+
+function sort (headers) {
+  const names = []
+  for (let i = 0; i < headers.length; i+=2) {
+    names.push(headers[i])
+  }
+  names.sort()
+  const sorted = []
+  for (const name of names) {
+    sorted.push(name)
+    sorted.push(headers[headers.indexOf(name) + 1])
+  }
+  return sorted
 }
 
 module.exports = {

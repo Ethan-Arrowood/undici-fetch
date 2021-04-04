@@ -34,7 +34,7 @@ tap.test('createUndiciRequestOptions', t => {
     const wanted = {
       method: 'GET',
       path,
-      headers: new Headers(),
+      headers: [],
       body: null,
       signal
     }

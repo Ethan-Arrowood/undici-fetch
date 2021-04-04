@@ -96,7 +96,7 @@ tap.test('Headers append', t => {
 })
 
 tap.test('Headers delete', t => {
-  t.plan(2)
+  t.plan(3)
 
   t.test('deletes valid header entry from instance', t => {
     t.plan(3)
@@ -108,6 +108,18 @@ tap.test('Headers delete', t => {
     t.strictEqual(headers.get(name), value)
     t.notThrow(() => headers.delete(name))
     t.strictEqual(headers.get(name), null)
+  })
+
+  t.test('does not mutate internal list when no match is found', t => {
+    t.plan(3)
+
+    const headers = new Headers()
+    const name = 'undici'
+    const value = 'fetch'
+    headers.append(name, value)
+    t.strictEqual(headers.get(name), value)
+    t.notThrow(() => headers.delete('not-undici'))
+    t.strictEqual(headers.get(name), value)
   })
 
   t.test('throws on invalid entry', t => {
@@ -125,8 +137,9 @@ tap.test('Headers get', t => {
   t.test('returns null if not found in instance', t => {
     t.plan(1)
     const headers = new Headers()
+    headers.append('undici', 'fetch')
 
-    t.strictEqual(headers.get('undici'), null)
+    t.strictEqual(headers.get('not-undici'), null)
   })
 
   t.test('returns header values from valid header name', t => {
@@ -157,6 +170,7 @@ tap.test('Headers has', t => {
     const headers = new Headers()
 
     const name = 'undici'
+    headers.append('not-undici', 'fetch')
     t.strictEqual(headers.has(name), false)
     headers.append(name, 'fetch')
     t.strictEqual(headers.has(name), true)
@@ -180,6 +194,7 @@ tap.test('Headers set', t => {
 
     const name = 'undici'
     const value = 'fetch'
+    headers.append('not-undici', 'fetch')
     t.notThrow(() => headers.set(name, value))
     t.strictEqual(headers.get(name), value)
   })
