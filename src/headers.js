@@ -4,6 +4,7 @@ const { types } = require('util')
 const { validateHeaderName, validateHeaderValue } = require('http')
 
 const { kHeaders } = require('./symbols')
+const { sort1d } = require('./utils')
 
 function normalizeAndValidateHeaderName (name) {
   const normalizedHeaderName = name.toLowerCase()
@@ -130,45 +131,18 @@ class Headers {
   }
 
   forEach (callback, thisArg) {
-    this[kHeaders] = sort(this[kHeaders])
+    sort1d(this[kHeaders])
     for (let i = 0; i < this[kHeaders].length; i += 2) {
       callback.call(thisArg, this[kHeaders][i + 1], this[kHeaders][i], this)
     }
   }
 
   * [Symbol.iterator] () {
-    this[kHeaders] = sort(this[kHeaders])
+    sort1d(this[kHeaders])
     for (let i = 0; i < this[kHeaders].length; i += 2) {
       yield [this[kHeaders][i], this[kHeaders][i + 1]]
     }
   }
-}
-
-function sort (headers) {
-  const namesAndOriginalIndex = []
-  // O(n)
-  for (let i = 0; i < headers.length; i += 2) {
-    namesAndOriginalIndex.push([headers[i], i])
-  }
-  // O(n log n)
-  namesAndOriginalIndex.sort((a, b) => {
-    const nameA = a[0]
-    const nameB = b[0]
-    if (nameA < nameB) {
-      return -1
-    } else if (nameA > nameB) {
-      return 1
-    } else {
-      return 0
-    }
-  })
-  const sorted = []
-  // O(n/2)
-  for (const [name, index] of namesAndOriginalIndex) {
-    sorted.push(name)
-    sorted.push(headers[index + 1])
-  }
-  return sorted
 }
 
 module.exports = {
