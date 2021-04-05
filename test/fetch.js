@@ -26,7 +26,6 @@ tap.test('fetch can handle basic requests', t => {
     
     t.strictEqual(found, wanted)
 
-    await fetch.close()
     await closeServer(server)
     t.end()
   })

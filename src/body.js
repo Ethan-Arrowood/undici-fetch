@@ -51,7 +51,7 @@ class Body {
   async text () {
     if (this[kBody] == null) return ''
 
-    this[kBody].setEncoding('utf8')
+    // this[kBody].setEncoding('utf8')
     let res = ''
     for await (const chunk of this[kBody][kData]) {
       if (!this[kBodyUsed]) this[kBodyUsed] = true
