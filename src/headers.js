@@ -4,7 +4,6 @@ const { types } = require('util')
 const { validateHeaderName, validateHeaderValue } = require('http')
 
 const { kHeaders } = require('./symbols')
-const { sort1d } = require('./utils')
 
 function normalizeAndValidateHeaderName (name) {
   const normalizedHeaderName = name.toLowerCase()
@@ -21,9 +20,18 @@ function normalizeAndValidateHeaderValue (name, value) {
 
 function fill (headers, object) {
   if (Array.isArray(object)) {
-    for (let i = 0, header = object[0]; i < object.length; i++, header = object[i]) {
-      if (header.length !== 2) throw TypeError('header entry must be of length two')
-      headers.append(header[0], header[1])
+    if (Array.isArray(object[0])) {
+      for (let i = 0, header = object[0]; i < object.length; i++, header = object[i]) {
+        if (header.length !== 2) throw TypeError('header entry must be of length two')
+        headers.append(header[0], header[1])
+      }
+    } else if (typeof object[0] === 'string') {
+      if (object.length % 2 !== 0) throw TypeError('flattened header init must have even length')
+      for (let i = 0; i < object.length; i += 2) {
+        headers.append(object[i], object[i + 1])
+      }
+    } else {
+      throw TypeError('invalid array-based header init')
     }
   } else if (kHeaders in object) {
     headers[kHeaders] = new Array(...object[kHeaders])
@@ -46,19 +54,17 @@ class Headers {
   append (name, value) {
     const [normalizedName, normalizedValue] = normalizeAndValidateHeaderValue(name, value)
 
-    let isNewEntry = true
+    let index = this[kHeaders].length
     for (let i = 0; i < this[kHeaders].length; i += 2) {
       if (normalizedName === this[kHeaders][i]) {
         this[kHeaders][i + 1] += `, ${normalizedValue}`
-        isNewEntry = false
+        return
+      } else if (this[kHeaders][i] > normalizedName) {
+        index = i
         break
       }
     }
-
-    if (isNewEntry) {
-      this[kHeaders].push(normalizedName)
-      this[kHeaders].push(normalizedValue)
-    }
+    this[kHeaders].splice(index, 0, normalizedName, normalizedValue)
   }
 
   delete (name) {
@@ -99,19 +105,14 @@ class Headers {
   set (name, value) {
     const [normalizedName, normalizedValue] = normalizeAndValidateHeaderValue(name, value)
 
-    let isNewEntry = true
+    let index = this[kHeaders].length
     for (let i = 0; i < this[kHeaders].length; i += 2) {
-      if (normalizedName === this[kHeaders][i]) {
-        this[kHeaders][i + 1] = normalizedValue
-        isNewEntry = false
+      if (normalizedName === this[kHeaders][i] || this[kHeaders][i] > normalizedName) {
+        index = i
         break
       }
     }
-
-    if (isNewEntry) {
-      this[kHeaders].push(normalizedName)
-      this[kHeaders].push(normalizedValue)
-    }
+    this[kHeaders].splice(index, 0, normalizedName, normalizedValue)
   }
 
   * keys () {
@@ -131,14 +132,12 @@ class Headers {
   }
 
   forEach (callback, thisArg) {
-    sort1d(this[kHeaders])
     for (let i = 0; i < this[kHeaders].length; i += 2) {
       callback.call(thisArg, this[kHeaders][i + 1], this[kHeaders][i], this)
     }
   }
 
   * [Symbol.iterator] () {
-    sort1d(this[kHeaders])
     for (let i = 0; i < this[kHeaders].length; i += 2) {
       yield [this[kHeaders][i], this[kHeaders][i + 1]]
     }
