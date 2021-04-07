@@ -54,17 +54,24 @@ class Headers {
   append (name, value) {
     const [normalizedName, normalizedValue] = normalizeAndValidateHeaderValue(name, value)
 
-    let index = this[kHeaders].length
-    for (let i = 0; i < this[kHeaders].length; i += 2) {
-      if (normalizedName === this[kHeaders][i]) {
-        this[kHeaders][i + 1] += `, ${normalizedValue}`
-        return
-      } else if (this[kHeaders][i] > normalizedName) {
-        index = i
-        break
+    let i = this[kHeaders].length
+    let low = -1
+    let probe
+    while (i - low > 1) {
+      probe = (i + low) >>> 1
+      if (this[kHeaders][probe % 2 ? probe - 1 : probe] < normalizedName) {
+        low = probe
+      } else {
+        i = probe
       }
     }
-    this[kHeaders].splice(index, 0, normalizedName, normalizedValue)
+    if (this[kHeaders][i] === normalizedName) {
+      this[kHeaders][i + 1] += `, ${normalizedValue}`
+    } else if (this[kHeaders][i - 2] === normalizedName) {
+      this[kHeaders][i - 1] += `, ${normalizedValue}`
+    } else {
+      this[kHeaders].splice(i, 0, normalizedName, normalizedValue)
+    }
   }
 
   delete (name) {
