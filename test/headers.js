@@ -6,6 +6,7 @@ const {
   normalizeAndValidateHeaderName,
   normalizeAndValidateHeaderValue
 } = require('../src/headers')
+const { kHeaders } = require('../src/symbols')
 
 tap.test('Headers initialization', t => {
   t.plan(5)
@@ -17,17 +18,24 @@ tap.test('Headers initialization', t => {
   })
 
   t.test('with array of header entries', t => {
-    t.plan(2)
+    t.plan(3)
 
-    t.test('fails with odd length init child', t => {
-      t.plan(1)
-      const init = [['undici', 'fetch'], ['fetch']]
-      t.throw(() => new Headers(init), TypeError('header entry must be of length two'))
+    t.test('fails on invalid array-based init', t => {
+      t.plan(3)
+      t.throw(() => new Headers([['undici', 'fetch'], ['fetch']]), TypeError('header entry must be of length two'))
+      t.throw(() => new Headers(['undici', 'fetch', 'fetch']), TypeError('flattened header init must have even length'))
+      t.throw(() => new Headers([0, 1, 2]), TypeError('invalid array-based header init'))
     })
 
     t.test('allows even length init', t => {
       t.plan(1)
       const init = [['undici', 'fetch'], ['fetch', 'undici']]
+      t.notThrow(() => new Headers(init))
+    })
+
+    t.test('allows flattened init', t => {
+      t.plan(1)
+      const init = ['undici', 'fetch', 'fetch', 'undici']
       t.notThrow(() => new Headers(init))
     })
   })
@@ -96,7 +104,7 @@ tap.test('Headers append', t => {
 })
 
 tap.test('Headers delete', t => {
-  t.plan(2)
+  t.plan(3)
 
   t.test('deletes valid header entry from instance', t => {
     t.plan(3)
@@ -108,6 +116,18 @@ tap.test('Headers delete', t => {
     t.strictEqual(headers.get(name), value)
     t.notThrow(() => headers.delete(name))
     t.strictEqual(headers.get(name), null)
+  })
+
+  t.test('does not mutate internal list when no match is found', t => {
+    t.plan(3)
+
+    const headers = new Headers()
+    const name = 'undici'
+    const value = 'fetch'
+    headers.append(name, value)
+    t.strictEqual(headers.get(name), value)
+    t.notThrow(() => headers.delete('not-undici'))
+    t.strictEqual(headers.get(name), value)
   })
 
   t.test('throws on invalid entry', t => {
@@ -125,8 +145,9 @@ tap.test('Headers get', t => {
   t.test('returns null if not found in instance', t => {
     t.plan(1)
     const headers = new Headers()
+    headers.append('undici', 'fetch')
 
-    t.strictEqual(headers.get('undici'), null)
+    t.strictEqual(headers.get('not-undici'), null)
   })
 
   t.test('returns header values from valid header name', t => {
@@ -157,6 +178,7 @@ tap.test('Headers has', t => {
     const headers = new Headers()
 
     const name = 'undici'
+    headers.append('not-undici', 'fetch')
     t.strictEqual(headers.has(name), false)
     headers.append(name, 'fetch')
     t.strictEqual(headers.has(name), true)
@@ -180,6 +202,7 @@ tap.test('Headers set', t => {
 
     const name = 'undici'
     const value = 'fetch'
+    headers.append('not-undici', 'fetch')
     t.notThrow(() => headers.set(name, value))
     t.strictEqual(headers.get(name), value)
   })
@@ -208,7 +231,7 @@ tap.test('Headers set', t => {
 })
 
 tap.test('Headers as Iterable', t => {
-  t.plan(5)
+  t.plan(6)
 
   t.test('returns combined and sorted entries using .forEach()', t => {
     t.plan(12)
@@ -310,6 +333,28 @@ tap.test('Headers as Iterable', t => {
     for (const header of new Headers(init)) {
       t.strictDeepEqual(header, expected[i++])
     }
+  })
+
+  t.test('validate append ordering', t => {
+    t.plan(1)
+    const headers = new Headers(['a', '1', 'c', '3', 'e', '5'])
+    headers.append('d', '4')
+    headers.append('b', '2')
+    headers.append('f', '6')
+    headers.append('c', '7')
+    headers.append('abc', '8')
+
+    const expected = [
+      'a', '1',
+      'abc', '8',
+      'b', '2',
+      'c', '3, 7',
+      'd', '4',
+      'e', '5',
+      'f', '6'
+    ]
+
+    t.deepEqual(headers[kHeaders], expected)
   })
 })
 

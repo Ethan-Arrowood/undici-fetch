@@ -3,7 +3,7 @@
 const tap = require('tap')
 const stream = require('stream')
 const Request = require('../src/request')
-const { Headers } = require('../src/headers')
+
 const {
   isReadable,
   createUndiciRequestOptions
@@ -34,7 +34,7 @@ tap.test('createUndiciRequestOptions', t => {
     const wanted = {
       method: 'GET',
       path,
-      headers: new Headers(),
+      headers: [],
       body: null,
       signal
     }

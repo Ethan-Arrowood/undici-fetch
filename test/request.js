@@ -43,7 +43,6 @@ tap.test('Request initialization', t => {
     t.plan(6)
 
     const request1 = new Request(validURL, { headers: [['undici', 'fetch']] })
-
     const request2 = new Request(request1)
     t.strictDeepEqual(request1, request2)
     t.deepEqual(request1.headers, request2.headers)

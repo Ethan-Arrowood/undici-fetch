@@ -2,6 +2,8 @@
 
 const stream = require('stream')
 
+const { kHeaders } = require('./symbols')
+
 function isReadable (obj) {
   return obj instanceof stream.Stream && typeof obj._read === 'function' && typeof obj._readableState === 'object'
 }
@@ -18,7 +20,7 @@ function createUndiciRequestOptions (request, signal) {
     path: request.url.pathname + request.url.search,
     method: request.method,
     body: request.body,
-    headers: request.headers,
+    headers: request.headers[kHeaders],
     signal
   }
 }
