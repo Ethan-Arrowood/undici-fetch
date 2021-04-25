@@ -27,7 +27,7 @@ if (isMainThread) {
   })
 
   server.listen(0, () => {
-    const N = 10000
+    const N = 1000
     const url = `http://localhost:${server.address().port}`
 
     const spawnWorker = (N, url, clientType) => new Promise((resolve, reject) => {
@@ -69,11 +69,9 @@ if (isMainThread) {
   const https = require('https')
 
   let fetchClient = null
-  let close = false
   switch (clientType) {
     case 'undici-fetch': {
-      fetchClient = require('../src/fetch')()
-      close = true
+      fetchClient = require('../src/fetch').fetch
       break
     }
     case 'node-fetch': {
@@ -139,14 +137,11 @@ if (isMainThread) {
 
   run(N, url, fetchClient)
     .then(({ startTime, endTime }) => {
-      if (close) {
-        fetchClient.close()
-      }
-
       parentPort.postMessage({
         clientType,
         startTime,
         endTime
       })
+      process.exit(1)
     })
 }

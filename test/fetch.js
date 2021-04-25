@@ -1,9 +1,10 @@
 const tap = require('tap')
-const semver = require('semver')
 const http = require('http')
+const { once } = require('events')
+const { Readable } = require('stream')
+
 const { closeServer } = require('./testUtils')
 const { fetch } = require('../src/fetch')
-const { once } = require('events')
 
 const validURL = 'https://undici-fetch.dev'
 
@@ -12,7 +13,7 @@ tap.test('fetch can handle basic requests', t => {
     const wanted = 'undici-fetch'
 
     const server = http.createServer((req, res) => {
-      t.strictEqual(req.method, 'GET')
+      t.equal(req.method, 'GET')
       res.write(wanted)
       res.end()
     })
@@ -24,19 +25,17 @@ tap.test('fetch can handle basic requests', t => {
     const res = await fetch(`http://localhost:${server.address().port}/`)
     const found = await res.text()
     
-    t.strictEqual(found, wanted)
+    t.equal(found, wanted)
 
     await closeServer(server)
     t.end()
   })
 
-  t.test('simple POST request', {skip: true}, t => {
-    t.plan(2)
-
+  t.test('simple POST request', async t => {
     const wanted = 'undici-fetch'
 
     const server = http.createServer((req, res) => {
-      t.strictEqual(req.method, 'POST')
+      t.equal(req.method, 'POST')
       req.setEncoding('utf8')
       let found = ''
       req.on('data', d => {
@@ -48,23 +47,23 @@ tap.test('fetch can handle basic requests', t => {
       })
     })
 
-    t.tearDown(async () => {
-      await fetch.close()
-      await closeServer(server)
-    })
+    server.listen(0)
 
-    server.listen(0, async () => {
-      const { port } = server.address()
-      const res = await fetch(
-        `http://localhost:${port}/`,
-        {
-          method: 'POST',
-          body: Readable.from(wanted, { objectMode: false })
-        }
-      )
-      const found = await res.text()
-      t.strictEqual(found, wanted)
-    })
+    await once(server, 'listening')
+
+    const res = await fetch(
+      `http://localhost:${server.address().port}/`,
+      {
+        method: 'POST',
+        body: Readable.from(wanted, { objectMode: false })
+      }
+    )
+    const found = await res.text()
+    
+    t.equal(found, wanted)
+
+    await closeServer(server)
+    t.end()
   })
 
   t.end()

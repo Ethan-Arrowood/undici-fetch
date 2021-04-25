@@ -1,8 +1,7 @@
 'use strict'
 
-const buildFetch = require('./src/fetch')
-
-const fetch = buildFetch()
+const { fetch } = require('./src/fetch')
+const { buildFetch } = require('./src/buildFetch')
 
 fetch.buildFetch = buildFetch
 

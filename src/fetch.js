@@ -10,11 +10,11 @@ const { kData } = require('./symbols')
 function fetch (resource, init = {}) {
 	return new Promise((resolve, reject) => {
 		const request = new Request(resource, init)
-		const client = new Undici.Client(request.url.origin)
+		const pool = new Undici.Client(request.url.origin)
 
 		if (init.signal) {
 			init.signal.once('abort', () => {
-				client.close()
+				pool.close()
 				reject(new AbortError())
 			})
 		}
@@ -23,7 +23,7 @@ function fetch (resource, init = {}) {
 
 		const responseInit = {}
 
-		client.dispatch({
+		pool.dispatch({
 			path: request.url.pathname + request.url.search,
 			method: request.method,
 			headers: request.headers,
@@ -46,9 +46,7 @@ function fetch (resource, init = {}) {
 				mockRS[kData].push(chunk)
 			},
 			onComplete: () => {
-				client.close(() => {
-					resolve(new Response(mockRS, responseInit))
-				})
+				resolve(new Response(mockRS, responseInit))
 			}
 		})
 	})

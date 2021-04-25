@@ -4,7 +4,6 @@ const { types } = require('util')
 const { validateHeaderName, validateHeaderValue } = require('http')
 
 const { kHeaders } = require('./symbols')
-const { sort1d } = require('./utils')
 
 function normalizeAndValidateHeaderName (name) {
   const normalizedHeaderName = name.toLowerCase()
