@@ -25,10 +25,10 @@ function fill (headers, object) {
         if (header.length !== 2) throw TypeError('header entry must be of length two')
         headers.append(header[0], header[1])
       }
-    } else if (typeof object[0] === 'string') {
+    } else if (typeof object[0] === 'string' || Buffer.isBuffer(object[0])) {
       if (object.length % 2 !== 0) throw TypeError('flattened header init must have even length')
       for (let i = 0; i < object.length; i += 2) {
-        headers.append(object[i], object[i + 1])
+        headers.append(object[i].toString('utf-8'), object[i + 1].toString('utf-8'))
       }
     } else {
       throw TypeError('invalid array-based header init')

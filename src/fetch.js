@@ -5,16 +5,16 @@ const Request = require('./request')
 const Response = require('./response')
 const { AbortError, MockReadableStream } = require('./utils')
 const { STATUS_CODES } = require('http')
-const { kData } = require('./symbols')
+const { kData, kHeaders } = require('./symbols')
 
 function fetch (resource, init = {}) {
 	return new Promise((resolve, reject) => {
 		const request = new Request(resource, init)
-		const pool = new Undici.Client(request.url.origin)
+		const client = new Undici.Client(request.url.origin)
 
 		if (init.signal) {
 			init.signal.once('abort', () => {
-				pool.close()
+				client.close()
 				reject(new AbortError())
 			})
 		}
@@ -23,7 +23,7 @@ function fetch (resource, init = {}) {
 
 		const responseInit = {}
 
-		pool.dispatch({
+		client.dispatch({
 			path: request.url.pathname + request.url.search,
 			method: request.method,
 			headers: request.headers,
