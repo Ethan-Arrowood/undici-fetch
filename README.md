@@ -68,30 +68,35 @@ Built on [Undici](https://github.com/nodejs/undici)
 
 `npm run benchmarks`
 
-On my personal machine:
+On a personal machine:
 
 ```
-MacBook Pro (15-inch, 2018)
-Processor 2.9 GHz 6-Core Intel Core i9
-Memory 32 GB 2400 MHz DDR4
+MacBook Pro (16-inch, 2019)
+Processor 2.4 GHz 8-Core Intel Core i9
+Memory 32 GB 2667 MHz DDR4
 ```
 
 Results:
 
 ```
-{
-  undici: { startTime: 72530288319510n, endTime: 72544207363031n },
-  node: { startTime: 72530283341532n, endTime: 72575809241450n },
-  minipass: { startTime: 72530290384674n, endTime: 72576867597178n }
-}
-Results for 10000 subsequent requests: 
-undici-fetch | total time: 13919043521ns (13919.044ms)
-node-fetch | total time: 45525899918ns (45525.900ms)
-minipass-fetch | total time: 46577212504ns (46577.213ms)
+Results for 10000 subsequent requests:
+undici-fetch              | total time: 13545309464ns (13545.309ms)
+node-fetch                | total time: 40094125331ns (40094.125ms)
+node-fetch_with-agent     | total time: 15011468546ns (15011.469ms)
+minipass-fetch            | total time: 40081950980ns (40081.951ms)
+minipass-fetch_with-agent | total time: 15551247404ns (15551.247ms)
+axios                     | total time: 40082953438ns (40082.953ms)
+axios_with-agent          | total time: 15784146768ns (15784.147ms)
 ---
-undici-fetch <> node-fetch percent change: -69.426%
-undici-fetch <> minipass-fetch percent change: -70.116%
+undici-fetch <> node-fetch percent change: -66.216%
+undici-fetch <> node-fetch_with-agent percent change: -9.767%
+undici-fetch <> minipass-fetch percent change: -66.206%
+undici-fetch <> minipass-fetch_with-agent percent change: -12.899%
+undici-fetch <> axios percent change: -66.207%
+undici-fetch <> axios_with-agent percent change: -14.184%
 ```
+
+The `with-agent` variants use a `new http.Agent({ keepAlive: true })` to share a network connection similarly to what Undici does to make the comparison more fair.
 
 # API
 
