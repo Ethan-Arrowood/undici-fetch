@@ -13,7 +13,7 @@ tap.test('GET request', t => {
     res.end()
   })
 
-  t.tearDown(server.close.bind(server))
+  t.teardown(server.close.bind(server))
 
   server.listen(0, () => {
     fetch(`http://localhost:${server.address().port}/`)
