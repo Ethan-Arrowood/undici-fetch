@@ -14,7 +14,7 @@ tap.test('Headers initialization', t => {
   t.test('allows undefined', t => {
     t.plan(1)
 
-    t.notThrow(() => new Headers())
+    t.doesNotThrow(() => new Headers())
   })
 
   t.test('with array of header entries', t => {
@@ -22,21 +22,21 @@ tap.test('Headers initialization', t => {
 
     t.test('fails on invalid array-based init', t => {
       t.plan(3)
-      t.throw(() => new Headers([['undici', 'fetch'], ['fetch']]), TypeError('header entry must be of length two'))
-      t.throw(() => new Headers(['undici', 'fetch', 'fetch']), TypeError('flattened header init must have even length'))
-      t.throw(() => new Headers([0, 1, 2]), TypeError('invalid array-based header init'))
+      t.throws(() => new Headers([['undici', 'fetch'], ['fetch']]), TypeError('header entry must be of length two'))
+      t.throws(() => new Headers(['undici', 'fetch', 'fetch']), TypeError('flattened header init must have even length'))
+      t.throws(() => new Headers([0, 1, 2]), TypeError('invalid array-based header init'))
     })
 
     t.test('allows even length init', t => {
       t.plan(1)
       const init = [['undici', 'fetch'], ['fetch', 'undici']]
-      t.notThrow(() => new Headers(init))
+      t.doesNotThrow(() => new Headers(init))
     })
 
     t.test('allows flattened init', t => {
       t.plan(1)
       const init = ['undici', 'fetch', 'fetch', 'undici']
-      t.notThrow(() => new Headers(init))
+      t.doesNotThrow(() => new Headers(init))
     })
   })
 
@@ -46,24 +46,24 @@ tap.test('Headers initialization', t => {
       undici: 'fetch',
       fetch: 'undici'
     }
-    t.notThrow(() => new Headers(init))
+    t.doesNotThrow(() => new Headers(init))
   })
 
   t.test('fails silently if a boxed primitive object is passed', t => {
     t.plan(3)
     /* eslint-disable no-new-wrappers */
-    t.notThrow(() => new Headers(new Number()))
-    t.notThrow(() => new Headers(new Boolean()))
-    t.notThrow(() => new Headers(new String()))
+    t.doesNotThrow(() => new Headers(new Number()))
+    t.doesNotThrow(() => new Headers(new Boolean()))
+    t.doesNotThrow(() => new Headers(new String()))
     /* eslint-enable no-new-wrappers */
   })
 
   t.test('fails silently if function or primitive is passed', t => {
     t.plan(4)
-    t.notThrow(() => new Headers(Function))
-    t.notThrow(() => new Headers(function () {}))
-    t.notThrow(() => new Headers(1))
-    t.notThrow(() => new Headers('1'))
+    t.doesNotThrow(() => new Headers(Function))
+    t.doesNotThrow(() => new Headers(function () {}))
+    t.doesNotThrow(() => new Headers(1))
+    t.doesNotThrow(() => new Headers('1'))
   })
 })
 
@@ -76,8 +76,8 @@ tap.test('Headers append', t => {
 
     const name = 'undici'
     const value = 'fetch'
-    t.notThrow(() => headers.append(name, value))
-    t.strictEqual(headers.get(name), value)
+    t.doesNotThrow(() => headers.append(name, value))
+    t.equal(headers.get(name), value)
   })
 
   t.test('adds valid header to existing entry', t => {
@@ -88,18 +88,18 @@ tap.test('Headers append', t => {
     const value1 = 'fetch1'
     const value2 = 'fetch2'
     headers.append(name, value1)
-    t.strictEqual(headers.get(name), value1)
-    t.notThrow(() => headers.append(name, value2))
-    t.strictEqual(headers.get(name), [value1, value2].join(', '))
+    t.equal(headers.get(name), value1)
+    t.doesNotThrow(() => headers.append(name, value2))
+    t.equal(headers.get(name), [value1, value2].join(', '))
   })
 
   t.test('throws on invalid entry', t => {
     t.plan(3)
     const headers = new Headers()
 
-    t.throw(() => headers.append(), 'throws on missing name and value')
-    t.throw(() => headers.append('undici'), 'throws on missing value')
-    t.throw(() => headers.append('invalid @ header ? name', 'valid value'), 'throws on invalid name')
+    t.throws(() => headers.append(), 'throws on missing name and value')
+    t.throws(() => headers.append('undici'), 'throws on missing value')
+    t.throws(() => headers.append('invalid @ header ? name', 'valid value'), 'throws on invalid name')
   })
 })
 
@@ -113,9 +113,9 @@ tap.test('Headers delete', t => {
     const name = 'undici'
     const value = 'fetch'
     headers.append(name, value)
-    t.strictEqual(headers.get(name), value)
-    t.notThrow(() => headers.delete(name))
-    t.strictEqual(headers.get(name), null)
+    t.equal(headers.get(name), value)
+    t.doesNotThrow(() => headers.delete(name))
+    t.equal(headers.get(name), null)
   })
 
   t.test('does not mutate internal list when no match is found', t => {
@@ -125,17 +125,17 @@ tap.test('Headers delete', t => {
     const name = 'undici'
     const value = 'fetch'
     headers.append(name, value)
-    t.strictEqual(headers.get(name), value)
-    t.notThrow(() => headers.delete('not-undici'))
-    t.strictEqual(headers.get(name), value)
+    t.equal(headers.get(name), value)
+    t.doesNotThrow(() => headers.delete('not-undici'))
+    t.equal(headers.get(name), value)
   })
 
   t.test('throws on invalid entry', t => {
     t.plan(2)
     const headers = new Headers()
 
-    t.throw(() => headers.delete(), 'throws on missing namee')
-    t.throw(() => headers.delete('invalid @ header ? name'), 'throws on invalid name')
+    t.throws(() => headers.delete(), 'throws on missing namee')
+    t.throws(() => headers.delete('invalid @ header ? name'), 'throws on invalid name')
   })
 })
 
@@ -147,7 +147,7 @@ tap.test('Headers get', t => {
     const headers = new Headers()
     headers.append('undici', 'fetch')
 
-    t.strictEqual(headers.get('not-undici'), null)
+    t.equal(headers.get('not-undici'), null)
   })
 
   t.test('returns header values from valid header name', t => {
@@ -156,17 +156,17 @@ tap.test('Headers get', t => {
 
     const name = 'undici'; const value1 = 'fetch1'; const value2 = 'fetch2'
     headers.append(name, value1)
-    t.strictEqual(headers.get(name), value1)
+    t.equal(headers.get(name), value1)
     headers.append(name, value2)
-    t.strictEqual(headers.get(name), [value1, value2].join(', '))
+    t.equal(headers.get(name), [value1, value2].join(', '))
   })
 
   t.test('throws on invalid entry', t => {
     t.plan(2)
     const headers = new Headers()
 
-    t.throw(() => headers.get(), 'throws on missing name')
-    t.throw(() => headers.get('invalid @ header ? name'), 'throws on invalid name')
+    t.throws(() => headers.get(), 'throws on missing name')
+    t.throws(() => headers.get('invalid @ header ? name'), 'throws on invalid name')
   })
 })
 
@@ -179,17 +179,17 @@ tap.test('Headers has', t => {
 
     const name = 'undici'
     headers.append('not-undici', 'fetch')
-    t.strictEqual(headers.has(name), false)
+    t.equal(headers.has(name), false)
     headers.append(name, 'fetch')
-    t.strictEqual(headers.has(name), true)
+    t.equal(headers.has(name), true)
   })
 
   t.test('throws on invalid entry', t => {
     t.plan(2)
     const headers = new Headers()
 
-    t.throw(() => headers.has(), 'throws on missing name')
-    t.throw(() => headers.has('invalid @ header ? name'), 'throws on invalid name')
+    t.throws(() => headers.has(), 'throws on missing name')
+    t.throws(() => headers.has('invalid @ header ? name'), 'throws on invalid name')
   })
 })
 
@@ -203,8 +203,8 @@ tap.test('Headers set', t => {
     const name = 'undici'
     const value = 'fetch'
     headers.append('not-undici', 'fetch')
-    t.notThrow(() => headers.set(name, value))
-    t.strictEqual(headers.get(name), value)
+    t.doesNotThrow(() => headers.set(name, value))
+    t.equal(headers.get(name), value)
   })
 
   t.test('overwrites existing entry', t => {
@@ -214,19 +214,19 @@ tap.test('Headers set', t => {
     const name = 'undici'
     const value1 = 'fetch1'
     const value2 = 'fetch2'
-    t.notThrow(() => headers.set(name, value1))
-    t.strictEqual(headers.get(name), value1)
-    t.notThrow(() => headers.set(name, value2))
-    t.strictEqual(headers.get(name), value2)
+    t.doesNotThrow(() => headers.set(name, value1))
+    t.equal(headers.get(name), value1)
+    t.doesNotThrow(() => headers.set(name, value2))
+    t.equal(headers.get(name), value2)
   })
 
   t.test('throws on invalid entry', t => {
     t.plan(3)
     const headers = new Headers()
 
-    t.throw(() => headers.set(), 'throws on missing name and value')
-    t.throw(() => headers.set('undici'), 'throws on missing value')
-    t.throw(() => headers.set('invalid @ header ? name', 'valid value'), 'throws on invalid name')
+    t.throws(() => headers.set(), 'throws on missing name and value')
+    t.throws(() => headers.set('undici'), 'throws on missing value')
+    t.throws(() => headers.set('invalid @ header ? name', 'valid value'), 'throws on invalid name')
   })
 })
 
@@ -252,8 +252,8 @@ tap.test('Headers as Iterable', t => {
     const that = {}
     let i = 0
     headers.forEach(function (value, key, _headers) {
-      t.strictDeepEqual(expected[i++], [key, value])
-      t.strictEqual(headers, _headers)
+      t.strictSame(expected[i++], [key, value])
+      t.equal(headers, _headers)
       t.equal(this, that)
     }, that)
   })
@@ -276,7 +276,7 @@ tap.test('Headers as Iterable', t => {
     const headers = new Headers(init)
     let i = 0
     for (const header of headers.entries()) {
-      t.strictDeepEqual(header, expected[i++])
+      t.strictSame(header, expected[i++])
     }
   })
 
@@ -293,7 +293,7 @@ tap.test('Headers as Iterable', t => {
     const headers = new Headers(init)
     let i = 0
     for (const key of headers.keys()) {
-      t.strictDeepEqual(key, expected[i++])
+      t.strictSame(key, expected[i++])
     }
   })
 
@@ -310,7 +310,7 @@ tap.test('Headers as Iterable', t => {
     const headers = new Headers(init)
     let i = 0
     for (const value of headers.values()) {
-      t.strictDeepEqual(value, expected[i++])
+      t.strictSame(value, expected[i++])
     }
   })
 
@@ -331,7 +331,7 @@ tap.test('Headers as Iterable', t => {
     ]
     let i = 0
     for (const header of new Headers(init)) {
-      t.strictDeepEqual(header, expected[i++])
+      t.strictSame(header, expected[i++])
     }
   })
 
@@ -354,7 +354,7 @@ tap.test('Headers as Iterable', t => {
       'f', '6'
     ]
 
-    t.deepEqual(headers[kHeaders], expected)
+    t.same(headers[kHeaders], expected)
   })
 })
 
@@ -362,11 +362,11 @@ tap.test('Headers normalize and validate', t => {
   t.plan(2)
   const name = 'UNDICI'
   const value = '    fetch	' // eslint-disable-line no-tabs
-  t.strictEqual(
+  t.equal(
     normalizeAndValidateHeaderName(name),
     'undici'
   )
-  t.strictDeepEqual(
+  t.strictSame(
     normalizeAndValidateHeaderValue(name, value),
     ['undici', 'fetch']
   )

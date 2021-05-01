@@ -1,7 +1,9 @@
-const kData = Symbol('data')
+const kBody = Symbol('body')
+const kBodyUsed = Symbol('bodyUsed')
 const kHeaders = Symbol('headers')
 
 module.exports = {
-  kData,
-  kHeaders
+  kBody,
+  kBodyUsed,
+  kHeaders,
 }

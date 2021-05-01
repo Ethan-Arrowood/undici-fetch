@@ -1,15 +1,8 @@
 'use strict'
+const { Stream } = require('stream')
 
-const { kData, kHeaders } = require('./symbols')
-
-class MockReadableStream {
-  constructor () {
-    this[kData] = []
-  }
-
-  * [Symbol.asyncIterator]() {
-    yield * this[kData]
-  }
+function isReadable (obj) {
+  return obj instanceof Stream && typeof obj._read === 'function' && typeof obj._readableState === 'object'
 }
 
 class AbortError extends Error {
@@ -19,18 +12,7 @@ class AbortError extends Error {
   }
 }
 
-function createUndiciRequestOptions (request, signal) {
-  return {
-    path: request.url.pathname + request.url.search,
-    method: request.method,
-    body: request.body,
-    headers: request.headers[kHeaders],
-    signal
-  }
-}
-
 module.exports = {
   AbortError,
-  createUndiciRequestOptions,
-  MockReadableStream
+  isReadable
 }

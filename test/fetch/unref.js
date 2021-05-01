@@ -15,7 +15,6 @@ if (isMainThread) {
       const url = `http://localhost:${server.address().port}`
       const worker = new Worker(__filename, { workerData: { url } })
       worker.on('exit', code => {
-        console.error(code)
         t.equal(code, 0)
       })
     })
@@ -26,7 +25,9 @@ if (isMainThread) {
   fetch(workerData.url)
     .then(response => response.text())
     .then(found => {
-      console.log(found)
+      if (found !== 'undici-fetch') {
+        throw new Error()
+      }
     })
 
   setTimeout(() => {

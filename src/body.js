@@ -1,15 +1,13 @@
 'use strict'
 
-const { kData } = require("./symbols")
-
-const kBody = Symbol('body')
-const kBodyUsed = Symbol('bodyUsed')
+const { kBody, kBodyUsed } = require('./symbols')
+const { isReadable } = require('./utils')
 
 class Body {
   constructor (input = null) {
-    // if (input != null) {
-    //   throw Error('body must be undefined, null, or a readable stream')
-    // }
+    if (input != null && !isReadable(input)) {
+      throw Error('body must be undefined, null, or a readable stream')
+    }
 
     this[kBody] = input
     this[kBodyUsed] = false
@@ -27,7 +25,7 @@ class Body {
     if (this[kBody] == null) return Buffer.alloc(0)
 
     const acc = []
-    for await (const chunk of this[kBody][kData]) {
+    for await (const chunk of this[kBody]) {
       if (!this[kBodyUsed]) this[kBodyUsed] = true
       acc.push(chunk)
     }
@@ -51,9 +49,9 @@ class Body {
   async text () {
     if (this[kBody] == null) return ''
 
-    // this[kBody].setEncoding('utf8')
+    this[kBody].setEncoding('utf8')
     let res = ''
-    for await (const chunk of this[kBody][kData]) {
+    for await (const chunk of this[kBody]) {
       if (!this[kBodyUsed]) this[kBodyUsed] = true
       res += chunk
     }

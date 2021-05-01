@@ -21,13 +21,11 @@ function printResults (results, n) {
 
 if (isMainThread) {
   const server = createServer((req, res) => {
-    process.nextTick(() => {
-      res.write('payload')
-      res.end()
-    })
+    res.write('payload')
+    res.end()
   })
 
-  server.listen(0, () => {
+  server.listen(() => {
     const N = 1000
     const url = `http://localhost:${server.address().port}`
 
