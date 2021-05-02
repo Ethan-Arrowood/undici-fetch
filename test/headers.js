@@ -81,16 +81,18 @@ tap.test('Headers append', t => {
   })
 
   t.test('adds valid header to existing entry', t => {
-    t.plan(3)
+    t.plan(4)
     const headers = new Headers()
 
     const name = 'undici'
     const value1 = 'fetch1'
     const value2 = 'fetch2'
+    const value3 = 'fetch3'
     headers.append(name, value1)
     t.equal(headers.get(name), value1)
     t.doesNotThrow(() => headers.append(name, value2))
-    t.equal(headers.get(name), [value1, value2].join(', '))
+    t.doesNotThrow(() => headers.append(name, value3))
+    t.equal(headers.get(name), [value1, value2, value3].join(', '))
   })
 
   t.test('throws on invalid entry', t => {
@@ -337,9 +339,9 @@ tap.test('Headers as Iterable', t => {
 
   t.test('validate append ordering', t => {
     t.plan(1)
-    const headers = new Headers(['a', '1', 'c', '3', 'e', '5'])
+    const headers = new Headers(['b', '2', 'c', '3', 'e', '5'])
     headers.append('d', '4')
-    headers.append('b', '2')
+    headers.append('a', '1')
     headers.append('f', '6')
     headers.append('c', '7')
     headers.append('abc', '8')

@@ -67,7 +67,7 @@ class Headers {
     }
     if (this[kHeaders][i] === normalizedName) {
       this[kHeaders][i + 1] += `, ${normalizedValue}`
-    } else if (this[kHeaders][i - 2] === normalizedName) {
+    } /* istanbul ignore next */ else if (this[kHeaders][i - 2] === normalizedName) { // todo: figure out how to reach this branch
       this[kHeaders][i - 1] += `, ${normalizedValue}`
     } else {
       this[kHeaders].splice(i, 0, normalizedName, normalizedValue)

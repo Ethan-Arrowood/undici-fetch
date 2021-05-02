@@ -2,6 +2,7 @@
 
 const tap = require('tap')
 const http = require('http')
+const { Readable } = require('stream')
 const { once } = require('events')
 
 const { fetch } = require('../../src/fetch')
@@ -57,6 +58,16 @@ tap.test('multiple GET requets', async t => {
 
   for (const result of results) {
     t.equal(result, wanted)
+  }
+
+  t.end()
+})
+
+tap.test('GET request cannot have a body', async t => {
+  try {
+    await fetch('http://localhost/', { body: new Readable() })
+  } catch (error) {
+    t.same(error.message, 'GET Request cannot have a body')
   }
 
   t.end()
