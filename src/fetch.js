@@ -7,14 +7,11 @@ const Response = require('./response')
 const { AbortError } = require('./utils')
 const { kHeaders } = require('./symbols')
 
-// todo: how many redirects do we need to support?
-const agent = new Undici.Agent({ maxRedirections: 0 })
-
 async function fetch (resource, init = {}) {
   const request = new Request(resource, init)
 
   try {
-    const { statusCode, headers, body } = await agent.request({
+    const { statusCode, headers, body } = await Undici.request({
       origin: request.url.origin,
       path: request.url.pathname + request.url.search,
       method: request.method,
