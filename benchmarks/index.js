@@ -12,9 +12,9 @@ function printResults (results, n) {
   })
   console.log('---')
   Object.entries(results).forEach(([key, timing]) => {
-    if(key === 'undici-fetch') return
+    if (key === 'undici-fetch') return
     const elapsedTT = Number.parseFloat(timing.endTime - timing.startTime)
-    const percent =((baselineTiming - elapsedTT) / elapsedTT) * 100
+    const percent = ((baselineTiming - elapsedTT) / elapsedTT) * 100
     console.log(`undici-fetch <> ${key} percent change: ${percent.toFixed(3)}%`)
   })
 }
@@ -50,7 +50,7 @@ if (isMainThread) {
       spawnWorker(N, url, 'minipass-fetch'),
       spawnWorker(N, url, 'minipass-fetch_with-agent'),
       spawnWorker(N, url, 'axios'),
-      spawnWorker(N, url, 'axios_with-agent'),
+      spawnWorker(N, url, 'axios_with-agent')
     ]).then(values => {
       const results = {}
       for (const { clientType, startTime, endTime } of values) {
@@ -71,50 +71,58 @@ if (isMainThread) {
   let fetchClient = null
   let close = false
   switch (clientType) {
-    case 'undici-fetch':
+    case 'undici-fetch': {
       fetchClient = require('../src/fetch')()
       close = true
       break
-    case 'node-fetch':
+    }
+    case 'node-fetch': {
       fetchClient = require('node-fetch')
       break
-    case 'node-fetch_with-agent':
+    }
+    case 'node-fetch_with-agent': {
       const fetch = require('node-fetch')
       const fetchHttpAgent = new http.Agent({ keepAlive: true })
       const fetchHttpsAgent = new https.Agent({ keepAlive: true })
-      const fetchAgent = (_parsedURL) => _parsedURL.protocol == 'http:' ? fetchHttpAgent : fetchHttpsAgent;
+      const fetchAgent = (_parsedURL) => _parsedURL.protocol === 'http:' ? fetchHttpAgent : fetchHttpsAgent
       fetchClient = (url) => {
         return fetch(url, {
           agent: fetchAgent
         })
       }
       break
-    case 'minipass-fetch':
+    }
+    case 'minipass-fetch': {
       fetchClient = require('minipass-fetch')
       break
-    case 'minipass-fetch_with-agent':
+    }
+    case 'minipass-fetch_with-agent': {
       const minipassFetch = require('minipass-fetch')
       const mpHttpAgent = new http.Agent({ keepAlive: true })
       const mpHttpsAgent = new https.Agent({ keepAlive: true })
-      const mpAgent = (_parsedURL) => _parsedURL.protocol == 'http:' ? mpHttpAgent : mpHttpsAgent;
+      const mpAgent = (_parsedURL) => _parsedURL.protocol === 'http:' ? mpHttpAgent : mpHttpsAgent
       fetchClient = (url) => {
         return minipassFetch(url, {
           agent: mpAgent
         })
       }
       break
-    case 'axios':
+    }
+    case 'axios': {
       fetchClient = require('axios')
       break
-    case 'axios_with-agent':
+    }
+    case 'axios_with-agent': {
       const axios = require('axios')
       fetchClient = axios.create({
         httpAgent: new http.Agent({ keepAlive: true }),
-        httpsAgent: new https.Agent({ keepAlive: true }),
+        httpsAgent: new https.Agent({ keepAlive: true })
       })
       break
-    default:
+    }
+    default: {
       throw Error(`Invalid fetch client ${clientType}`)
+    }
   }
 
   const run = async (N, url, fetchClient) => {
