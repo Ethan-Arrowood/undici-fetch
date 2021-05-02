@@ -3,7 +3,7 @@
 const tap = require('tap')
 const { Readable } = require('stream')
 const Body = require('../src/body')
-const { isReadable } = require('../src/utils')
+const { isAsyncIterable } = require('../src/utils')
 
 tap.test('Body initialization', t => {
   t.plan(4)
@@ -28,13 +28,13 @@ tap.test('Body initialization', t => {
     t.plan(2)
     const body = new Body(new Readable())
 
-    t.ok(isReadable(body.body))
+    t.ok(isAsyncIterable(body.body))
     t.equal(body.bodyUsed, false)
   })
 
   t.test('throws for other inputs', t => {
     t.plan(6)
-    const err = Error('body must be undefined, null, or a readable stream')
+    const err = Error('body must be `undefined`, `null`, or implement `[Symbol.asyncIterator]`')
     t.throws(() => new Body('string'), err, 'throws on string')
     t.throws(() => new Body(100), err, 'throws on number')
     t.throws(() => new Body(true), err, 'throws on boolean')

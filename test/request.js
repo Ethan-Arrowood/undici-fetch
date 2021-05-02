@@ -49,7 +49,7 @@ tap.test('Request initialization', t => {
     const request3 = new Request(request1, { method: 'POST' })
     t.strictSame(request1.url, request3.url)
     t.strictSame(request1.headers, request3.headers)
-    t.notequal(request1.method, request3.method)
+    t.not(request1.method, request3.method)
     t.equal(request3.method, 'POST')
   })
 

@@ -14,9 +14,9 @@ tap.test('Response initialization', t => {
 
   t.throws(() => new Response(new Readable(), { status: 100 }), 'throwss on status less than 200')
   t.throws(() => new Response(new Readable(), { status: 600 }), 'throwss on status greater than 599')
-  t.throws(() => new Response(new Readable(), { status: '200' }), 'throwss on status that is not type number')
+  t.throws(() => new Response(new Readable(), { status: '200' }), 'throws on status that is not type number')
 
-  t.throws(() => new Response(new Readable(), { statusText: 0 }), 'throwss on statusText that is not type string')
+  t.throws(() => new Response(new Readable(), { statusText: 0 }), 'throws on statusText that is not type string')
 
   t.ok(new Response(new Readable(), { status: 200 }).ok, '.ok is true when status is between 200 and 299 inclusive')
   t.notOk(new Response(new Readable(), { status: 300 }).ok, '.ok is false when status is outside 200 and 299 exclusive')

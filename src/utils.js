@@ -1,8 +1,7 @@
 'use strict'
-const { Stream } = require('stream')
 
-function isReadable (obj) {
-  return obj instanceof Stream && typeof obj._read === 'function' && typeof obj._readableState === 'object'
+function isAsyncIterable (obj) {
+  return typeof obj?.[Symbol.asyncIterator] === 'function'
 }
 
 class AbortError extends Error {
@@ -14,5 +13,5 @@ class AbortError extends Error {
 
 module.exports = {
   AbortError,
-  isReadable
+  isAsyncIterable
 }

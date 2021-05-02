@@ -1,12 +1,12 @@
 'use strict'
 
 const { kBody, kBodyUsed } = require('./symbols')
-const { isReadable } = require('./utils')
+const { isAsyncIterable } = require('./utils')
 
 class Body {
   constructor (input = null) {
-    if (input != null && !isReadable(input)) {
-      throw Error('body must be undefined, null, or a readable stream')
+    if (input != null && !isAsyncIterable(input)) {
+      throw Error('body must be `undefined`, `null`, or implement `[Symbol.asyncIterator]`')
     }
 
     this[kBody] = input
