@@ -1,7 +1,7 @@
 'use strict'
 
 function isAsyncIterable (obj) {
-  return typeof obj?.[Symbol.asyncIterator] === 'function'
+  return typeof obj?.[Symbol.asyncIterator] === 'function' || typeof obj?.[Symbol.iterator] === 'function'
 }
 
 class AbortError extends Error {

@@ -33,13 +33,11 @@ tap.test('Body initialization', t => {
   })
 
   t.test('throws for other inputs', t => {
-    t.plan(6)
+    t.plan(4)
     const err = Error('body must be `undefined`, `null`, or implement `[Symbol.asyncIterator]`')
-    t.throws(() => new Body('string'), err, 'throws on string')
     t.throws(() => new Body(100), err, 'throws on number')
     t.throws(() => new Body(true), err, 'throws on boolean')
     t.throws(() => new Body(() => {}), err, 'throws on function')
-    t.throws(() => new Body([]), err, 'throws on array')
     t.throws(() => new Body({}), err, 'throws on object')
   })
 })

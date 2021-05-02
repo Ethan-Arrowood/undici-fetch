@@ -13,7 +13,7 @@ tap.test('isAsyncIterable', t => {
   }
   t.ok(isAsyncIterable(f()))
   t.ok(isAsyncIterable(new G()))
-  t.notOk(isAsyncIterable([]))
+  t.ok(isAsyncIterable([]))
+  t.ok(isAsyncIterable('undici-fetch'))
   t.notOk(isAsyncIterable(() => {}))
-  t.notOk(isAsyncIterable('undici-fetch'))
 })
