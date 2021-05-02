@@ -79,21 +79,21 @@ Memory 32 GB 2667 MHz DDR4
 Results:
 
 ```
-Results for 10000 subsequent requests:
-undici-fetch              | total time: 13545309464ns (13545.309ms)
-node-fetch                | total time: 40094125331ns (40094.125ms)
-node-fetch_with-agent     | total time: 15011468546ns (15011.469ms)
-minipass-fetch            | total time: 40081950980ns (40081.951ms)
-minipass-fetch_with-agent | total time: 15551247404ns (15551.247ms)
-axios                     | total time: 40082953438ns (40082.953ms)
-axios_with-agent          | total time: 15784146768ns (15784.147ms)
+Results for 1000 subsequent requests: 
+undici-fetch              | total time: 508709266ns (508.709ms)
+node-fetch                | total time: 1212383071ns (1212.383ms)
+node-fetch_with-agent     | total time: 653387805ns (653.388ms)
+minipass-fetch            | total time: 1228375250ns (1228.375ms)
+minipass-fetch_with-agent | total time: 671138590ns (671.139ms)
+axios                     | total time: 1221510134ns (1221.510ms)
+axios_with-agent          | total time: 675033261ns (675.033ms)
 ---
-undici-fetch <> node-fetch percent change: -66.216%
-undici-fetch <> node-fetch_with-agent percent change: -9.767%
-undici-fetch <> minipass-fetch percent change: -66.206%
-undici-fetch <> minipass-fetch_with-agent percent change: -12.899%
-undici-fetch <> axios percent change: -66.207%
-undici-fetch <> axios_with-agent percent change: -14.184%
+undici-fetch <> node-fetch percent change: -58.041%
+undici-fetch <> node-fetch_with-agent percent change: -22.143%
+undici-fetch <> minipass-fetch percent change: -58.587%
+undici-fetch <> minipass-fetch_with-agent percent change: -24.202%
+undici-fetch <> axios percent change: -58.354%
+undici-fetch <> axios_with-agent percent change: -24.639%
 ```
 
 The `with-agent` variants use a `new http.Agent({ keepAlive: true })` to share a network connection similarly to what Undici does to make the comparison more fair.

@@ -21,8 +21,9 @@ function printResults (results, n) {
 
 if (isMainThread) {
   const server = createServer((req, res) => {
-    res.write('payload')
-    res.end()
+    process.nextTick(() => {
+      res.end('payload')
+    })
   })
 
   server.listen(() => {
@@ -70,7 +71,7 @@ if (isMainThread) {
   let fetchClient = null
   switch (clientType) {
     case 'undici-fetch': {
-      fetchClient = require('../src/fetch').fetch
+      fetchClient = require('../')
       break
     }
     case 'node-fetch': {
