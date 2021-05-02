@@ -6,10 +6,16 @@ const http = require('http')
 const { once } = require('events')
 
 const { fetch } = require('../../src/fetch')
-const { AbortError } = require('../../src/utils')
+
 const semver = require('semver')
 
-tap.test('abort signal aborts request', { skip: semver.lte(process.version, 'v15.0.0') }, async t => {
+if (semver.lte(process.version, 'v15.0.0')) {
+  global.AbortController = require('abortcontroller-polyfill/dist/cjs-ponyfill').AbortController
+}
+
+const { AbortError } = require('../../src/utils')
+
+tap.test('abort signal aborts request', async t => {
   const wanted = 'undici-fetch'
 
   const server = http.createServer((req, res) => {
