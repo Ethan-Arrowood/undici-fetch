@@ -5,5 +5,5 @@ const kHeaders = Symbol('headers')
 module.exports = {
   kBody,
   kBodyUsed,
-  kHeaders,
+  kHeaders
 }

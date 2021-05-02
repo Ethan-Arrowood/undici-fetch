@@ -9,7 +9,7 @@ tap.test('isAsyncIterable', t => {
 
   async function * f () {}
   class G {
-    [Symbol.asyncIterator]() {}
+    [Symbol.asyncIterator] () {}
   }
   t.ok(isAsyncIterable(f()))
   t.ok(isAsyncIterable(new G()))

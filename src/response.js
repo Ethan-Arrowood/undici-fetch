@@ -6,11 +6,11 @@ const { Headers, fill } = require('./headers')
 class Response extends Body {
   constructor (body, { status = 200, statusText = '', headers } = {}) {
     if (typeof status !== 'number' || status < 200 || status > 599) {
-      throw RangeError(`Response status must be between 200 and 599 inclusive. Found: ${init.status}`)
+      throw RangeError(`Response status must be between 200 and 599 inclusive. Found: ${status}`)
     }
 
     if (typeof statusText !== 'string') {
-      throw TypeError(`Response statusText must be of type string. Found type: ${typeof init.statusText}`)
+      throw TypeError(`Response statusText must be of type string. Found type: ${typeof statusText}`)
     }
 
     super(body)
