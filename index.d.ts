@@ -5,9 +5,9 @@ declare const fetch: {
   (
     resource: string | Request,
     init?: { signal?: AbortSignal } & RequestInit
-  ): Promise<Response>;
-  setGlobalDispatcher: typeof Undici.setGlobalDispatcher;
-  getGlobalDispatcher: typeof Undici.getGlobalDispatcher;
+  ): Promise<Response>
+  setGlobalDispatcher: typeof Undici.setGlobalDispatcher
+  getGlobalDispatcher: typeof Undici.getGlobalDispatcher
 }
 
 type BodyInput = Readable | null | undefined
