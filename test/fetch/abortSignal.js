@@ -7,8 +7,9 @@ const { once } = require('events')
 
 const { fetch } = require('../../src/fetch')
 const { AbortError } = require('../../src/utils')
+const semver = require('semver')
 
-tap.test('abort signal aborts request', async t => {
+tap.test('abort signal aborts request', { skip: semver.gte(process.version, 'v15')}, async t => {
   const wanted = 'undici-fetch'
 
   const server = http.createServer((req, res) => {
