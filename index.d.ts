@@ -1,13 +1,13 @@
 import { Readable } from 'node:stream'
-import { Pool } from 'undici'
+import Undici from 'undici'
 
-declare function buildFetch (undiciPoolOpts: Pool.Options): typeof fetch
 declare const fetch: {
   (
     resource: string | Request,
     init?: { signal?: AbortSignal } & RequestInit
   ): Promise<Response>
-  close: () => Promise<Array<Promise<void>>>
+  setGlobalDispatcher: typeof Undici.setGlobalDispatcher
+  getGlobalDispatcher: typeof Undici.getGlobalDispatcher
 }
 
 type BodyInput = Readable | null | undefined
@@ -81,7 +81,7 @@ declare class Response extends Body {
 }
 
 export default fetch
-export { buildFetch }
+export { setGlobalDispatcher, getGlobalDispatcher } from 'undici'
 export type {
   Body,
   Headers,

@@ -1,9 +1,9 @@
 'use strict'
 
-const buildFetch = require('./src/fetch')
+const { setGlobalDispatcher, getGlobalDispatcher } = require('undici')
+const { fetch } = require('./src/fetch')
 
-const fetch = buildFetch()
-
-fetch.buildFetch = buildFetch
+fetch.setGlobalDispatcher = setGlobalDispatcher
+fetch.getGlobalDispatcher = getGlobalDispatcher
 
 module.exports = fetch

@@ -1,11 +1,7 @@
 'use strict'
 
-const stream = require('stream')
-
-const { kHeaders } = require('./symbols')
-
-function isReadable (obj) {
-  return obj instanceof stream.Stream && typeof obj._read === 'function' && typeof obj._readableState === 'object'
+function isAsyncIterable (obj) {
+  return typeof obj?.[Symbol.asyncIterator] === 'function' || typeof obj?.[Symbol.iterator] === 'function'
 }
 
 class AbortError extends Error {
@@ -15,18 +11,7 @@ class AbortError extends Error {
   }
 }
 
-function createUndiciRequestOptions (request, signal) {
-  return {
-    path: request.url.pathname + request.url.search,
-    method: request.method,
-    body: request.body,
-    headers: request.headers[kHeaders],
-    signal
-  }
-}
-
 module.exports = {
-  isReadable,
   AbortError,
-  createUndiciRequestOptions
+  isAsyncIterable
 }

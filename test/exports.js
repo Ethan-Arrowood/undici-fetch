@@ -10,10 +10,11 @@ tap.test('fetch function is default export', t => {
   t.ok(typeof fetch === 'function')
 })
 
-tap.test('buildFetch function is a named export', t => {
-  t.plan(1)
+tap.test('fetch forwards undici globalDispatcher methods', t => {
+  t.plan(2)
 
-  const { buildFetch } = require('../')
-
-  t.ok(typeof buildFetch === 'function')
+  const { setGlobalDispatcher: _setGlobalDispatcher, getGlobalDispatcher: _getGlobalDispatcher } = require('../')
+  const { setGlobalDispatcher, getGlobalDispatcher } = require('undici')
+  t.same(_setGlobalDispatcher, setGlobalDispatcher)
+  t.same(_getGlobalDispatcher, getGlobalDispatcher)
 })

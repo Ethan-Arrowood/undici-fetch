@@ -21,13 +21,13 @@ function printResults (results, n) {
 
 if (isMainThread) {
   const server = createServer((req, res) => {
-    setTimeout(() => {
+    process.nextTick(() => {
       res.end('payload')
-    }, 1)
+    })
   })
 
-  server.listen(0, () => {
-    const N = 10000
+  server.listen(() => {
+    const N = 1000
     const url = `http://localhost:${server.address().port}`
 
     const spawnWorker = (N, url, clientType) => new Promise((resolve, reject) => {
@@ -69,11 +69,9 @@ if (isMainThread) {
   const https = require('https')
 
   let fetchClient = null
-  let close = false
   switch (clientType) {
     case 'undici-fetch': {
-      fetchClient = require('../src/fetch')()
-      close = true
+      fetchClient = require('../')
       break
     }
     case 'node-fetch': {
@@ -139,14 +137,11 @@ if (isMainThread) {
 
   run(N, url, fetchClient)
     .then(({ startTime, endTime }) => {
-      if (close) {
-        fetchClient.close()
-      }
-
       parentPort.postMessage({
         clientType,
         startTime,
         endTime
       })
+      process.exit(1)
     })
 }

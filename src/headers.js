@@ -25,10 +25,10 @@ function fill (headers, object) {
         if (header.length !== 2) throw TypeError('header entry must be of length two')
         headers.append(header[0], header[1])
       }
-    } else if (typeof object[0] === 'string') {
+    } else if (typeof object[0] === 'string' || Buffer.isBuffer(object[0])) {
       if (object.length % 2 !== 0) throw TypeError('flattened header init must have even length')
       for (let i = 0; i < object.length; i += 2) {
-        headers.append(object[i], object[i + 1])
+        headers.append(object[i].toString('utf-8'), object[i + 1].toString('utf-8'))
       }
     } else {
       throw TypeError('invalid array-based header init')
@@ -67,7 +67,7 @@ class Headers {
     }
     if (this[kHeaders][i] === normalizedName) {
       this[kHeaders][i + 1] += `, ${normalizedValue}`
-    } else if (this[kHeaders][i - 2] === normalizedName) {
+    } /* istanbul ignore next */ else if (this[kHeaders][i - 2] === normalizedName) { // todo: figure out how to reach this branch
       this[kHeaders][i - 1] += `, ${normalizedValue}`
     } else {
       this[kHeaders].splice(i, 0, normalizedName, normalizedValue)

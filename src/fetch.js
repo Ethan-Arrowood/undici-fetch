@@ -1,52 +1,36 @@
 'use strict'
 
 const Undici = require('undici')
+const { STATUS_CODES } = require('http')
 const Request = require('./request')
 const Response = require('./response')
 const { AbortError } = require('./utils')
-const { createUndiciRequestOptions } = require('./utils')
-const { STATUS_CODES } = require('http')
+const { kHeaders } = require('./symbols')
 
-function buildFetch (undiciPoolOpts) {
-  if (arguments.length > 0) {
-    throw Error('Did you forget to build the instance? Try: `const fetch = require(\'undici-fetch\')()`')
-  }
+async function fetch (resource, init = {}) {
+  const request = new Request(resource, init)
 
-  const clientMap = new Map()
+  try {
+    const { statusCode, headers, body } = await Undici.request({
+      origin: request.url.origin,
+      path: request.url.pathname + request.url.search,
+      method: request.method,
+      headers: request.headers[kHeaders],
+      body: request.body,
+      signal: init.signal
+    })
 
-  function fetch (resource, init = {}) {
-    const request = new Request(resource, init)
-
-    const { origin } = request.url
-    let client = clientMap.get(origin)
-    if (client === undefined) {
-      client = new Undici.Pool(origin, undiciPoolOpts)
-      clientMap.set(origin, client)
+    return new Response(body, {
+      status: statusCode,
+      statusText: STATUS_CODES[statusCode],
+      headers: headers
+    })
+  } catch (error) {
+    if (error.code === new Undici.errors.RequestAbortedError().code) {
+      throw new AbortError()
     }
-
-    const requestOptions = createUndiciRequestOptions(request, init.signal)
-
-    return client.request(requestOptions)
-      .then(data => new Response(data.body, {
-        status: data.statusCode,
-        statusText: STATUS_CODES[data.statusCode],
-        headers: data.headers
-      }))
-      .catch(err => {
-        if (err instanceof Undici.errors.RequestAbortedError) {
-          err = new AbortError()
-        }
-        throw err
-      })
+    throw error
   }
-
-  fetch.close = () => Promise.all(
-    Array.from(clientMap.values())
-      .filter(client => !client.closed)
-      .map(client => client.close())
-  )
-
-  return fetch
 }
 
-module.exports = buildFetch
+module.exports = { fetch }
