@@ -104,4 +104,4 @@ dist
 .tern-port
 
 # node-fetch tests
-test/node-fetch/test
+test/node-fetch/files
