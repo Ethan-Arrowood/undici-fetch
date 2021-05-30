@@ -3,7 +3,7 @@
 const { types } = require('util')
 const { validateHeaderName, validateHeaderValue } = require('http')
 
-const { kHeaders } = require('./symbols')
+const { headers: { kHeadersList } } = require('./symbols')
 
 function normalizeAndValidateHeaderName (name) {
   const normalizedHeaderName = name.toLowerCase()
@@ -33,8 +33,8 @@ function fill (headers, object) {
     } else {
       throw TypeError('invalid array-based header init')
     }
-  } else if (kHeaders in object) {
-    headers[kHeaders] = new Array(...object[kHeaders])
+  } else if (kHeadersList in object) {
+    headers[kHeadersList] = new Array(...object[kHeadersList])
   } else if (!types.isBoxedPrimitive(object)) {
     for (const [name, value] of Object.entries(object)) {
       headers.append(name, value)
@@ -44,7 +44,7 @@ function fill (headers, object) {
 
 class Headers {
   constructor (init) {
-    this[kHeaders] = []
+    this[kHeadersList] = []
 
     if (init && typeof init === 'object') {
       fill(this, init)
@@ -54,32 +54,32 @@ class Headers {
   append (name, value) {
     const [normalizedName, normalizedValue] = normalizeAndValidateHeaderValue(name, value)
 
-    let i = this[kHeaders].length
+    let i = this[kHeadersList].length
     let low = -1
     let probe
     while (i - low > 1) {
       probe = (i + low) >>> 1
-      if (this[kHeaders][probe % 2 ? probe - 1 : probe] < normalizedName) {
+      if (this[kHeadersList][probe % 2 ? probe - 1 : probe] < normalizedName) {
         low = probe
       } else {
         i = probe
       }
     }
-    if (this[kHeaders][i] === normalizedName) {
-      this[kHeaders][i + 1] += `, ${normalizedValue}`
-    } /* istanbul ignore next */ else if (this[kHeaders][i - 2] === normalizedName) { // todo: figure out how to reach this branch
-      this[kHeaders][i - 1] += `, ${normalizedValue}`
+    if (this[kHeadersList][i] === normalizedName) {
+      this[kHeadersList][i + 1] += `, ${normalizedValue}`
+    } /* istanbul ignore next */ else if (this[kHeadersList][i - 2] === normalizedName) { // todo: figure out how to reach this branch
+      this[kHeadersList][i - 1] += `, ${normalizedValue}`
     } else {
-      this[kHeaders].splice(i, 0, normalizedName, normalizedValue)
+      this[kHeadersList].splice(i, 0, normalizedName, normalizedValue)
     }
   }
 
   delete (name) {
     const normalizedName = normalizeAndValidateHeaderName(name)
 
-    for (let i = 0; i < this[kHeaders].length; i += 2) {
-      if (normalizedName === this[kHeaders][i]) {
-        this[kHeaders].splice(i, 2)
+    for (let i = 0; i < this[kHeadersList].length; i += 2) {
+      if (normalizedName === this[kHeadersList][i]) {
+        this[kHeadersList].splice(i, 2)
         break
       }
     }
@@ -88,9 +88,9 @@ class Headers {
   get (name) {
     const normalizedName = normalizeAndValidateHeaderName(name)
 
-    for (let i = 0; i < this[kHeaders].length; i += 2) {
-      if (normalizedName === this[kHeaders][i]) {
-        return this[kHeaders][i + 1]
+    for (let i = 0; i < this[kHeadersList].length; i += 2) {
+      if (normalizedName === this[kHeadersList][i]) {
+        return this[kHeadersList][i + 1]
       }
     }
 
@@ -100,8 +100,8 @@ class Headers {
   has (name) {
     const normalizedName = normalizeAndValidateHeaderName(name)
 
-    for (let i = 0; i < this[kHeaders].length; i += 2) {
-      if (normalizedName === this[kHeaders][i]) {
+    for (let i = 0; i < this[kHeadersList].length; i += 2) {
+      if (normalizedName === this[kHeadersList][i]) {
         return true
       }
     }
@@ -112,14 +112,14 @@ class Headers {
   set (name, value) {
     const [normalizedName, normalizedValue] = normalizeAndValidateHeaderValue(name, value)
 
-    let index = this[kHeaders].length
-    for (let i = 0; i < this[kHeaders].length; i += 2) {
-      if (normalizedName === this[kHeaders][i] || this[kHeaders][i] > normalizedName) {
+    let index = this[kHeadersList].length
+    for (let i = 0; i < this[kHeadersList].length; i += 2) {
+      if (normalizedName === this[kHeadersList][i] || this[kHeadersList][i] > normalizedName) {
         index = i
         break
       }
     }
-    this[kHeaders].splice(index, 0, normalizedName, normalizedValue)
+    this[kHeadersList].splice(index, 0, normalizedName, normalizedValue)
   }
 
   * keys () {
@@ -139,14 +139,14 @@ class Headers {
   }
 
   forEach (callback, thisArg) {
-    for (let i = 0; i < this[kHeaders].length; i += 2) {
-      callback.call(thisArg, this[kHeaders][i + 1], this[kHeaders][i], this)
+    for (let i = 0; i < this[kHeadersList].length; i += 2) {
+      callback.call(thisArg, this[kHeadersList][i + 1], this[kHeadersList][i], this)
     }
   }
 
   * [Symbol.iterator] () {
-    for (let i = 0; i < this[kHeaders].length; i += 2) {
-      yield [this[kHeaders][i], this[kHeaders][i + 1]]
+    for (let i = 0; i < this[kHeadersList].length; i += 2) {
+      yield [this[kHeadersList][i], this[kHeadersList][i + 1]]
     }
   }
 }

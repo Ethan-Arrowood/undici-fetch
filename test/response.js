@@ -5,21 +5,44 @@ const { Readable } = require('stream')
 
 const Response = require('../src/response')
 
-tap.test('Response initialization', t => {
-  t.plan(9)
+tap.test('Response class initialization', t => {
+  t.plan(1)
+
+  t.test('constructor arguments', t => {
+    t.plan(2)
+
+    t.test('body argument', t => {
+      t.plan(6)
+
+      t.todo('Blob', t => {})
+      t.todo('BufferSource', t => {})
+      t.todo('FormData', t => {})
+      t.todo('ReadableStream', t => {})
+      t.todo('URLSearchParams', t => {})
+      t.todo('USVString', t => {})
+    })
+
+    t.test('init argument', t => {
+      t.plan(6)
+
+      t.throws(() => new Response(new Readable(), { status: 100 }), 'throwss on status less than 200')
+      t.throws(() => new Response(new Readable(), { status: 600 }), 'throwss on status greater than 599')
+      t.throws(() => new Response(new Readable(), { status: '200' }), 'throws on status that is not type number')
+
+      t.throws(() => new Response(new Readable(), { statusText: 0 }), 'throws on statusText that is not type string')
+
+      t.ok(new Response(new Readable(), { status: 200 }).ok, '.ok is true when status is between 200 and 299 inclusive')
+      t.notOk(new Response(new Readable(), { status: 300 }).ok, '.ok is false when status is outside 200 and 299 exclusive')
+    })
+  })
+})
+
+tap.test('Response instance properties', t => {
+  t.plan(3)
 
   t.equal(new Response(new Readable()).status, 200, 'status is defaulted to 200')
   t.equal(new Response(new Readable()).statusText, '', 'statusText is defaulted to empty string')
   t.equal(new Response(new Readable()).type, 'default', 'type is defaulted to 200')
-
-  t.throws(() => new Response(new Readable(), { status: 100 }), 'throwss on status less than 200')
-  t.throws(() => new Response(new Readable(), { status: 600 }), 'throwss on status greater than 599')
-  t.throws(() => new Response(new Readable(), { status: '200' }), 'throws on status that is not type number')
-
-  t.throws(() => new Response(new Readable(), { statusText: 0 }), 'throws on statusText that is not type string')
-
-  t.ok(new Response(new Readable(), { status: 200 }).ok, '.ok is true when status is between 200 and 299 inclusive')
-  t.notOk(new Response(new Readable(), { status: 300 }).ok, '.ok is false when status is outside 200 and 299 exclusive')
 })
 
 tap.test('Response.clone', t => {

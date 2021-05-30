@@ -6,7 +6,7 @@ const {
   normalizeAndValidateHeaderName,
   normalizeAndValidateHeaderValue
 } = require('../src/headers')
-const { kHeaders } = require('../src/symbols')
+const { headers: { kHeadersList } } = require('../src/symbols')
 
 tap.test('Headers initialization', t => {
   t.plan(5)
@@ -356,7 +356,7 @@ tap.test('Headers as Iterable', t => {
       'f', '6'
     ]
 
-    t.same(headers[kHeaders], expected)
+    t.same(headers[kHeadersList], expected)
   })
 })
 
