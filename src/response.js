@@ -1,6 +1,6 @@
 'use strict'
 
-const { Body, isUnusable } = require('./body')
+const { Body, isUnusable, extractBody } = require('./body')
 const { Headers } = require('./headers')
 const {
   response: {
@@ -8,7 +8,6 @@ const {
     kStatus,
     kStatusText,
     kType,
-    kUrl,
     kUrlList
   },
   body: {
@@ -37,36 +36,22 @@ class Response extends Body {
 
       super(extractedBody)
 
+      this[kHeaders] = new Headers(headers)
+
       if (contentType !== null && !this[kHeaders].has('content-type')) {
         this[kHeaders].append('content-type', contentType)
       }
     } else {
       super(body)
+      this[kHeaders] = new Headers(headers)
     }
 
     this[kStatus] = status
     this[kStatusText] = statusText
 
-    this[kHeaders] = new Headers(headers)
-
-    if (body !== null) {
-      if (isNullBodyStatus(this[kStatus])) {
-        throw TypeError(`Expected non-null Response body status. Found: ${this[kStatus]}`)
-      }
-
-      const [extractedBody, contentType] = extractBody(body)
-
-      this[kBody] = extractedBody
-
-      if (contentType !== null && !this[kHeaders].has('content-type')) {
-        this[kHeaders].append('content-type', contentType)
-      }
-    }
-
     this[kType] = 'default'
 
     this[kUrlList] = []
-    this[kUrl] = this[kUrlList].length === 0 ? null : this[kUrlList][this[kUrlList].length - 1]
   }
 
   get type () {
@@ -74,7 +59,8 @@ class Response extends Body {
   }
 
   get url () {
-    return this[kUrl] === null ? '' : this[kUrl].toString()
+    const length = this[kUrlList].length
+    return length === 0 ? '' : this[kUrlList][length - 1].toString()
   }
 
   get redirected () {
@@ -98,7 +84,7 @@ class Response extends Body {
   }
 
   clone () {
-    if (isUnusable(this.body)) {
+    if (isUnusable(this[kBody])) {
       throw TypeError('Cannot clone Response - body is unusable')
     }
 
@@ -108,18 +94,18 @@ class Response extends Body {
     response[kStatus] = this[kStatus]
     response[kStatusText] = this[kStatusText]
     response[kType] = this[kType]
-    response[kUrl] = this[kUrl]
     response[kUrlList] = this[kUrlList]
 
-    if (response[kBody] !== null) {
+    if (this[kBody] !== null) {
       // todo: tee this[kBody]
+      throw Error('Cannot clone a non-null body response')
     }
 
     return response
   }
 
   static error () {
-    const response = new Response(null, { statusText: '', headers: [] })
+    const response = new Response(null, { statusText: '' })
     // Manually override status since constructor will throw error is status is 0
     response[kStatus] = 0
     response[kType] = 'error'
@@ -127,7 +113,7 @@ class Response extends Body {
   }
 
   static redirect (url, status) {
-    const parseURL = new URL(url)
+    const parsedURL = new URL(url)
 
     if (!isRedirectStatus(status)) {
       throw RangeError(`redirect status must be 301, 302, 303, 307, or 308. Found ${status}`)
@@ -143,7 +129,7 @@ class Response extends Body {
 }
 
 function isNullBodyStatus (status) {
-  return status === 101 || status === 204 || status === 205 || status === 304
+  return status === 204 || status === 205 || status === 304
 }
 
 function isOkStatus (status) {

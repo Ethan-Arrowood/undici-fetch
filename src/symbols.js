@@ -7,7 +7,6 @@ const kHeaders = Symbol('headers')
 const kStatus = Symbol('status')
 const kStatusText = Symbol('statusText')
 const kType = Symbol('type')
-const kUrl = Symbol('url')
 const kUrlList = Symbol('urlList')
 
 module.exports = {
@@ -23,7 +22,6 @@ module.exports = {
     kStatus,
     kStatusText,
     kType,
-    kUrl,
     kUrlList
   }
 }
