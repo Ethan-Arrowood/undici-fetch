@@ -4,7 +4,7 @@ const tap = require('tap')
 const { Blob } = require('buffer')
 const { Response } = require('../src/response')
 const { Headers } = require('../src/headers')
-const { response: { kUrlList } } = require('../src/symbols')
+const { shared: { kUrlList } } = require('../src/symbols')
 
 tap.test('Response class initialization', t => {
   t.plan(8)

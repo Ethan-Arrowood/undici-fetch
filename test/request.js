@@ -1,15 +1,15 @@
 'use strict'
 
 const tap = require('tap')
-const { Readable } = require('stream')
+const { Blob } = require('buffer')
 
-const Request = require('../src/request')
+const { Request } = require('../src/request')
 const { Headers } = require('../src/headers')
 
 const validURL = 'http://undici-fetch.dev'
 
 tap.test('Request initialization', t => {
-  t.plan(7)
+  t.plan(10)
 
   t.throws(() => new Request(), 'throws on missing input')
   t.doesNotThrow(() => new Request(validURL), 'not throws on valid url input')
@@ -33,10 +33,10 @@ tap.test('Request initialization', t => {
   t.test('validate GET and HEAD requests', t => {
     t.plan(4)
 
-    t.throws(() => new Request(validURL, { body: new Readable() }), 'throws when body present and method defaults to GET')
-    t.throws(() => new Request(validURL, { method: 'GET', body: new Readable() }), 'throws when body present and method is GET')
-    t.throws(() => new Request(validURL, { method: 'HEAD', body: new Readable() }), 'throws when body present and method is HEAD')
-    t.doesNotThrow(() => new Request(validURL, { method: 'POST', body: new Readable() }), 'not throws when body present and method is not GET or HEAD')
+    t.throws(() => new Request(validURL, { body: 'undici-fetch' }), 'throws when body present and method defaults to GET')
+    t.throws(() => new Request(validURL, { method: 'GET', body: 'undici-fetch' }), 'throws when body present and method is GET')
+    t.throws(() => new Request(validURL, { method: 'HEAD', body: 'undici-fetch' }), 'throws when body present and method is HEAD')
+    t.doesNotThrow(() => new Request(validURL, { method: 'POST', body: 'undici-fetch' }), 'not throws when body present and method is not GET or HEAD')
   })
 
   t.test('new request inherits from request input', { only: true }, t => {
@@ -60,6 +60,118 @@ tap.test('Request initialization', t => {
     const request = new Request(validURL, { headers })
     t.strictSame(headers, request.headers)
   })
+
+  t.test('creates null body', t => {
+    t.plan(1)
+
+    const request1 = new Request(validURL, { body: 'undici-fetch', method: 'POST' })
+    const request2 = new Request(request1)
+
+    t.equal(request2.body, null)
+  })
+
+  t.test('initializes default public properties', t => {
+    t.plan(7)
+    const request = new Request(validURL)
+
+    t.equal(request.method, 'GET')
+    t.equal(request.url, (new URL(validURL)).toString())
+    t.equal(request.redirect, 'follow')
+    t.equal(request.integrity, '')
+    t.equal(request.keepalive, false)
+    t.equal(request.signal, null)
+    t.ok(request.headers instanceof Headers)
+  })
+
+  t.test('extracts body and content type', t => {
+    t.plan(7)
+
+    t.test('URLSearchParams', async t => {
+      const request = new Request(validURL, {
+        method: 'POST',
+        body: new URLSearchParams('undici=fetch&fetch=undici')
+      })
+
+      t.equal(await request.text(), 'undici=fetch&fetch=undici')
+      t.equal(request.headers.get('content-type'), 'application/x-www-form-urlencoded;charset=UTF-8')
+
+      t.end()
+    })
+
+    t.test('string', async t => {
+      const request = new Request(validURL, {
+        method: 'POST',
+        body: 'undici-fetch'
+      })
+
+      t.equal(await request.text(), 'undici-fetch')
+      t.equal(request.headers.get('content-type'), 'text/plain;charset=UTF-8')
+
+      t.end()
+    })
+
+    function * gen () { yield 'undici-fetch' }
+
+    t.test('asyncIterable', async t => {
+      const request = new Request(validURL, {
+        method: 'POST',
+        body: gen()
+      })
+
+      t.equal(await request.text(), 'undici-fetch')
+      t.equal(request.headers.has('content-type'), false)
+
+      t.end()
+    })
+
+    t.test('iterable', async t => {
+      const request = new Request(validURL, {
+        method: 'POST',
+        body: ['undici-fetch']
+      })
+
+      t.equal(await request.text(), 'undici-fetch')
+      t.equal(request.headers.has('content-type'), false)
+
+      t.end()
+    })
+
+    t.test('blob', async t => {
+      const request = new Request(validURL, {
+        method: 'POST',
+        body: new Blob(['undici-fetch'], { type: 'abc' })
+      })
+
+      t.equal(await request.text(), 'undici-fetch')
+      t.equal(request.headers.get('content-type'), 'abc')
+
+      t.end()
+    })
+
+    t.test('ArrayBuffer', async t => {
+      const request = new Request(validURL, {
+        method: 'POST',
+        body: new ArrayBuffer(0)
+      })
+
+      t.equal(await request.text(), '')
+      t.equal(request.headers.has('content-type'), false)
+
+      t.end()
+    })
+
+    t.test('ArrayBufferView', async t => {
+      const request = new Request(validURL, {
+        method: 'POST',
+        body: new Uint8Array(0)
+      })
+
+      t.equal(await request.text(), '')
+      t.equal(request.headers.has('content-type'), false)
+
+      t.end()
+    })
+  })
 })
 
 tap.test('Request clone', t => {
@@ -67,18 +179,18 @@ tap.test('Request clone', t => {
 
   t.test('returns new request instance when bodyUsed is false', t => {
     t.plan(1)
-    const request1 = new Request(validURL, { headers: [['undici', 'fetch']] })
+    const request1 = new Request(validURL)
     const request2 = request1.clone()
     t.strictSame(request1, request2)
   })
 
-  t.test('throwss error if bodyUsed is true', async t => {
+  t.test('throws error if bodyUsed is true', async t => {
     t.plan(1)
     const request = new Request(
       validURL,
       {
         method: 'POST',
-        body: Readable.from('undici-fetch', { objectMode: false })
+        body: 'undici-fetch'
       }
     )
     await request.text()

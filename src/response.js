@@ -1,17 +1,19 @@
 'use strict'
 
-const { Body, isUnusable, extractBody } = require('./body')
+const { Body, extractBody } = require('./body')
 const { Headers } = require('./headers')
 const {
   response: {
-    kHeaders,
     kStatus,
     kStatusText,
-    kType,
-    kUrlList
+    kType
   },
   body: {
     kBody
+  },
+  shared: {
+    kHeaders,
+    kUrlList
   }
 } = require('./symbols')
 
@@ -84,7 +86,7 @@ class Response extends Body {
   }
 
   clone () {
-    if (isUnusable(this[kBody])) {
+    if (this.bodyUsed) {
       throw TypeError('Cannot clone Response - body is unusable')
     }
 

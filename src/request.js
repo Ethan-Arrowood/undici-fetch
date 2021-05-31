@@ -2,14 +2,27 @@
 
 const { METHODS } = require('http')
 
-const Body = require('./body')
-const { Headers, fill } = require('./headers')
+const { Body, extractBody } = require('./body')
+const { Headers } = require('./headers')
+
+const {
+  request: {
+    kMethod,
+    kRedirect,
+    kIntegrity,
+    kKeepalive,
+    kSignal
+  },
+  headers: {
+    kHeadersList
+  },
+  shared: {
+    kHeaders,
+    kUrlList
+  }
+} = require('./symbols')
 
 function normalizeAndValidateRequestMethod (method) {
-  if (method === undefined) {
-    return 'GET'
-  }
-
   if (typeof method !== 'string') {
     throw TypeError(`Request method: ${method} must be type 'string'`)
   }
@@ -17,53 +30,101 @@ function normalizeAndValidateRequestMethod (method) {
   const normalizedMethod = method.toUpperCase()
 
   if (METHODS.indexOf(normalizedMethod) === -1) {
-    throw Error(`Normalized request method: ${normalizedMethod} must be one of \`require('http').METHODS\``)
+    throw Error(`Normalized request method: ${normalizedMethod} must be one of ${METHODS.join(', ')}`)
   }
 
   return normalizedMethod
 }
 
-function RequestCannotHaveBodyError (method) {
-  return TypeError(`${method} Request cannot have a body`)
-}
-function RequestCloneError () {
-  return Error('Cannot clone Request - bodyUsed is true')
-}
-
 class Request extends Body {
   constructor (input, init = {}) {
-    super(init.body)
-
     if (input instanceof Request) {
-      const request = new Request(input.url, {
+      return new Request(input.url, {
         method: input.method,
-        body: input.body,
+        keepalive: input.keepalive,
+        headers: input.headers[kHeadersList],
+        redirect: input.redirect,
+        integrity: input.integrity,
+        body: null, // cloning body currently not-supported
+        signal: null, // cloning signal currently not-supported
         ...init
       })
-
-      fill(request.headers, input.headers)
-
-      return request
+    } else if (typeof input !== 'string') {
+      throw TypeError('Request input must be type Request or string')
     }
 
-    this.url = new URL(input)
+    const parsedURL = new URL(input)
 
-    this.method = normalizeAndValidateRequestMethod(init.method)
+    const normalizedMethod = init.method !== undefined ? normalizeAndValidateRequestMethod(init.method) : 'GET'
 
-    this.headers = init.headers instanceof Headers ? init.headers : new Headers(init.headers)
+    const keepalive = init.keepalive || false
 
-    if ((this.method === 'GET' || this.method === 'HEAD') && this.body !== null) {
-      throw RequestCannotHaveBodyError(this.method)
+    const body = init.body || null
+
+    if (body !== null) {
+      if (normalizedMethod === 'GET' || normalizedMethod === 'HEAD') {
+        throw TypeError('Request with GET/HEAD method cannot have body')
+      }
+
+      const [extractedBody, contentType] = extractBody(body, keepalive)
+
+      super(extractedBody)
+
+      this[kHeaders] = new Headers(init.headers)
+
+      if (contentType !== null && !this[kHeaders].has('content-type')) {
+        this[kHeaders].append('content-type', contentType)
+      }
+    } else {
+      super(body)
+      this[kHeaders] = new Headers(init.headers)
     }
+
+    this[kUrlList] = [parsedURL]
+    this[kRedirect] = init.redirect || 'follow'
+    this[kIntegrity] = init.integrity || ''
+    this[kKeepalive] = keepalive
+    this[kMethod] = normalizedMethod
+    this[kSignal] = init.signal || null
+  }
+
+  get method () {
+    return this[kMethod]
+  }
+
+  get url () {
+    return this[kUrlList][0].toString()
+  }
+
+  get headers () {
+    return this[kHeaders]
+  }
+
+  get redirect () {
+    return this[kRedirect]
+  }
+
+  get integrity () {
+    return this[kIntegrity]
+  }
+
+  get keepalive () {
+    return this[kKeepalive]
+  }
+
+  get signal () {
+    return this[kSignal]
   }
 
   clone () {
     if (this.bodyUsed) {
-      throw RequestCloneError()
+      throw TypeError('Cannot clone a Request with an unusable body')
     }
 
-    return new Request(this)
+    const request = new Request(this)
+
+    return request
   }
 }
 
-module.exports = Request
+module.exports = { Request }

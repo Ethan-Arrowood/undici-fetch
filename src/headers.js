@@ -31,7 +31,7 @@ function fill (headers, object) {
         headers.append(object[i].toString('utf-8'), object[i + 1].toString('utf-8'))
       }
     } else {
-      throw TypeError('invalid array-based header init')
+      if (object.length !== 0) throw TypeError('invalid array-based header init')
     }
   } else if (kHeadersList in object) {
     headers[kHeadersList] = new Array(...object[kHeadersList])
