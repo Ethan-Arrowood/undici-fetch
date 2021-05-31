@@ -67,7 +67,7 @@ tap.test('GET request cannot have a body', async t => {
   try {
     await fetch('http://localhost/', { body: new Readable() })
   } catch (error) {
-    t.same(error.message, 'GET Request cannot have a body')
+    t.same(error.message, 'Request with GET/HEAD method cannot have body')
   }
 
   t.end()

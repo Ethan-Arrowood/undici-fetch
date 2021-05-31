@@ -2,22 +2,28 @@
 
 const Undici = require('undici')
 const { STATUS_CODES } = require('http')
-const Request = require('./request')
-const Response = require('./response')
+const { Request } = require('./request')
+const { Response } = require('./response')
 const { AbortError } = require('./utils')
-const { kHeaders } = require('./symbols')
+const { headers: { kHeadersList } } = require('./symbols')
 
-async function fetch (resource, init = {}) {
+async function fetch (resource, init) {
   const request = new Request(resource, init)
 
+  if (!request.headers.has('accept')) {
+    request.headers.set('accept', '*/*')
+  }
+
+  if (!request.headers.has('accept-language')) {
+    request.headers.set('accept-language', '*')
+  }
+
   try {
-    const { statusCode, headers, body } = await Undici.request({
-      origin: request.url.origin,
-      path: request.url.pathname + request.url.search,
+    const { statusCode, headers, body } = await Undici.request(request.url, {
       method: request.method,
-      headers: request.headers[kHeaders],
+      headers: request.headers[kHeadersList],
       body: request.body,
-      signal: init.signal
+      signal: request.signal
     })
 
     return new Response(body, {
