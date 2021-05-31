@@ -2,7 +2,7 @@
 
 const { types } = require('util')
 const { validateHeaderName, validateHeaderValue } = require('http')
-
+const { binarySearch } = require('./utils')
 const { headers: { kHeadersList } } = require('./symbols')
 
 function normalizeAndValidateHeaderName (name) {
@@ -54,21 +54,10 @@ class Headers {
   append (name, value) {
     const [normalizedName, normalizedValue] = normalizeAndValidateHeaderValue(name, value)
 
-    let i = this[kHeadersList].length
-    let low = -1
-    let probe
-    while (i - low > 1) {
-      probe = (i + low) >>> 1
-      if (this[kHeadersList][probe % 2 ? probe - 1 : probe] < normalizedName) {
-        low = probe
-      } else {
-        i = probe
-      }
-    }
+    const i = binarySearch(this[kHeadersList], normalizedName)
+
     if (this[kHeadersList][i] === normalizedName) {
       this[kHeadersList][i + 1] += `, ${normalizedValue}`
-    } /* istanbul ignore next */ else if (this[kHeadersList][i - 2] === normalizedName) { // todo: figure out how to reach this branch
-      this[kHeadersList][i - 1] += `, ${normalizedValue}`
     } else {
       this[kHeadersList].splice(i, 0, normalizedName, normalizedValue)
     }
@@ -77,21 +66,20 @@ class Headers {
   delete (name) {
     const normalizedName = normalizeAndValidateHeaderName(name)
 
-    for (let i = 0; i < this[kHeadersList].length; i += 2) {
-      if (normalizedName === this[kHeadersList][i]) {
-        this[kHeadersList].splice(i, 2)
-        break
-      }
+    const i = binarySearch(this[kHeadersList], normalizedName)
+
+    if (this[kHeadersList][i] === normalizedName) {
+      this[kHeadersList].splice(i, 2)
     }
   }
 
   get (name) {
     const normalizedName = normalizeAndValidateHeaderName(name)
 
-    for (let i = 0; i < this[kHeadersList].length; i += 2) {
-      if (normalizedName === this[kHeadersList][i]) {
-        return this[kHeadersList][i + 1]
-      }
+    const i = binarySearch(this[kHeadersList], normalizedName)
+
+    if (this[kHeadersList][i] === normalizedName) {
+      return this[kHeadersList][i + 1]
     }
 
     return null
@@ -100,26 +88,17 @@ class Headers {
   has (name) {
     const normalizedName = normalizeAndValidateHeaderName(name)
 
-    for (let i = 0; i < this[kHeadersList].length; i += 2) {
-      if (normalizedName === this[kHeadersList][i]) {
-        return true
-      }
-    }
+    const i = binarySearch(this[kHeadersList], normalizedName)
 
-    return false
+    return this[kHeadersList][i] === normalizedName
   }
 
   set (name, value) {
     const [normalizedName, normalizedValue] = normalizeAndValidateHeaderValue(name, value)
 
-    let index = this[kHeadersList].length
-    for (let i = 0; i < this[kHeadersList].length; i += 2) {
-      if (normalizedName === this[kHeadersList][i] || this[kHeadersList][i] > normalizedName) {
-        index = i
-        break
-      }
-    }
-    this[kHeadersList].splice(index, 0, normalizedName, normalizedValue)
+    const index = binarySearch(this[kHeadersList], normalizedName)
+
+    this[kHeadersList].splice(index, 2, normalizedName, normalizedValue)
   }
 
   * keys () {
