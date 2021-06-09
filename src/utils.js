@@ -11,8 +11,7 @@ function binarySearch (arr, val) {
   while (high > low) {
     const mid = (high + low) >>> 1
 
-    // TODO: val.localeCompare(arr[mid * 2])
-    if (arr[mid * 2] < val) {
+    if (val.localeCompare(arr[mid * 2]) > 0) {
       low = mid + 1
     } else {
       high = mid
