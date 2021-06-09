@@ -370,6 +370,6 @@ tap.test('Headers normalize and validate', t => {
   )
   t.strictSame(
     normalizeAndValidateHeaderValue(name, value),
-    ['undici', 'fetch']
+    'fetch'
   )
 })

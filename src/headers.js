@@ -12,10 +12,9 @@ function normalizeAndValidateHeaderName (name) {
 }
 
 function normalizeAndValidateHeaderValue (name, value) {
-  const normalizedHeaderName = normalizeAndValidateHeaderName(name)
   const normalizedHeaderValue = value.replace(/^[\n\t\r\x20]+|[\n\t\r\x20]+$/g, '')
-  validateHeaderValue(normalizedHeaderName, normalizedHeaderValue)
-  return [normalizedHeaderName, normalizedHeaderValue]
+  validateHeaderValue(name, normalizedHeaderValue)
+  return normalizedHeaderValue
 }
 
 function fill (headers, object) {
@@ -42,6 +41,23 @@ function fill (headers, object) {
   }
 }
 
+// Return position of value or where it should be inserted.
+function lowerBound (arr, val) {
+  let low = 0
+  let high = arr.length / 2
+
+  while (high > low) {
+    const mid = (high + low) >>> 1
+    if (arr[mid * 2] < val) {
+      low = mid + 1
+    } else {
+      high = mid
+    }
+  }
+
+  return low * 2
+}
+
 class Headers {
   constructor (init) {
     this[kHeaders] = []
@@ -52,23 +68,12 @@ class Headers {
   }
 
   append (name, value) {
-    const [normalizedName, normalizedValue] = normalizeAndValidateHeaderValue(name, value)
+    const normalizedName = normalizeAndValidateHeaderName(name)
+    const normalizedValue = normalizeAndValidateHeaderValue(name, value)
 
-    let i = this[kHeaders].length
-    let low = -1
-    let probe
-    while (i - low > 1) {
-      probe = (i + low) >>> 1
-      if (this[kHeaders][probe % 2 ? probe - 1 : probe] < normalizedName) {
-        low = probe
-      } else {
-        i = probe
-      }
-    }
+    const i = lowerBound(this[kHeaders], normalizedName)
     if (this[kHeaders][i] === normalizedName) {
       this[kHeaders][i + 1] += `, ${normalizedValue}`
-    } /* istanbul ignore next */ else if (this[kHeaders][i - 2] === normalizedName) { // todo: figure out how to reach this branch
-      this[kHeaders][i - 1] += `, ${normalizedValue}`
     } else {
       this[kHeaders].splice(i, 0, normalizedName, normalizedValue)
     }
@@ -77,21 +82,18 @@ class Headers {
   delete (name) {
     const normalizedName = normalizeAndValidateHeaderName(name)
 
-    for (let i = 0; i < this[kHeaders].length; i += 2) {
-      if (normalizedName === this[kHeaders][i]) {
-        this[kHeaders].splice(i, 2)
-        break
-      }
+    const i = lowerBound(this[kHeaders], normalizedName)
+    if (normalizedName === this[kHeaders][i]) {
+      this[kHeaders].splice(i, 2)
     }
   }
 
   get (name) {
     const normalizedName = normalizeAndValidateHeaderName(name)
 
-    for (let i = 0; i < this[kHeaders].length; i += 2) {
-      if (normalizedName === this[kHeaders][i]) {
-        return this[kHeaders][i + 1]
-      }
+    const i = lowerBound(this[kHeaders], normalizedName)
+    if (normalizedName === this[kHeaders][i]) {
+      return this[kHeaders][i + 1]
     }
 
     return null
@@ -100,37 +102,36 @@ class Headers {
   has (name) {
     const normalizedName = normalizeAndValidateHeaderName(name)
 
-    for (let i = 0; i < this[kHeaders].length; i += 2) {
-      if (normalizedName === this[kHeaders][i]) {
-        return true
-      }
+    const i = lowerBound(this[kHeaders], normalizedName)
+    if (normalizedName === this[kHeaders][i]) {
+      return true
     }
 
     return false
   }
 
   set (name, value) {
-    const [normalizedName, normalizedValue] = normalizeAndValidateHeaderValue(name, value)
+    const normalizedName = normalizeAndValidateHeaderName(name)
+    const normalizedValue = normalizeAndValidateHeaderValue(name, value)
 
-    let index = this[kHeaders].length
-    for (let i = 0; i < this[kHeaders].length; i += 2) {
-      if (normalizedName === this[kHeaders][i] || this[kHeaders][i] > normalizedName) {
-        index = i
-        break
-      }
+    const i = lowerBound(this[kHeaders], normalizedName)
+    if (this[kHeaders][i] === normalizedName) {
+      this[kHeaders][i + 0] = normalizedName
+      this[kHeaders][i + 1] = normalizedValue
+    } else {
+      this[kHeaders].splice(i, 0, normalizedName, normalizedValue)
     }
-    this[kHeaders].splice(index, 0, normalizedName, normalizedValue)
   }
 
   * keys () {
-    for (const header of this) {
-      yield header[0]
+    for (let i = 0; i < this[kHeaders].length; i += 2) {
+      yield this[kHeaders][i]
     }
   }
 
   * values () {
-    for (const header of this) {
-      yield header[1]
+    for (let i = 0; i < this[kHeaders].length; i += 2) {
+      yield this[kHeaders][i + 1]
     }
   }
 
