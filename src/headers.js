@@ -12,10 +12,9 @@ function normalizeAndValidateHeaderName (name) {
 }
 
 function normalizeAndValidateHeaderValue (name, value) {
-  const normalizedHeaderName = normalizeAndValidateHeaderName(name)
   const normalizedHeaderValue = value.replace(/^[\n\t\r\x20]+|[\n\t\r\x20]+$/g, '')
-  validateHeaderValue(normalizedHeaderName, normalizedHeaderValue)
-  return [normalizedHeaderName, normalizedHeaderValue]
+  validateHeaderValue(name, normalizedHeaderValue)
+  return normalizedHeaderValue
 }
 
 function fill (headers, object) {
@@ -52,7 +51,8 @@ class Headers {
   }
 
   append (name, value) {
-    const [normalizedName, normalizedValue] = normalizeAndValidateHeaderValue(name, value)
+    const normalizedName = normalizeAndValidateHeaderName(name)
+    const normalizedValue = normalizeAndValidateHeaderValue(name, value)
 
     const i = binarySearch(this[kHeadersList], normalizedName)
 
@@ -94,11 +94,15 @@ class Headers {
   }
 
   set (name, value) {
-    const [normalizedName, normalizedValue] = normalizeAndValidateHeaderValue(name, value)
+    const normalizedName = normalizeAndValidateHeaderName(name)
+    const normalizedValue = normalizeAndValidateHeaderValue(name, value)
 
-    const index = binarySearch(this[kHeadersList], normalizedName)
-
-    this[kHeadersList].splice(index, 2, normalizedName, normalizedValue)
+    const i = binarySearch(this[kHeadersList], normalizedName)
+    if (this[kHeadersList][i] === normalizedName) {
+      this[kHeadersList][i + 1] = normalizedValue
+    } else {
+      this[kHeadersList].splice(i, 2, normalizedName, normalizedValue)
+    }
   }
 
   * keys () {

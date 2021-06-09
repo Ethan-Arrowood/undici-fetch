@@ -32,13 +32,11 @@ tap.test('binary search', t => {
     { input: [l4, 'cde'], expected: 6, message: 'find item with similarity in n=odd array' }
   ]
 
-  t.plan(tests.length + 1)
+  t.plan(tests.length)
 
   tests.forEach(({ input: [list, target], expected, message }) => {
     t.equal(expected, binarySearch(list, target), message)
   })
-
-  t.throws(() => binarySearch(['a'], 'a'), Error('List length must be even'))
 })
 
 // Use this for a nice console output when debugging
