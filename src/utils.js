@@ -4,27 +4,22 @@ function isAsyncIterable (obj) {
   return typeof obj?.[Symbol.asyncIterator] === 'function' || typeof obj?.[Symbol.iterator] === 'function'
 }
 
-function binarySearch (list, target) {
-  if (list.length % 2 !== 0) throw Error('List length must be even')
+function binarySearch (arr, val) {
+  let low = 0
+  let high = arr.length / 2
 
-  function _binarySearch (left, right) {
-    if (left > right) return left
+  while (high > low) {
+    const mid = (high + low) >>> 1
 
-    const m = Math.floor((left + right) / 2)
-    const mid = m % 2 === 0 ? m : m + 1
-
-    const comparison = target.localeCompare(list[mid])
-
-    if (comparison > 0) {
-      return _binarySearch(mid + 2, right)
-    } else if (comparison < 0) {
-      return _binarySearch(left, mid - 2)
+    // TODO: val.localeCompare(arr[mid * 2])
+    if (arr[mid * 2] < val) {
+      low = mid + 1
     } else {
-      return mid
+      high = mid
     }
   }
 
-  return _binarySearch(0, list.length - 2)
+  return low * 2
 }
 
 class AbortError extends Error {
