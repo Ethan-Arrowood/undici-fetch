@@ -74,7 +74,7 @@ tap.test('Response class initialization', t => {
   })
 
   t.test('extracts body and content type', t => {
-    t.plan(7)
+    t.plan(6)
 
     t.test('URLSearchParams', async t => {
       const response = new Response(new URLSearchParams('undici=fetch&fetch=undici'))
@@ -110,15 +110,6 @@ tap.test('Response class initialization', t => {
 
       t.equal(await response.text(), 'undici-fetch')
       t.equal(response.headers.has('content-type'), false)
-
-      t.end()
-    })
-
-    t.test('blob', async t => {
-      const response = new Response(new Blob(['undici-fetch'], { type: 'abc' }))
-
-      t.equal(await response.text(), 'undici-fetch')
-      t.equal(response.headers.get('content-type'), 'abc')
 
       t.end()
     })

@@ -84,7 +84,7 @@ tap.test('Request initialization', t => {
   })
 
   t.test('extracts body and content type', t => {
-    t.plan(7)
+    t.plan(6)
 
     t.test('URLSearchParams', async t => {
       const request = new Request(validURL, {
@@ -132,18 +132,6 @@ tap.test('Request initialization', t => {
 
       t.equal(await request.text(), 'undici-fetch')
       t.equal(request.headers.has('content-type'), false)
-
-      t.end()
-    })
-
-    t.test('blob', async t => {
-      const request = new Request(validURL, {
-        method: 'POST',
-        body: new Blob(['undici-fetch'], { type: 'abc' })
-      })
-
-      t.equal(await request.text(), 'undici-fetch')
-      t.equal(request.headers.get('content-type'), 'abc')
 
       t.end()
     })

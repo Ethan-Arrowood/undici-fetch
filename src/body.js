@@ -1,6 +1,5 @@
 'use strict'
 
-const { Blob } = require('buffer')
 const { body: { kBody } } = require('./symbols')
 const { isAsyncIterable } = require('./utils')
 
@@ -48,11 +47,10 @@ class Body {
   }
 
   async blob () {
-    return new Blob([await consumeBody(this[kBody])])
+    throw Error('Body.blob() is not supported yet by undici-fetch')
   }
 
   async formData () {
-    // discuss later
     throw Error('Body.formData() is not supported yet by undici-fetch')
   }
 
@@ -88,18 +86,10 @@ function isUnusable (controlledAsyncIterable) {
   return controlledAsyncIterable?.disturbed ?? false
 }
 
-function createAsyncIterableFromBlob (blob) {
-  return {
-    async * [Symbol.asyncIterator] () {
-      yield * await blob.text()
-    }
-  }
-}
-
 function extractBody (body, keepalive = false) {
   // Test for unique iterator types (URLSearchParams, String, or ArrayBuffer) before the isAsyncIterable check
 
-  // todo: handle FormBody
+  // todo: Blob & FormBody
 
   if (body instanceof URLSearchParams) {
     // spec says to run application/x-www-form-urlencoded on body.list
@@ -120,8 +110,6 @@ function extractBody (body, keepalive = false) {
   } else if (isAsyncIterable(body)) { // Readable, Buffer
     if (keepalive) throw new TypeError('Cannot extract body while keepalive is true')
     return [body, null]
-  } else if (body instanceof Blob) {
-    return [createAsyncIterableFromBlob(body), body.type]
   } else {
     throw Error('Cannot extract Body from input: ', body)
   }
@@ -131,7 +119,6 @@ module.exports = {
   Body,
   consumeBody,
   ControlledAsyncIterable,
-  createAsyncIterableFromBlob,
   extractBody,
   isUnusable
 }

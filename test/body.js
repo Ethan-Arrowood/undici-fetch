@@ -4,12 +4,9 @@ const tap = require('tap')
 const {
   Body,
   ControlledAsyncIterable,
-  createAsyncIterableFromBlob,
   extractBody,
   consumeBody
 } = require('../src/body')
-const { isAsyncIterable } = require('../src/utils')
-const { Blob } = require('buffer')
 
 tap.test('Body initialization', t => {
   t.plan(3)
@@ -128,18 +125,12 @@ tap.test('Body.json returns a json object', async t => {
   t.end()
 })
 
-tap.test('Body.blob returns a blob instance', async t => {
-  const body = new Body('undici-fetch')
+tap.test('Body.blob throws not supported error', async t => {
+  t.plan(2)
 
+  const body = new Body()
   t.equal(body.bodyUsed, false)
-
-  const blob = await body.blob()
-
-  t.equal(body.bodyUsed, true)
-  t.ok(blob instanceof Blob)
-  t.equal(await blob.text(), 'undici-fetch')
-
-  t.end()
+  t.rejects(body.blob(), Error('Body.blob() is not supported yet by undici-fetch'))
 })
 
 tap.test('Body.formData throws not supported error', async t => {
@@ -151,7 +142,7 @@ tap.test('Body.formData throws not supported error', async t => {
 })
 
 tap.test('Body utility classes and methods', t => {
-  t.plan(4)
+  t.plan(3)
 
   t.test('ContolledAsyncIterable', t => {
     t.plan(4)
@@ -236,23 +227,8 @@ tap.test('Body utility classes and methods', t => {
     t.end()
   })
 
-  t.test('createAsyncIterableFromBlob', async t => {
-    const blob = new Blob(['undici-fetch'])
-
-    const asyncIterable = createAsyncIterableFromBlob(blob)
-
-    t.equal(isAsyncIterable(asyncIterable), true)
-
-    let res = ''
-    for await (const text of asyncIterable) {
-      res += text
-    }
-    t.equal(res, 'undici-fetch')
-    t.end()
-  })
-
   t.test('extractBody', t => {
-    t.plan(9)
+    t.plan(8)
 
     t.strictSame(
       extractBody(new URLSearchParams('undici=fetch&fetch=undici')),
@@ -286,12 +262,6 @@ tap.test('Body utility classes and methods', t => {
       extractBody(['undici-fetch']),
       [['undici-fetch'], null],
       'extracts from iterable'
-    )
-
-    t.strictSame(
-      extractBody(new Blob(['undici-fetch'], { type: 'abc' })),
-      [{ [Symbol.asyncIterator] () {} }, 'abc'],
-      'extracts from Blob'
     )
 
     t.strictSame(
