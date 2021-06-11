@@ -16,7 +16,7 @@ declare const fetch: {
 declare class ControlledAsyncIterable<Data> implements AsyncIterable<Data> {
   data: AsyncIterable<Data>
   disturbed: boolean
-  [Symbol.asyncIterator](): AsyncIterator<Data>
+  [Symbol.asyncIterator] (): AsyncIterator<Data>
 }
 
 type BodyInput<Data = unknown> = AsyncIterable<Data> | Iterable<Data> | null | undefined
