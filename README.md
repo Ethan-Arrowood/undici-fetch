@@ -1,9 +1,7 @@
 # undici-fetch
 
-⚠️ This module is currently in beta. It is **not** spec compliant yet. v1 will be released when this can be a drop-in replacement for other Node.js fetch implementations.
-
 ```sh
-npm i undici-fetch@beta
+npm i undici-fetch
 ```
 
 Built on [Undici](https://github.com/nodejs/undici)
@@ -80,58 +78,45 @@ Results:
 
 ```
 Results for 1000 subsequent requests: 
-undici-fetch              | total time: 508709266ns (508.709ms)
-node-fetch                | total time: 1212383071ns (1212.383ms)
-node-fetch_with-agent     | total time: 653387805ns (653.388ms)
-minipass-fetch            | total time: 1228375250ns (1228.375ms)
-minipass-fetch_with-agent | total time: 671138590ns (671.139ms)
-axios                     | total time: 1221510134ns (1221.510ms)
-axios_with-agent          | total time: 675033261ns (675.033ms)
+undici-fetch              | total time: 556662482ns (556.662ms)
+node-fetch                | total time: 1164780654ns (1164.781ms)
+node-fetch_with-agent     | total time: 657854628ns (657.855ms)
+minipass-fetch            | total time: 1186925868ns (1186.926ms)
+minipass-fetch_with-agent | total time: 702841908ns (702.842ms)
+axios                     | total time: 1172170949ns (1172.171ms)
+axios_with-agent          | total time: 685911920ns (685.912ms)
 ---
-undici-fetch <> node-fetch percent change: -58.041%
-undici-fetch <> node-fetch_with-agent percent change: -22.143%
-undici-fetch <> minipass-fetch percent change: -58.587%
-undici-fetch <> minipass-fetch_with-agent percent change: -24.202%
-undici-fetch <> axios percent change: -58.354%
-undici-fetch <> axios_with-agent percent change: -24.639%
+undici-fetch <> node-fetch percent change: -52.209%
+undici-fetch <> node-fetch_with-agent percent change: -15.382%
+undici-fetch <> minipass-fetch percent change: -53.100%
+undici-fetch <> minipass-fetch_with-agent percent change: -20.798%
+undici-fetch <> axios percent change: -52.510%
+undici-fetch <> axios_with-agent percent change: -18.843%
 ```
 
 The `with-agent` variants use a `new http.Agent({ keepAlive: true })` to share a network connection similarly to what Undici does to make the comparison more fair.
 
 # API
 
-The default export for this module is a fetch client instance [`fetch`](). It uses the default `Undici.Pool()` options.
+The default export for this module is a fetch client instance [`fetch`](). It uses the top level `Undici.Request()` method. This project exposes the global dispatcher methods `getGlobalDispatcher` and `setGlobalDispatcher` if they need special configuration.
 
-In order to pass options to the underlying Pool instance, use the named export [`buildFetch`]() method. The fetch instance returned by this method should be used throughout a project. Behind the scenes, `undici-fetch` reuses the pool instances for similar url origins. The pools are memoized in a [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) that is initialized in the `buildFetch` closure.
+## Exports
 
-**Notice:** You must call `fetch.close()` at the end of your project in order to safely close all of the Undici request pools. This step is will be removed before v1 release when an auto-close feature is added (https://github.com/nodejs/undici/pull/508).
+_default_: [`fetch`](#default-method-fetchresource-init)
 
-```js
-const fetch = require('undici-fetch')
-
-async function run() {
-	const res = await fetch('https://example.com')
-	const json = await res.json()
-
-	console.log(json)
-
-	await fetch.close()
-}
-
-run()
-```
-
-> All mentions of `stream.Readable` or `Readable` in this documentation is referring to the Node.js Stream API [Readable Class](https://nodejs.org/api/stream.html#stream_class_stream_readable)
-
-Keep in mind that many of these classes were designed to be directly integrated with Undici and thus may not offer the best stand-alone dev experience. They follow the fetch spec as close as possible and should not deviate from that spec API.
+_named exports_:
+* [`Request`](#class-request)
+* [`Response`](#class-response)
+* [`Headers`](#class-headers)
+* [`Body`](#class-body)
+* [`internals`](#internals)
+* [`setGlobalDispatcher`](https://undici.nodejs.org/#/?id=undicisetglobaldispatcherdispatcher)
+* [`getGlobalDispatcher`](https://undici.nodejs.org/#/?id=undicigetglobaldispatcher)
 
 ## Default Method: `fetch(resource, [init])`
 
 * **resource** `string | Request`
-* **init** `object` (optional)
-  * **method** `string` (optional) - Defaults to `'GET'`
-  * **headers** `Headers | HeadersInit` (optional)
-  * **body** `Readable | null` (optional)
+* **init** `RequestInit` (optional)
 
 Returns: `Promise<Response>`
 
@@ -141,21 +126,12 @@ const fetch = require('undici-fetch')()
 
 // Promise Chain
 fetch('https://example.com')
-	.then(res => res.json())
-	.then(json => console.log(json))
+  .then(res => res.json())
+  .then(json => console.log(json))
 
 // Async/Await
 const res = await fetch('https://example.com')
 const json = await res.json()
-```
-
-## Method: `buildFetch()`
-
-Returns: [fetch](#default-method-fetchresource-init)
-
-```js
-const { buildFetch } = require('undici-fetch')
-const fetch = buildFetch({ /* Undici.Pool options */ })
 ```
 
 ## Class: Headers
@@ -164,7 +140,7 @@ Represents a WHATWG Fetch Spec [Headers Class](https://fetch.spec.whatwg.org/#he
 
 ### `new Headers([init])`
 
-* **init** `Iterable<[string, string]> | Record<string, string>` (optional) - Initial header list to be cloned into the new instance
+* **init** `Headers | Iterable<[string, string]> | string[] | Record<string, string>` (optional) - Initial header list to be cloned into the new instance
 
 ```js
 new Headers()
@@ -172,6 +148,8 @@ new Headers()
 new Headers([
 	["undici", "fetch"]
 ])
+
+new Headers([ 'undici', 'fetch' ])
 
 const headers = new Headers({
 	"undici": "fetch"
@@ -396,7 +374,7 @@ Represents a WHATWG Fetch Spec [Body Mixin](https://fetch.spec.whatwg.org/#body-
 
 ### `new Body([input])`
 
-* **input** `Readable | null | undefined` (optional) - Defaults to `null`
+* **input** `AsyncIterable | Iterable | null | undefined` (optional) - Defaults to `null`
 
 This class is the core for the [Request](#class-request) and [Response](#class-response) classes. Since this class is only ever going to recieve response data from Undici requests, it only supports Readable streams.
 
@@ -404,16 +382,17 @@ This class is the core for the [Request](#class-request) and [Response](#class-r
 new Body()
 new Body(undefined)
 new Body(null)
-new Body(Readable.from('undici-fetch', { objectMode: false }))
+new Body('undici-fetch')
+new Body([ 'a', 'b', 'c' ])
 ```
 
 ### Instance Properties
 
 #### `Body.body`
 
-* `Readable | null`
+* `ControlledAsyncIterable | null`
 
-A property representing the payload of the Body instance
+A property representing the payload of the Body instance. `ControlledAsyncIterable` is a mock WHATWG Readable Stream. It implements the `disturbed` property so that the Fetch api can operate accordingly.
 
 #### `Body.bodyUsed`
 
@@ -430,7 +409,7 @@ Returns: `Promise<Buffer>`
 Returns the `Body.body` content as a Node.js [Buffer](https://nodejs.org/api/buffer.html#buffer_class_buffer) instance.
 
 ```js
-const body = new Body(Readable.from('undici-fetch', { objectMode: false }))
+const body = new Body('undici-fetch')
 
 const buf = await body.arrayBuffer()
 console.log(buf instanceof Buffer) // -> true
@@ -444,7 +423,7 @@ Returns: `never`
 Currently, this implementation does not support returning content as a blob. Calling this method will throw an error. This may change in future API updates.
 
 ```js
-const body = new Body(new Readable())
+const body = new Body('undici-fetch')
 
 try {
 	await body.blob()
@@ -460,7 +439,7 @@ Returns: `never`
 Currently, this implementation does not support returning content as a blob. Calling this method will throw an error. This may change in future API updates.
 
 ```js
-const body = new Body(new Readable())
+const body = new Body('undici-fetch')
 
 try {
 	await body.formData()
@@ -477,7 +456,7 @@ Returns the `Body.body` content as a JSON object.
 
 ```js
 const content = JSON.stringify({ undici: 'fetch' })
-const body = new Body(Readable.from(content, { objectMode: false }))
+const body = new Body(content)
 
 const res = await body.json()
 
@@ -491,7 +470,7 @@ Returns: `Promise<string>`
 Returns the `Body.body` content as a UTF-8 string.
 
 ```js
-const body = new Body(Readable.from('undici-fetch', { objectMode: false }))
+const body = new Body('undici-fetch')
 
 const res = await body.text()
 
@@ -509,14 +488,18 @@ Represents a WHATWG Fetch Spec [Request Class](https://fetch.spec.whatwg.org/#re
 * **init** `object` (optional)
   * **method** `string` (optional) - Defaults to `'GET'`
   * **headers** `Headers | HeadersInit` (optional)
-  * **body** `Readable | null | undefined` (optional)
+  * **body** `AsyncIterable | Iterable | null | undefined` (optional)
+	* **keepalive** `boolean` (optional)
+	* **redirect** `string` (optional)
+	* **integrity** `string` (optional)
+	* **signal** `AbortSignal` (optional)
 
 Creates a new `Request` object. The resulting instance can be passed directly to the [fetch](#method-fetchresource-init) method. The input string will be transformed into a Node.js [URL](https://nodejs.org/api/url.html#url_class_url) instance.
 
 ```js
 const request = new Request('https://example.com', {
 	method: 'POST',
-	body: Readable.from('undici-fetch', { objectMode: false })
+	body: 'undici-fetch'
 })
 
 const res = await fetch(request)
@@ -542,6 +525,22 @@ A property representing the type of the Request instance. Will be normalized to 
 
 A [Headers](#class-headers) class instance representing the Headers instance for the request instance.
 
+#### `Request.redirect`
+
+* `string`
+
+#### `Request.integrity`
+
+* `string`
+
+#### `Request.keepalive`
+
+* `boolean`
+
+#### `Request.signal`
+
+* `AbortSignal`
+
 ### Instance Methods:
 
 #### `Request.clone()`
@@ -566,7 +565,7 @@ Represents a WHATWG Fetch Spec [Response Class](https://fetch.spec.whatwg.org/#r
 
 ### `new Response(body, [init])`
 
-* **body** `Readable | null | undefined`
+* **body** `AsyncIterable | Iterable | null | undefined`
 * **init** `object` (optional)
   * **status** `number` (optional) - Defaults to `200`
   * **statusText** `string` (optional) - Defaults to `''`
@@ -575,7 +574,7 @@ Represents a WHATWG Fetch Spec [Response Class](https://fetch.spec.whatwg.org/#r
 Creates a new `Response` object. This is the result resolved from a successful `fetch()` call. Remember that this class extends from [Body](#class-body) so you can use methods such as `.text()` and `.json()`.
 
 ```js
-const response = new Response(Readable.from('undici-fetch', { objectMode: false }))
+const response = new Response('undici-fetch')
 
 if (response.ok) {
 	const text = await response.text()
@@ -658,3 +657,7 @@ Similar to Undici, this module ships with its own TypeScript definitions. Make s
 Fetch is a browser API, but this library is written in Node.js. We try to be as spec compliant as possible; however, some aspects just cannot be recreated on the server. **All Fetch WHATWG Spec omissions are detailed here**. Each part should have a summary of the omission, plus links to relevant spec section and additional documentation.
 
 Entries in this section have been considered for the implementation and explicitly ommitted. If you do not find an aspect of the Fetch API listed here that is **also** missing from the implementation, open an issue describing the feature request.
+
+## CORS
+
+Any CORS-related aspects of the Fetch api has been omitted from this implementation.

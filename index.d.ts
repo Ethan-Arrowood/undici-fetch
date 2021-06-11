@@ -1,20 +1,31 @@
-import { Readable } from 'node:stream'
 import Undici from 'undici'
 
 declare const fetch: {
   (
     resource: string | Request,
-    init?: { signal?: AbortSignal } & RequestInit
+    init?: RequestInit
   ): Promise<Response>
+  Request: Request
+  Response: Response
+  Headers: Headers
+  Body: Body
+  internals: Internals
   setGlobalDispatcher: typeof Undici.setGlobalDispatcher
   getGlobalDispatcher: typeof Undici.getGlobalDispatcher
 }
 
-type BodyInput = Readable | null | undefined
-declare class Body {
-  constructor (input?: BodyInput);
+declare class ControlledAsyncIterable<Data> implements AsyncIterable<Data> {
+  data: AsyncIterable<Data>
+  disturbed: boolean
+  [Symbol.asyncIterator](): AsyncIterator<Data>
+}
 
-  readonly body: Readable | null
+type BodyInput<Data = unknown> = AsyncIterable<Data> | Iterable<Data> | null | undefined
+
+declare class Body<Data = unknown> {
+  constructor (input?: BodyInput<Data>);
+
+  readonly body: ControlledAsyncIterable<Data> | null
   readonly bodyUsed: boolean
 
   arrayBuffer (): Promise<Buffer>;
@@ -24,7 +35,7 @@ declare class Body {
   text (): Promise<string>;
 }
 
-type HeadersInit = Iterable<[string, string]> | Record<string, string>
+type HeadersInit = Headers | Iterable<[string, string]> | string[] | Record<string, string> | undefined
 
 declare class Headers implements Iterable<[string, string]> {
   constructor (init?: HeadersInit);
@@ -45,8 +56,12 @@ declare class Headers implements Iterable<[string, string]> {
 
 interface RequestInit {
   method?: string
+  keepalive?: boolean
   headers?: Headers | HeadersInit
   body?: BodyInput
+  redirect?: string
+  integrity?: string
+  signal?: AbortSignal
 }
 
 declare class Request extends Body {
@@ -55,6 +70,10 @@ declare class Request extends Body {
   readonly url: URL
   readonly method: string
   readonly headers: Headers
+  readonly redirect: string
+  readonly integrity: string
+  readonly keepalive: boolean
+  readonly signal: AbortSignal
 
   clone (): Request;
 }
@@ -78,6 +97,34 @@ declare class Response extends Body {
 
   static error (): Response;
   static redirect (url: string, status: number): Response;
+}
+
+interface Internals {
+  symbols: {
+    body: {
+      kBody: Symbol,
+      kBodyUser: Symbol
+    },
+    headers: {
+      kHeadersList: Symbol
+    },
+    response: {
+      kStatus: Symbol,
+      kStatusText: Symbol,
+      kType: Symbol
+    },
+    request: {
+      kMethod: Symbol,
+      kRedirect: Symbol,
+      kIntegrity: Symbol,
+      kKeepalive: Symbol,
+      kSignal: Symbol
+    },
+    shared: {
+      kHeaders: Symbol,
+      kUrlList: Symbol
+    }
+  }
 }
 
 export default fetch
