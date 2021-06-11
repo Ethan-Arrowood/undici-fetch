@@ -219,7 +219,6 @@ tap.test('Headers set', t => {
     t.doesNotThrow(() => headers.set(name, value1))
     t.equal(headers.get(name), value1)
     t.doesNotThrow(() => headers.set(name, value2))
-    console.log(headers[kHeadersList])
     t.equal(headers.get(name), value2)
   })
 

@@ -10,7 +10,6 @@ tap.test('Does not override accept and accept-language headers', async t => {
   t.plan(3)
   const server = http.createServer((req, res) => {
     t.equal(req.method, 'GET')
-    console.log(req.headers)
     t.equal(req.headers.accept, 'test')
     t.equal(req.headers['accept-language'], 'test')
     res.end()

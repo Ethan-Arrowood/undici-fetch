@@ -67,19 +67,25 @@ class Body {
   }
 }
 
-async function consumeBody (body) {
-  if (isUnusable(body)) throw TypeError('cannot consume unusable body')
+async function consumeBody (controlledAsyncIterable) {
+  if (isUnusable(controlledAsyncIterable)) throw TypeError('cannot consume unusable body')
 
-  const bufs = []
-  for await (const chunk of body) {
-    bufs.push(Buffer.from(chunk))
+  if (Buffer.isBuffer(controlledAsyncIterable.data)) {
+    controlledAsyncIterable.disturbed = true
+    return controlledAsyncIterable.data
+  } else {
+    const bufs = []
+
+    for await (const chunk of controlledAsyncIterable) {
+      bufs.push(Buffer.from(chunk))
+    }
+  
+    return Buffer.concat(bufs)
   }
-
-  return Buffer.concat(bufs)
 }
 
-function isUnusable (body) {
-  return body?.disturbed ?? false
+function isUnusable (controlledAsyncIterable) {
+  return controlledAsyncIterable?.disturbed ?? false
 }
 
 function createAsyncIterableFromBlob (blob) {
@@ -101,12 +107,12 @@ function extractBody (body, keepalive = false) {
     // See: https://github.com/nodejs/node/blob/e46c680bf2b211bbd52cf959ca17ee98c7f657f5/lib/internal/url.js#L490
     // And: https://github.com/nodejs/node/blob/e46c680bf2b211bbd52cf959ca17ee98c7f657f5/lib/internal/url.js#L1100
     return [
-      body.toString(),
+      Buffer.from(body.toString(), 'utf-8'),
       'application/x-www-form-urlencoded;charset=UTF-8'
     ]
   } else if (typeof body === 'string') {
     return [
-      Buffer.from(body, 'utf-8').toString(),
+      Buffer.from(body, 'utf-8'),
       'text/plain;charset=UTF-8'
     ]
   } else if (body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {

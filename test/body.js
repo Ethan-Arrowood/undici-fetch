@@ -257,7 +257,7 @@ tap.test('Body utility classes and methods', t => {
     t.strictSame(
       extractBody(new URLSearchParams('undici=fetch&fetch=undici')),
       [
-        'undici=fetch&fetch=undici',
+        Buffer.from('undici=fetch&fetch=undici'),
         'application/x-www-form-urlencoded;charset=UTF-8'
       ],
       'extracts from URLSearchParams'
@@ -265,7 +265,7 @@ tap.test('Body utility classes and methods', t => {
 
     t.strictSame(
       extractBody('undici-fetch'),
-      ['undici-fetch', 'text/plain;charset=UTF-8'],
+      [Buffer.from('undici-fetch'), 'text/plain;charset=UTF-8'],
       'extracts from string'
     )
 
