@@ -1,7 +1,6 @@
 'use strict'
 
 const tap = require('tap')
-const { Blob } = require('buffer')
 
 const { Request } = require('../src/request')
 const { Headers } = require('../src/headers')

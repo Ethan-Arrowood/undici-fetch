@@ -77,7 +77,7 @@ async function consumeBody (controlledAsyncIterable) {
     for await (const chunk of controlledAsyncIterable) {
       bufs.push(Buffer.from(chunk))
     }
-  
+
     return Buffer.concat(bufs)
   }
 }

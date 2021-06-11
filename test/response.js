@@ -1,7 +1,7 @@
 'use strict'
 
 const tap = require('tap')
-const { Blob } = require('buffer')
+
 const { Response } = require('../src/response')
 const { Headers } = require('../src/headers')
 const { shared: { kUrlList } } = require('../src/symbols')
