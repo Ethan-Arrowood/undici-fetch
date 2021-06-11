@@ -8,10 +8,6 @@ fetch.Response = require('./src/response').Response
 fetch.Headers = require('./src/headers').Headers
 fetch.Body = require('./src/body').Body
 
-fetch.internals = {
-  symbols: require('./src/symbols')
-}
-
 fetch.setGlobalDispatcher = setGlobalDispatcher
 fetch.getGlobalDispatcher = getGlobalDispatcher
 

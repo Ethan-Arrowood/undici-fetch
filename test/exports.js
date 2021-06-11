@@ -29,11 +29,3 @@ tap.test('fetch exports core classes', t => {
   t.same(Headers, require('../src/headers').Headers)
   t.same(Body, require('../src/body').Body)
 })
-
-tap.test('fetch exports internal symbols', t => {
-  t.plan(1)
-
-  const { internals: { symbols } } = require('../')
-
-  t.same(symbols, require('../src/symbols'))
-})

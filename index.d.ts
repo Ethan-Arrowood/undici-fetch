@@ -9,7 +9,6 @@ declare const fetch: {
   Response: Response
   Headers: Headers
   Body: Body
-  internals: Internals
   setGlobalDispatcher: typeof Undici.setGlobalDispatcher
   getGlobalDispatcher: typeof Undici.getGlobalDispatcher
 }
@@ -97,34 +96,6 @@ declare class Response extends Body {
 
   static error (): Response;
   static redirect (url: string, status: number): Response;
-}
-
-interface Internals {
-  symbols: {
-    body: {
-      kBody: Symbol,
-      kBodyUser: Symbol
-    },
-    headers: {
-      kHeadersList: Symbol
-    },
-    response: {
-      kStatus: Symbol,
-      kStatusText: Symbol,
-      kType: Symbol
-    },
-    request: {
-      kMethod: Symbol,
-      kRedirect: Symbol,
-      kIntegrity: Symbol,
-      kKeepalive: Symbol,
-      kSignal: Symbol
-    },
-    shared: {
-      kHeaders: Symbol,
-      kUrlList: Symbol
-    }
-  }
 }
 
 export default fetch
