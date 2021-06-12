@@ -1,12 +1,15 @@
 'use strict'
 
 const tap = require('tap')
-const { Readable } = require('stream')
-const Body = require('../src/body')
-const { isAsyncIterable } = require('../src/utils')
+const {
+  Body,
+  ControlledAsyncIterable,
+  extractBody,
+  consumeBody
+} = require('../src/body')
 
 tap.test('Body initialization', t => {
-  t.plan(4)
+  t.plan(3)
 
   t.test('defaults to null', t => {
     t.plan(2)
@@ -16,25 +19,17 @@ tap.test('Body initialization', t => {
     t.equal(body.bodyUsed, false)
   })
 
-  t.test('allows null, undefined, and stream.Readable', t => {
+  t.test('allows null and either iterables or async iterables', t => {
     t.plan(3)
 
-    t.doesNotThrow(() => new Body(new Readable()))
+    t.doesNotThrow(() => new Body({ [Symbol.iterator]: () => {} }))
+    t.doesNotThrow(() => new Body({ [Symbol.asyncIterator]: () => {} }))
     t.doesNotThrow(() => new Body(null))
-    t.doesNotThrow(() => new Body(undefined))
   })
 
-  t.test('assigns Readable input to body property', t => {
-    t.plan(2)
-    const body = new Body(new Readable())
-
-    t.ok(isAsyncIterable(body.body))
-    t.equal(body.bodyUsed, false)
-  })
-
-  t.test('throws for other inputs', t => {
+  t.test('throws on non null and non iterables inputs', t => {
     t.plan(4)
-    const err = Error('body must be `undefined`, `null`, or implement `[Symbol.asyncIterator]`')
+    const err = Error('input argument must be `null` or implement either `[Symbol.asyncIterator]` or `[Symbol.iterator]`')
     t.throws(() => new Body(100), err, 'throws on number')
     t.throws(() => new Body(true), err, 'throws on boolean')
     t.throws(() => new Body(() => {}), err, 'throws on function')
@@ -46,94 +41,244 @@ tap.test('Body.arrayBuffer', t => {
   t.plan(2)
 
   t.test('returns an arrayBuffer when body is not null', async t => {
-    t.plan(4)
-
     function * gen () {
       yield 'undici'
       yield '-'
       yield 'fetch'
     }
-    const readable = Readable.from(gen(), { objectMode: false })
-    const body = new Body(readable)
 
-    t.ok(!body.bodyUsed)
+    const body = new Body(gen())
+
+    t.equal(body.bodyUsed, false)
+
     const res = await body.arrayBuffer()
-    t.ok(body.bodyUsed)
+
+    t.equal(body.bodyUsed, true)
     t.ok(res instanceof Buffer)
-    t.equal(res.toString(), 'undici-fetch')
+    t.equal(res.toString('utf-8'), 'undici-fetch')
+
+    t.end()
   })
 
   t.test('returns empty buffer when body does not exist', async t => {
-    t.plan(2)
-
     const body = new Body(null)
 
-    t.ok(!body.bodyUsed)
+    t.equal(body.bodyUsed, false)
+
     const res = await body.arrayBuffer()
+
+    t.equal(body.bodyUsed, false)
     t.equal(res.length, 0)
+
+    t.end()
   })
 })
 
 tap.test('Body.text', t => {
   t.plan(2)
 
-  t.test('Body.text returns a string', async t => {
-    t.plan(4)
-
+  t.test('returns a string', async t => {
     function * gen () {
       yield 'undici'
       yield '-'
       yield 'fetch'
     }
-    const readable = Readable.from(gen(), { objectMode: false })
-    const body = new Body(readable)
 
-    t.ok(!body.bodyUsed)
+    const body = new Body(gen())
+
+    t.equal(body.bodyUsed, false)
+
     const res = await body.text()
-    t.ok(body.bodyUsed)
+
+    t.equal(body.bodyUsed, true)
     t.equal(typeof res, 'string')
     t.equal(res, 'undici-fetch')
+
+    t.end()
   })
 
   t.test('returns empty string when body does not exist', async t => {
-    t.plan(2)
-
     const body = new Body(null)
 
-    t.ok(!body.bodyUsed)
+    t.equal(body.bodyUsed, false)
+
     const res = await body.text()
+
+    t.equal(body.bodyUsed, false)
     t.equal(res, '')
+    t.end()
   })
 })
 
 tap.test('Body.json returns a json object', async t => {
-  t.plan(4)
-
   const json = { undici: 'fetch' }
-  const readable = Readable.from(JSON.stringify(json))
-  const body = new Body(readable)
+  const body = new Body(JSON.stringify(json))
 
-  t.ok(!body.bodyUsed)
+  t.equal(body.bodyUsed, false)
+
   const res = await body.json()
-  t.ok(body.bodyUsed)
+
+  t.equal(body.bodyUsed, true)
   t.equal(typeof res, 'object')
   t.strictSame(res, json)
+
+  t.end()
 })
 
 tap.test('Body.blob throws not supported error', async t => {
   t.plan(2)
 
-  const readable = new Readable()
-  const body = new Body(readable)
-  t.ok(!body.bodyUsed)
+  const body = new Body()
+  t.equal(body.bodyUsed, false)
   t.rejects(body.blob(), Error('Body.blob() is not supported yet by undici-fetch'))
 })
 
 tap.test('Body.formData throws not supported error', async t => {
   t.plan(2)
 
-  const readable = new Readable()
-  const body = new Body(readable)
-  t.ok(!body.bodyUsed)
+  const body = new Body()
+  t.equal(body.bodyUsed, false)
   t.rejects(body.formData(), Error('Body.formData() is not supported yet by undici-fetch'))
+})
+
+tap.test('Body utility classes and methods', t => {
+  t.plan(3)
+
+  t.test('ContolledAsyncIterable', t => {
+    t.plan(4)
+
+    t.test('Works with iterables', async t => {
+      const iterable = ['a', 'b', 'c']
+
+      const controlled = new ControlledAsyncIterable(iterable)
+
+      t.equal(controlled.disturbed, false)
+
+      let i = 0
+      for await (const item of controlled) {
+        t.equal(controlled.disturbed, true)
+        t.equal(item, iterable[i++])
+      }
+
+      t.end()
+    })
+
+    t.test('Works with async iterables', async t => {
+      function * gen () {
+        yield 'undici'
+        yield '-'
+        yield 'fetch'
+      }
+
+      const controlled = new ControlledAsyncIterable(gen())
+
+      t.equal(controlled.disturbed, false)
+
+      let str = ''
+      for await (const item of controlled) {
+        t.equal(controlled.disturbed, true)
+        str += item
+      }
+
+      t.equal(str, 'undici-fetch')
+
+      t.end()
+    })
+
+    t.test('Throws error if instantiated without iterable', t => {
+      t.plan(4)
+      t.throws(() => new ControlledAsyncIterable({}))
+      t.throws(() => new ControlledAsyncIterable(() => {}))
+      t.throws(() => new ControlledAsyncIterable(0))
+      t.throws(() => new ControlledAsyncIterable(false))
+    })
+
+    t.test('Throws error if iterated when disturbed', async t => {
+      function * gen () { yield 'undici-fetch' }
+
+      const controlled = new ControlledAsyncIterable(gen())
+
+      t.equal(controlled.disturbed, false)
+
+      let str = ''
+      for await (const item of controlled) {
+        str += item
+      }
+
+      t.equal(str, 'undici-fetch')
+      t.equal(controlled.disturbed, true)
+
+      t.rejects(async () => {
+        for await (const _ of controlled); // eslint-disable-line no-unused-vars
+      }, 'cannot iterate on distured iterable')
+
+      t.end()
+    })
+  })
+
+  t.test('consumeBody throws if body is disturbed', async t => {
+    function * gen () { yield 'undici-fetch' }
+
+    const controlled = new ControlledAsyncIterable(gen())
+
+    for await (const _ of controlled); // eslint-disable-line no-unused-vars
+
+    t.rejects(() => consumeBody(controlled))
+    t.end()
+  })
+
+  t.test('extractBody', t => {
+    t.plan(8)
+
+    t.strictSame(
+      extractBody(new URLSearchParams('undici=fetch&fetch=undici')),
+      [
+        Buffer.from('undici=fetch&fetch=undici'),
+        'application/x-www-form-urlencoded;charset=UTF-8'
+      ],
+      'extracts from URLSearchParams'
+    )
+
+    t.strictSame(
+      extractBody('undici-fetch'),
+      [Buffer.from('undici-fetch'), 'text/plain;charset=UTF-8'],
+      'extracts from string'
+    )
+
+    function * gen () { yield 'undici-fetch' }
+
+    t.strictSame(
+      extractBody(gen()),
+      [gen(), null],
+      'extracts from async iterable'
+    )
+
+    t.throws(
+      () => extractBody(gen(), true),
+      'Cannot extract body while keepalive is true'
+    )
+
+    t.strictSame(
+      extractBody(['undici-fetch']),
+      [['undici-fetch'], null],
+      'extracts from iterable'
+    )
+
+    t.strictSame(
+      extractBody(new ArrayBuffer(0)),
+      [Buffer.alloc(0), null],
+      'extracts from ArrayBuffer'
+    )
+
+    t.strictSame(
+      extractBody(new Uint8Array(0)),
+      [Buffer.alloc(0), null],
+      'extracts from ArrayBufferView'
+    )
+
+    t.throws(
+      () => extractBody({}),
+      'Cannot extract Body from input: [object: Object]'
+    )
+  })
 })
