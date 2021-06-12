@@ -550,7 +550,7 @@ A property representing the status code of the response.
 
 * `string`
 
-A property representing the status of the response instance based on [`http.STATUS_CODES`](https://nodejs.org/api/http.html#http_http_status_codes).
+A property representing the status of the response instance. If returned from `fetch()`, it will be based on [`http.STATUS_CODES`](https://nodejs.org/api/http.html#http_http_status_codes).
 
 #### `Response.type`
 
