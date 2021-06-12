@@ -1,6 +1,6 @@
 'use strict'
 
-const { Body, extractBody } = require('./body')
+const { extractBody, BodyMixin, ControlledAsyncIterable } = require('./body')
 const { Headers } = require('./headers')
 const {
   response: {
@@ -17,7 +17,7 @@ const {
   }
 } = require('./symbols')
 
-class Response extends Body {
+class Response {
   constructor (body = null, { status = 200, statusText = '', headers } = {}) {
     if (typeof status !== 'number') {
       throw TypeError(`Response status must be of type number. Found type: ${typeof status}`)
@@ -29,31 +29,28 @@ class Response extends Body {
       throw TypeError(`Response statusText must be of type string. Found type: ${typeof statusText}`)
     }
 
-    if (body !== null) {
-      if (isNullBodyStatus(status)) {
-        throw TypeError(`Expected non-null Response body status. Found: ${status}`)
-      }
-
-      const [extractedBody, contentType] = extractBody(body)
-
-      super(extractedBody)
-
-      this[kHeaders] = new Headers(headers)
-
-      if (contentType !== null && !this[kHeaders].has('content-type')) {
-        this[kHeaders].append('content-type', contentType)
-      }
-    } else {
-      super(body)
-      this[kHeaders] = new Headers(headers)
-    }
-
     this[kStatus] = status
     this[kStatusText] = statusText
 
     this[kType] = 'default'
 
     this[kUrlList] = []
+    this[kHeaders] = new Headers(headers)
+    this[kBody] = body
+
+    if (this[kBody] !== null) {
+      if (isNullBodyStatus(this[kStatus])) {
+        throw TypeError(`Expected non-null Response body status. Found: ${this[kStatus]}`)
+      }
+
+      const [extractedBody, contentType] = extractBody(this[kBody])
+
+      this[kBody] = new ControlledAsyncIterable(extractedBody)
+
+      if (contentType !== null && !this[kHeaders].has('content-type')) {
+        this[kHeaders].append('content-type', contentType)
+      }
+    }
   }
 
   get type () {
@@ -141,6 +138,8 @@ function isOkStatus (status) {
 function isRedirectStatus (status) {
   return status === 301 || status === 302 || status === 303 || status === 307 || status === 308
 }
+
+BodyMixin(Response.prototype)
 
 module.exports = {
   Response

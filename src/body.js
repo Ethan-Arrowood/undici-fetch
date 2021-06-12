@@ -4,11 +4,12 @@ const { body: { kBody } } = require('./symbols')
 const { isAsyncIterable } = require('./utils')
 
 class ControlledAsyncIterable {
-  constructor (data) {
-    if (!isAsyncIterable(data)) {
-      throw TypeError('data argument must implement either `[Symbol.asyncIterator]` or `[Symbol.iterator]`')
+  constructor (input) {
+    if (input !== null && !isAsyncIterable(input)) {
+      throw Error('input argument must be `null` or implement either `[Symbol.asyncIterator]` or `[Symbol.iterator]`')
     }
-    this.data = data
+
+    this.data = input
     this.disturbed = false
   }
 
@@ -23,46 +24,44 @@ class ControlledAsyncIterable {
   }
 }
 
-class Body {
-  constructor (input = null) {
-    if (input !== null && !isAsyncIterable(input)) {
-      throw Error('input argument must be `null` or implement either `[Symbol.asyncIterator]` or `[Symbol.iterator]`')
+function BodyMixin (requestOrResponsePrototype) {
+  Object.defineProperties(requestOrResponsePrototype, {
+    body: {
+      get () { return this[kBody] }
+    },
+    bodyUsed: {
+      get () { return isUnusable(this[kBody]) }
+    },
+    arrayBuffer: {
+      value: function () {
+        if (this[kBody] === null) return Promise.resolve(Buffer.alloc(0))
+
+        return consumeBody(this[kBody])
+      }
+    },
+    blob: {
+      value: async function () {
+        throw Error('Body.blob() is not supported yet by undici-fetch')
+      }
+    },
+    formData: {
+      value: async function () {
+        throw Error('Body.formData() is not supported yet by undici-fetch')
+      }
+    },
+    json: {
+      value: async function () {
+        return JSON.parse(await this.text())
+      }
+    },
+    text: {
+      value: async function () {
+        if (this[kBody] === null) return ''
+
+        return (await consumeBody(this[kBody])).toString('utf-8')
+      }
     }
-
-    this[kBody] = input !== null ? new ControlledAsyncIterable(input) : null
-  }
-
-  get body () {
-    return this[kBody]
-  }
-
-  get bodyUsed () {
-    return isUnusable(this[kBody])
-  }
-
-  arrayBuffer () {
-    if (this[kBody] === null) return Promise.resolve(Buffer.alloc(0))
-
-    return consumeBody(this[kBody])
-  }
-
-  async blob () {
-    throw Error('Body.blob() is not supported yet by undici-fetch')
-  }
-
-  async formData () {
-    throw Error('Body.formData() is not supported yet by undici-fetch')
-  }
-
-  async json () {
-    return JSON.parse(await this.text())
-  }
-
-  async text () {
-    if (this[kBody] === null) return ''
-
-    return (await consumeBody(this[kBody])).toString('utf-8')
-  }
+  })
 }
 
 async function consumeBody (controlledAsyncIterable) {
@@ -116,7 +115,7 @@ function extractBody (body, keepalive = false) {
 }
 
 module.exports = {
-  Body,
+  BodyMixin,
   consumeBody,
   ControlledAsyncIterable,
   extractBody,
