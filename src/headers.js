@@ -101,7 +101,7 @@ class Headers {
     if (this[kHeadersList][i] === normalizedName) {
       this[kHeadersList][i + 1] = normalizedValue
     } else {
-      this[kHeadersList].splice(i, 2, normalizedName, normalizedValue)
+      this[kHeadersList].splice(i, 0, normalizedName, normalizedValue)
     }
   }
 

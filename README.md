@@ -40,6 +40,44 @@ undici-fetch <> axios_with-agent percent change: -18.843%
 
 The `with-agent` variants use a `new http.Agent({ keepAlive: true })` to share a network connection similarly to what Undici does to make the comparison more fair.
 
+## Additional API Benchmarks
+
+### Headers
+
+> Requires Node.js v16
+
+`node benchmarks/headers/index.mjs`
+
+On a personal machine:
+
+```
+MacBook Pro (16-inch, 2019)
+Processor 2.4 GHz 8-Core Intel Core i9
+Memory 32 GB 2667 MHz DDR4
+```
+
+Results:
+
+```
+Benchmark results for Headers class
+Tested modules: undici-fetch, node-fetch
+
+Benchmark Suite results for operation: append
+┌─────────┬────────────────┬───────────────────────┬────────────────┐
+│ (index) │     Module     │      Total Time       │ Percent Change │
+├─────────┼────────────────┼───────────────────────┼────────────────┤
+│    0    │ 'undici-fetch' │ '456864ns (0.457ms)'  │      null      │
+│    1    │  'node-fetch'  │ '1329190ns (1.329ms)' │   '-65.628%'   │
+└─────────┴────────────────┴───────────────────────┴────────────────┘
+Benchmark Suite results for operation: iterate
+┌─────────┬────────────────┬───────────────────────┬────────────────┐
+│ (index) │     Module     │      Total Time       │ Percent Change │
+├─────────┼────────────────┼───────────────────────┼────────────────┤
+│    0    │ 'undici-fetch' │  '62383ns (0.062ms)'  │      null      │
+│    1    │  'node-fetch'  │ '1686108ns (1.686ms)' │   '-96.300%'   │
+└─────────┴────────────────┴───────────────────────┴────────────────┘
+```
+
 # API
 
 The default export for this module is a fetch client instance [`fetch`](). It uses the top level `Undici.Request()` method. This project exposes the global dispatcher methods `getGlobalDispatcher` and `setGlobalDispatcher` if they need special configuration.
