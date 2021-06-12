@@ -14,6 +14,7 @@ declare const fetch: {
 }
 
 declare class ControlledAsyncIterable<Data> implements AsyncIterable<Data> {
+  constructor (input: AsyncIterable<Data> | Iterable<Data>)
   data: AsyncIterable<Data>
   disturbed: boolean
   [Symbol.asyncIterator] (): AsyncIterator<Data>
@@ -21,17 +22,15 @@ declare class ControlledAsyncIterable<Data> implements AsyncIterable<Data> {
 
 type BodyInput<Data = unknown> = AsyncIterable<Data> | Iterable<Data> | null | undefined
 
-declare class Body<Data = unknown> {
-  constructor (input?: BodyInput<Data>);
-
+interface BodyMixin<Data = unknown> {
   readonly body: ControlledAsyncIterable<Data> | null
   readonly bodyUsed: boolean
 
-  arrayBuffer (): Promise<Buffer>;
-  blob (): never;
-  formData (): never;
-  json (): Promise<any>;
-  text (): Promise<string>;
+  arrayBuffer: () => Promise<Buffer>
+  blob: () => never
+  formData: () => never
+  json: () => Promise<any>
+  text: () => Promise<string>
 }
 
 type HeadersInit = Headers | Iterable<[string, string]> | string[] | Record<string, string> | undefined
@@ -63,7 +62,7 @@ interface RequestInit {
   signal?: AbortSignal
 }
 
-declare class Request extends Body {
+declare class Request<Data = unknown> implements BodyMixin {
   constructor (input: Request | string, init?: RequestInit);
 
   readonly url: URL
@@ -74,6 +73,15 @@ declare class Request extends Body {
   readonly keepalive: boolean
   readonly signal: AbortSignal
 
+  readonly body: ControlledAsyncIterable<Data> | null
+  readonly bodyUsed: boolean
+
+  arrayBuffer (): Promise<Buffer>;
+  blob (): never;
+  formData (): never;
+  json (): Promise<any>;
+  text (): Promise<string>;
+
   clone (): Request;
 }
 
@@ -83,7 +91,7 @@ interface ResponseInit {
   headers?: Headers | HeadersInit
 }
 
-declare class Response extends Body {
+declare class Response<Data = unknown> implements BodyMixin {
   constructor (body: BodyInput, init?: ResponseInit)
 
   readonly headers: Headers
@@ -91,6 +99,15 @@ declare class Response extends Body {
   readonly status: number
   readonly statusText: string
   readonly type: string
+
+  readonly body: ControlledAsyncIterable<Data> | null
+  readonly bodyUsed: boolean
+
+  arrayBuffer (): Promise<Buffer>;
+  blob (): never;
+  formData (): never;
+  json (): Promise<any>;
+  text (): Promise<string>;
 
   clone (): Response;
 
@@ -101,7 +118,7 @@ declare class Response extends Body {
 export default fetch
 export { setGlobalDispatcher, getGlobalDispatcher } from 'undici'
 export type {
-  Body,
+  BodyMixin,
   Headers,
   Request,
   Response

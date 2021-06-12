@@ -52,7 +52,6 @@ _named exports_:
 * [`Request`](#class-request)
 * [`Response`](#class-response)
 * [`Headers`](#class-headers)
-* [`Body`](#class-body)
 * [`setGlobalDispatcher`](https://undici.nodejs.org/#/?id=undicisetglobaldispatcherdispatcher)
 * [`getGlobalDispatcher`](https://undici.nodejs.org/#/?id=undicigetglobaldispatcher)
 
@@ -311,118 +310,9 @@ for (const entry of headers.entries()) {
 // -> 'ghi', '789, 012'
 ```
 
-## Class: Body
-
-Represents a WHATWG Fetch Spec [Body Mixin](https://fetch.spec.whatwg.org/#body-mixin)
-
-### `new Body([input])`
-
-* **input** `AsyncIterable | Iterable | null | undefined` (optional) - Defaults to `null`
-
-This class is the core for the [Request](#class-request) and [Response](#class-response) classes. Since this class is only ever going to recieve response data from Undici requests, it only supports Readable streams.
-
-```js
-new Body()
-new Body(undefined)
-new Body(null)
-new Body('undici-fetch')
-new Body([ 'a', 'b', 'c' ])
-```
-
-### Instance Properties
-
-#### `Body.body`
-
-* `ControlledAsyncIterable | null`
-
-A property representing the payload of the Body instance. `ControlledAsyncIterable` is a mock WHATWG Readable Stream. It implements the `disturbed` property so that the Fetch api can operate accordingly.
-
-#### `Body.bodyUsed`
-
-* `boolean`
-
-A property representing the consumption state of the Body instance. Do not confuse this property with the Node.js [stream](https://nodejs.org/api/stream.html#stream_three_states) state of `Body.body`. This property is used by the other instance methods for indicating to other parts of the API if the body has been consumed or not.
-
-### Instance Methods
-
-#### `Body.arrayBuffer()`
-
-Returns: `Promise<Buffer>`
-
-Returns the `Body.body` content as a Node.js [Buffer](https://nodejs.org/api/buffer.html#buffer_class_buffer) instance.
-
-```js
-const body = new Body('undici-fetch')
-
-const buf = await body.arrayBuffer()
-console.log(buf instanceof Buffer) // -> true
-console.log(buf.toString('utf8')) // -> 'undici-fetch'
-```
-
-#### `Body.blob()`
-
-Returns: `never`
-
-Currently, this implementation does not support returning content as a blob. Calling this method will throw an error. This may change in future API updates.
-
-```js
-const body = new Body('undici-fetch')
-
-try {
-	await body.blob()
-} catch (err) {
-	console.log(err.message) // -> 'Body.blob() is not supported yet by undici-fetch'
-}
-```
-
-#### `Body.formData()`
-
-Returns: `never`
-
-Currently, this implementation does not support returning content as a blob. Calling this method will throw an error. This may change in future API updates.
-
-```js
-const body = new Body('undici-fetch')
-
-try {
-	await body.formData()
-} catch (err) {
-	console.log(err.message) // -> 'Body.formData() is not supported yet by undici-fetch'
-}
-```
-
-#### `Body.json()`
-
-Returns: `Promise<any>`
-
-Returns the `Body.body` content as a JSON object.
-
-```js
-const content = JSON.stringify({ undici: 'fetch' })
-const body = new Body(content)
-
-const res = await body.json()
-
-console.log(res) // -> { undici: 'fetch' }
-```
-
-#### `Body.text()`
-
-Returns: `Promise<string>`
-
-Returns the `Body.body` content as a UTF-8 string.
-
-```js
-const body = new Body('undici-fetch')
-
-const res = await body.text()
-
-console.log(res) // -> 'undici-fetch'
-```
-
 ## Class: Request
 
-Extends: `Body`
+Implemets: `BodyMixin`
 
 Represents a WHATWG Fetch Spec [Request Class](https://fetch.spec.whatwg.org/#request-class)
 
@@ -587,6 +477,117 @@ Returns: `Response`
 
 ```js
 const redirectResponse = Response.redirect('https://example.com', 301)
+```
+
+## Function: BodyMixin
+
+Represents a WHATWG Fetch Spec [Body Mixin](https://fetch.spec.whatwg.org/#body-mixin).
+
+Use the mixin by called `BodyMixin` with the prototype of an object.
+
+```js
+class Response {
+	constructor (body) {
+		this[kBody] = body
+	}
+}
+
+BodyMixin(Response.prototype)
+
+const response = new Response('undici-fetch')
+
+response.body // -> ControlledAsyncIterable from input 'undici-fetch'
+```
+
+### Properties
+
+#### `body`
+
+* `ControlledAsyncIterable | null`
+
+A property representing the payload of the instance. `ControlledAsyncIterable` is a mock WHATWG Readable Stream. It implements the `disturbed` property so that the Fetch api can operate accordingly.
+
+#### `bodyUsed`
+
+* `boolean`
+
+A property representing the consumption state of the instance. Do not confuse this property with the Node.js [stream](https://nodejs.org/api/stream.html#stream_three_states) state. This property is used by the other instance methods for indicating to other parts of the API if the body has been consumed or not.
+
+### Methods
+
+#### `arrayBuffer()`
+
+Returns: `Promise<Buffer>`
+
+Returns the `body` content as a Node.js [Buffer](https://nodejs.org/api/buffer.html#buffer_class_buffer) instance.
+
+```js
+const response = new Response('undici-fetch')
+
+const buf = await response.arrayBuffer()
+console.log(buf instanceof Buffer) // -> true
+console.log(buf.toString('utf8')) // -> 'undici-fetch'
+```
+
+#### `blob()`
+
+Returns: `never`
+
+Currently, this implementation does not support returning content as a blob. Calling this method will throw an error. This may change in future API updates.
+
+```js
+const response = new Response('undici-fetch')
+
+try {
+	await response.blob()
+} catch (err) {
+	console.log(err.message) // -> 'Response.blob() is not supported yet by undici-fetch'
+}
+```
+
+#### `formData()`
+
+Returns: `never`
+
+Currently, this implementation does not support returning content as a blob. Calling this method will throw an error. This may change in future API updates.
+
+```js
+const response = new Response('undici-fetch')
+
+try {
+	await response.formData()
+} catch (err) {
+	console.log(err.message) // -> 'Response.formData() is not supported yet by undici-fetch'
+}
+```
+
+#### `json()`
+
+Returns: `Promise<any>`
+
+Returns the `body` content as a JSON object.
+
+```js
+const content = JSON.stringify({ undici: 'fetch' })
+const response = new Response(content)
+
+const data = await response.json()
+
+console.log(data) // -> { undici: 'fetch' }
+```
+
+#### `text()`
+
+Returns: `Promise<string>`
+
+Returns the `body` content as a UTF-8 string.
+
+```js
+const response = new Response('undici-fetch')
+
+const text = await response.text()
+
+console.log(text) // -> 'undici-fetch'
 ```
 
 ---

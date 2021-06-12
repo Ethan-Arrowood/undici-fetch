@@ -5,8 +5,8 @@ const { isAsyncIterable } = require('./utils')
 
 class ControlledAsyncIterable {
   constructor (input) {
-    if (input !== null && !isAsyncIterable(input)) {
-      throw Error('input argument must be `null` or implement either `[Symbol.asyncIterator]` or `[Symbol.iterator]`')
+    if (!isAsyncIterable(input)) {
+      throw Error('input argument must implement either `[Symbol.asyncIterator]` or `[Symbol.iterator]`')
     }
 
     this.data = input
@@ -41,12 +41,12 @@ function BodyMixin (requestOrResponsePrototype) {
     },
     blob: {
       value: async function () {
-        throw Error('Body.blob() is not supported yet by undici-fetch')
+        throw Error(`${this.constructor.name}.blob() is not supported yet by undici-fetch`)
       }
     },
     formData: {
       value: async function () {
-        throw Error('Body.formData() is not supported yet by undici-fetch')
+        throw Error(`${this.constructor.name}.formData() is not supported yet by undici-fetch`)
       }
     },
     json: {

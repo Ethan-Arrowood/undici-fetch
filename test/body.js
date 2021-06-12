@@ -25,9 +25,9 @@ tap.test('BodyMixin', t => {
 
     const body = new Body()
 
-    body[kBody] = new ControlledAsyncIterable(null)
+    body[kBody] = null
 
-    t.ok(body.body instanceof ControlledAsyncIterable)
+    t.equal(body.body, null)
     t.equal(body.bodyUsed, false)
     t.equal(typeof body.arrayBuffer, 'function')
     t.equal(typeof body.blob, 'function')
