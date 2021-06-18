@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/Ethan-Arrowood/undici-fetch#readme",
   "dependencies": {
-    "undici": "^4.0.0-rc.1"
+    "undici": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^14.14.37",
