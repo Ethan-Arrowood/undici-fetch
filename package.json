@@ -15,6 +15,9 @@
     "type": "git",
     "url": "git+https://github.com/Ethan-Arrowood/undici-fetch.git"
   },
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "keywords": [
     "nodejs"
   ],
