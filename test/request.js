@@ -8,10 +8,11 @@ const { Headers } = require('../src/headers')
 const validURL = 'http://undici-fetch.dev'
 
 tap.test('Request initialization', t => {
-  t.plan(10)
+  t.plan(11)
 
   t.throws(() => new Request(), 'throws on missing input')
   t.doesNotThrow(() => new Request(validURL), 'not throws on valid url input')
+  t.doesNotThrow(() => new Request(new URL(validURL)), 'not throws on valid url object input')
 
   t.test('default method to GET', t => {
     t.plan(1)
