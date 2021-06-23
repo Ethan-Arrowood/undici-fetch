@@ -2,7 +2,7 @@ import Undici from 'undici'
 
 declare const fetch: {
   (
-    resource: string | Request,
+    resource: string | Request | URL,
     init?: RequestInit
   ): Promise<Response>
   Request: Request
@@ -64,7 +64,7 @@ interface RequestInit {
 }
 
 declare class Request extends Body {
-  constructor (input: Request | string, init?: RequestInit);
+  constructor (input: Request | string | URL, init?: RequestInit);
 
   readonly url: URL
   readonly method: string
