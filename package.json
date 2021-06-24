@@ -1,6 +1,6 @@
 {
   "name": "undici-fetch",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.2",
   "description": "A WHATWG Fetch implementation based on @nodejs/undici",
   "main": "./index.js",
   "types": "./index.d.ts",
