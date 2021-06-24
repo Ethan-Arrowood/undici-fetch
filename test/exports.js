@@ -20,12 +20,11 @@ tap.test('fetch forwards undici globalDispatcher methods', t => {
 })
 
 tap.test('fetch exports core classes', t => {
-  t.plan(4)
+  t.plan(3)
 
-  const { Request, Response, Headers, Body } = require('../')
+  const { Request, Response, Headers } = require('../')
 
   t.same(Request, require('../src/request').Request)
   t.same(Response, require('../src/response').Response)
   t.same(Headers, require('../src/headers').Headers)
-  t.same(Body, require('../src/body').Body)
 })

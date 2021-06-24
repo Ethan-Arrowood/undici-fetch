@@ -2,7 +2,7 @@
 
 const { METHODS } = require('http')
 
-const { Body, extractBody } = require('./body')
+const { ControlledAsyncIterable, BodyMixin, extractBody } = require('./body')
 const { Headers } = require('./headers')
 
 const {
@@ -19,7 +19,8 @@ const {
   shared: {
     kHeaders,
     kUrlList
-  }
+  },
+  body: { kBody }
 } = require('./symbols')
 
 function normalizeAndValidateRequestMethod (method) {
@@ -36,7 +37,7 @@ function normalizeAndValidateRequestMethod (method) {
   return normalizedMethod
 }
 
-class Request extends Body {
+class Request {
   constructor (input, init = {}) {
     if (input instanceof Request) {
       return new Request(input.url, {
@@ -53,39 +54,29 @@ class Request extends Body {
       throw TypeError('Request input must be type Request, URL, or string')
     }
 
-    const parsedURL = new URL(input)
+    this[kUrlList] = [new URL(input)]
+    this[kKeepalive] = init.keepalive || false
+    this[kRedirect] = init.redirect || 'follow'
+    this[kIntegrity] = init.integrity || ''
+    this[kSignal] = init.signal || null
 
-    const normalizedMethod = init.method !== undefined ? normalizeAndValidateRequestMethod(init.method) : 'GET'
+    this[kMethod] = init.method !== undefined ? normalizeAndValidateRequestMethod(init.method) : 'GET'
+    this[kHeaders] = new Headers(init.headers)
+    this[kBody] = init.body || null
 
-    const keepalive = init.keepalive || false
-
-    const body = init.body || null
-
-    if (body !== null) {
-      if (normalizedMethod === 'GET' || normalizedMethod === 'HEAD') {
+    if (this[kBody] !== null) {
+      if (this[kMethod] === 'GET' || this[kMethod] === 'HEAD') {
         throw TypeError('Request with GET/HEAD method cannot have body')
       }
 
-      const [extractedBody, contentType] = extractBody(body, keepalive)
+      const [extractedBody, contentType] = extractBody(this[kBody], this[kKeepalive])
 
-      super(extractedBody)
-
-      this[kHeaders] = new Headers(init.headers)
+      this[kBody] = new ControlledAsyncIterable(extractedBody)
 
       if (contentType !== null && !this[kHeaders].has('content-type')) {
         this[kHeaders].append('content-type', contentType)
       }
-    } else {
-      super(body)
-      this[kHeaders] = new Headers(init.headers)
     }
-
-    this[kUrlList] = [parsedURL]
-    this[kRedirect] = init.redirect || 'follow'
-    this[kIntegrity] = init.integrity || ''
-    this[kKeepalive] = keepalive
-    this[kMethod] = normalizedMethod
-    this[kSignal] = init.signal || null
   }
 
   get method () {
@@ -126,5 +117,7 @@ class Request extends Body {
     return request
   }
 }
+
+BodyMixin(Request.prototype)
 
 module.exports = { Request }
