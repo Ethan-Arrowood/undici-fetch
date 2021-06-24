@@ -57,7 +57,7 @@ _named exports_:
 
 ## Default Method: `fetch(resource, [init])`
 
-* **resource** `string | Request`
+* **resource** `string | Request | URL`
 * **init** `RequestInit` (optional)
 
 Returns: `Promise<Response>`
@@ -317,7 +317,7 @@ Implemets: `BodyMixin`
 Represents a WHATWG Fetch Spec [Request Class](https://fetch.spec.whatwg.org/#request-class)
 
 ### `new Request(input, [init])`
-* **input** `Request | string`
+* **input** `Request | string | URL`
 * **init** `object` (optional)
   * **method** `string` (optional) - Defaults to `'GET'`
   * **headers** `Headers | HeadersInit` (optional)

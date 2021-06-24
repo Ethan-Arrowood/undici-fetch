@@ -50,8 +50,8 @@ class Request {
         signal: null, // cloning signal currently not-supported
         ...init
       })
-    } else if (typeof input !== 'string') {
-      throw TypeError('Request input must be type Request or string')
+    } else if (typeof input !== 'string' && !(input instanceof URL)) {
+      throw TypeError('Request input must be type Request, URL, or string')
     }
 
     this[kUrlList] = [new URL(input)]

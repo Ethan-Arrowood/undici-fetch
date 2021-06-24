@@ -1,6 +1,6 @@
 {
   "name": "undici-fetch",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.2",
   "description": "A WHATWG Fetch implementation based on @nodejs/undici",
   "main": "./index.js",
   "types": "./index.d.ts",
@@ -15,6 +15,9 @@
     "type": "git",
     "url": "git+https://github.com/Ethan-Arrowood/undici-fetch.git"
   },
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "keywords": [
     "nodejs"
   ],
@@ -25,7 +28,7 @@
   },
   "homepage": "https://github.com/Ethan-Arrowood/undici-fetch#readme",
   "dependencies": {
-    "undici": "^4.0.0-rc.1"
+    "undici": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^14.14.37",
