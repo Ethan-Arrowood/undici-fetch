@@ -1,5 +1,5 @@
-import { spawnRunWorker } from "../../benchmark.mjs"
-import { initializeHeaders } from "./scripts/initializeHeaders.mjs"
+import { spawnRunWorker } from '../../benchmark.mjs'
+import { initializeHeaders } from './scripts/initializeHeaders.mjs'
 import { assertHas } from './scripts/assertHas.mjs'
 
 const set = _ => headers => commonHeaderKeys => {
@@ -19,11 +19,11 @@ export function setSuite (entity, commonHeaderKeys) {
     },
     main: {
       func: set.toString(),
-      args: [ commonHeaderKeys ]
+      args: [commonHeaderKeys]
     },
     after: {
       func: assertHas.toString(),
-      args: [ entity.id, commonHeaderKeys ]
+      args: [entity.id, commonHeaderKeys]
     }
   })
 }

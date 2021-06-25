@@ -1,7 +1,7 @@
-import { spawnRunWorker } from "../../benchmark.mjs"
+import { spawnRunWorker } from '../../benchmark.mjs'
 
-import { getInitArg } from "./scripts/getInitArg.mjs"
-import { initializeHeaders } from "./scripts/initializeHeaders.mjs"
+import { getInitArg } from './scripts/getInitArg.mjs'
+import { initializeHeaders } from './scripts/initializeHeaders.mjs'
 import { assertEmpty } from './scripts/assertEmpty.mjs'
 
 const deleteFunc = _ => headers => commonHeaderKeys => {
@@ -18,15 +18,15 @@ export function deleteSuite (entity, commonHeaderKeys) {
     suite: { id: 'delete' },
     before: {
       func: initializeHeaders.toString(),
-      args: [ getInitArg(commonHeaderKeys) ]
+      args: [getInitArg(commonHeaderKeys)]
     },
     main: {
       func: deleteFunc.toString(),
-      args: [ commonHeaderKeys ]
+      args: [commonHeaderKeys]
     },
     after: {
       func: assertEmpty.toString(),
-      args: [ entity.id ]
+      args: [entity.id]
     }
   })
 }

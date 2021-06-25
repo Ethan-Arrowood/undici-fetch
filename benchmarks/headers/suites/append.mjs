@@ -1,6 +1,6 @@
-import { spawnRunWorker } from "../../benchmark.mjs"
+import { spawnRunWorker } from '../../benchmark.mjs'
 
-import { initializeHeaders } from "./scripts/initializeHeaders.mjs"
+import { initializeHeaders } from './scripts/initializeHeaders.mjs'
 import { assertOrder } from './scripts/assertOrder.mjs'
 
 const append = _ => headers => commonHeaderKeys => {
@@ -19,11 +19,11 @@ export function appendSuite (entity, commonHeaderKeys) {
     },
     main: {
       func: append.toString(),
-      args: [ commonHeaderKeys ]
+      args: [commonHeaderKeys]
     },
     after: {
       func: assertOrder.toString(),
-      args: [ entity.id, commonHeaderKeys ]
+      args: [entity.id, commonHeaderKeys]
     }
   })
 }

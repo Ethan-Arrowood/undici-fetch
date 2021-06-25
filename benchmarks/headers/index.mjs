@@ -1,4 +1,4 @@
-import { benchmark, getPath } from '../benchmark.mjs';
+import { benchmark, getPath } from '../benchmark.mjs'
 import { suites } from './suites/index.mjs'
 
 /** Sorted list of common header keys */
@@ -83,7 +83,7 @@ const entities = [
     id: 'mapHeaders',
     path: getPath('headers/implementations/mapHeaders.js'),
     import: 'Headers'
-  },
+  }
 ]
 
 /** Shuffle list for accurate sorting benchmarks */

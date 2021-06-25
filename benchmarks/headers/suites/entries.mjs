@@ -1,7 +1,7 @@
-import { spawnRunWorker } from "../../benchmark.mjs"
+import { spawnRunWorker } from '../../benchmark.mjs'
 
-import { getInitArg } from "./scripts/getInitArg.mjs"
-import { initializeHeaders } from "./scripts/initializeHeaders.mjs"
+import { getInitArg } from './scripts/getInitArg.mjs'
+import { initializeHeaders } from './scripts/initializeHeaders.mjs'
 
 const entries = _ => headers => _ => {
   const noop = () => {}
@@ -16,7 +16,7 @@ export function entriesSuite (entity, commonHeaderKeys) {
     suite: { id: 'entries' },
     before: {
       func: initializeHeaders.toString(),
-      args: [ getInitArg(commonHeaderKeys) ]
+      args: [getInitArg(commonHeaderKeys)]
     },
     main: {
       func: entries.toString()

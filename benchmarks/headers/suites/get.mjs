@@ -1,7 +1,7 @@
-import { spawnRunWorker } from "../../benchmark.mjs"
+import { spawnRunWorker } from '../../benchmark.mjs'
 
-import { getInitArg } from "./scripts/getInitArg.mjs"
-import { initializeHeaders } from "./scripts/initializeHeaders.mjs"
+import { getInitArg } from './scripts/getInitArg.mjs'
+import { initializeHeaders } from './scripts/initializeHeaders.mjs'
 import { assertOrder } from './scripts/assertOrder.mjs'
 
 const get = _ => headers => commonHeaderKeys => {
@@ -18,15 +18,15 @@ export function getSuite (entity, commonHeaderKeys) {
     suite: { id: 'get' },
     before: {
       func: initializeHeaders.toString(),
-      args: [ getInitArg(commonHeaderKeys) ]
+      args: [getInitArg(commonHeaderKeys)]
     },
     main: {
       func: get.toString(),
-      args: [ commonHeaderKeys ]
+      args: [commonHeaderKeys]
     },
     after: {
       func: assertOrder.toString(),
-      args: [ entity.id, commonHeaderKeys ]
+      args: [entity.id, commonHeaderKeys]
     }
   })
 }
