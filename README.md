@@ -8,37 +8,7 @@ Built on [Undici](https://github.com/nodejs/undici)
 
 # Benchmarks
 
-`npm run benchmarks`
-
-On a personal machine:
-
-```
-MacBook Pro (16-inch, 2019)
-Processor 2.4 GHz 8-Core Intel Core i9
-Memory 32 GB 2667 MHz DDR4
-```
-
-Results:
-
-```
-Results for 1000 subsequent requests: 
-undici-fetch              | total time: 556662482ns (556.662ms)
-node-fetch                | total time: 1164780654ns (1164.781ms)
-node-fetch_with-agent     | total time: 657854628ns (657.855ms)
-minipass-fetch            | total time: 1186925868ns (1186.926ms)
-minipass-fetch_with-agent | total time: 702841908ns (702.842ms)
-axios                     | total time: 1172170949ns (1172.171ms)
-axios_with-agent          | total time: 685911920ns (685.912ms)
----
-undici-fetch <> node-fetch percent change: -52.209%
-undici-fetch <> node-fetch_with-agent percent change: -15.382%
-undici-fetch <> minipass-fetch percent change: -53.100%
-undici-fetch <> minipass-fetch_with-agent percent change: -20.798%
-undici-fetch <> axios percent change: -52.510%
-undici-fetch <> axios_with-agent percent change: -18.843%
-```
-
-The `with-agent` variants use a `new http.Agent({ keepAlive: true })` to share a network connection similarly to what Undici does to make the comparison more fair.
+View all benchmarks [here](./benchmarks.md)
 
 # API
 
