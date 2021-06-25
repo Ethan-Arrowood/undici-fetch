@@ -8,6 +8,7 @@ const values = _ => headers => _ => {
   for (const value of headers.values()) {
     noop(value)
   }
+  return [headers]
 }
 
 export function valuesSuite (entity, commonHeaderKeys) {

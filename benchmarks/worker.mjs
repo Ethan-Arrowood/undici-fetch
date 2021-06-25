@@ -15,14 +15,9 @@ const getScript = async (script) => {
   return scriptImport
 }
 
-const runScript = async (script, prev, entityImport) => {
-  if (!script) return
-  const callable = typeof script.func === 'string' ? eval(script.func) : await getScript(script)
-  return callable(entityImport)(prev)(...script.args ?? [])
-}
-
 const evaluate = (script, previousArgs = [], entityImport = []) => {
-  return eval(script.func)(entityImport)(...previousArgs)(...script.args ?? [])
+  if (!script) return
+  return eval(script.func)(entityImport)(...previousArgs)(...script.args ?? []) // eslint-disable-line no-eval
 }
 
 async function run (parentPort) {
@@ -32,11 +27,11 @@ async function run (parentPort) {
 
   const startTime = process.hrtime.bigint()
 
-  const mainResult = await runScript(main, beforeResult, entityImport)
+  const mainResult = await evaluate(main, beforeResult, entityImport)
 
   const endTime = process.hrtime.bigint()
 
-  const afterResult = await runScript(after, mainResult, entityImport)
+  const afterResult = await evaluate(after, mainResult, entityImport)
 
   parentPort.postMessage({
     entity,

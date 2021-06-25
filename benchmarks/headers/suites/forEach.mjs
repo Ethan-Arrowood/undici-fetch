@@ -6,6 +6,7 @@ import { initializeHeaders } from './scripts/initializeHeaders.mjs'
 const forEach = _ => headers => _ => {
   const noop = () => {}
   headers.forEach(header => noop(header))
+  return [headers]
 }
 
 export function forEachSuite (entity, commonHeaderKeys) {

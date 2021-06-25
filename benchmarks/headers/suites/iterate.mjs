@@ -8,6 +8,7 @@ const iterate = _ => headers => _ => {
   for (const header of headers) {
     noop(header)
   }
+  return [headers]
 }
 
 export function iterateSuite (entity, commonHeaderKeys) {

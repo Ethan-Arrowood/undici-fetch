@@ -8,6 +8,7 @@ const entries = _ => headers => _ => {
   for (const entry of headers.entries()) {
     noop(entry)
   }
+  return [headers]
 }
 
 export function entriesSuite (entity, commonHeaderKeys) {

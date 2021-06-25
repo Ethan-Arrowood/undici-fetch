@@ -9,7 +9,7 @@ const get = _ => headers => commonHeaderKeys => {
     headers.get(key)
   }
 
-  return headers
+  return [headers]
 }
 
 export function getSuite (entity, commonHeaderKeys) {

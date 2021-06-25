@@ -7,7 +7,7 @@ const append = _ => headers => commonHeaderKeys => {
   for (const key of commonHeaderKeys) {
     headers.append(key, 'A-String-Value-That-Represents-Average-Header-Value-Length')
   }
-  return headers
+  return [headers]
 }
 
 export function appendSuite (entity, commonHeaderKeys) {

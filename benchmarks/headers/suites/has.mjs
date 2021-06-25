@@ -9,7 +9,7 @@ const has = _ => headers => commonHeaderKeys => {
     headers.has(key)
   }
 
-  return headers
+  return [headers]
 }
 
 export function hasSuite (entity, commonHeaderKeys) {

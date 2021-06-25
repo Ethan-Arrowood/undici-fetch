@@ -7,7 +7,7 @@ const set = _ => headers => commonHeaderKeys => {
     headers.set(key, 'A-String-Value-That-Represents-Average-Header-Value-Length')
   }
 
-  return headers
+  return [headers]
 }
 
 export function setSuite (entity, commonHeaderKeys) {

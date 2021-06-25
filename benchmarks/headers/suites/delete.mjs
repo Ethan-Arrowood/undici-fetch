@@ -9,7 +9,7 @@ const deleteFunc = _ => headers => commonHeaderKeys => {
     headers.delete(key)
   }
 
-  return headers
+  return [headers]
 }
 
 export function deleteSuite (entity, commonHeaderKeys) {

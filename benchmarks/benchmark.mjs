@@ -26,7 +26,8 @@ export async function benchmark (runs, baselineEntityId) {
     for (const [entityId, run] of suite) {
       const totalTime = calcElapsedTime(run.timings)
       const percentChange = entityId === baselineEntityId
-        ? null : calcPercentChange(baselineTime, totalTime)
+        ? null
+        : calcPercentChange(baselineTime, totalTime)
       output.push({
         Entity: entityId,
         'Total Time': totalTimeToString(totalTime),

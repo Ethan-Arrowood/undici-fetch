@@ -1,3 +1,3 @@
 export const initializeHeaders = Headers => _ => init => {
-  return new Headers(init)
+  return [new Headers(init)]
 }
