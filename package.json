@@ -9,7 +9,7 @@
     "lint:ts": "ts-standard --verbose",
     "lint": "npm run lint:js && npm run lint:ts",
     "test": "tap -J --test-ignore='testUtils.js'",
-    "bench": "node benchmarks"
+    "bench": "node benchmarks/index.mjs"
   },
   "repository": {
     "type": "git",

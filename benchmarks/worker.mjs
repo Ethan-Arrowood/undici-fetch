@@ -15,9 +15,9 @@ const getScript = async (script) => {
   return scriptImport
 }
 
-const evaluate = (script, previousArgs = [], entityImport = []) => {
+const evaluate = async (script, previousArgs = [], entityImport = []) => {
   if (!script) return
-  return eval(script.func)(entityImport)(...previousArgs)(...script.args ?? []) // eslint-disable-line no-eval
+  return await (eval(script.func)(entityImport)(...previousArgs))(...script.args ?? []) // eslint-disable-line no-eval
 }
 
 async function run (parentPort) {

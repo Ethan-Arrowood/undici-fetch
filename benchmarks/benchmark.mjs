@@ -2,7 +2,6 @@ import { Worker } from 'worker_threads'
 
 export async function benchmark (runs, baselineEntityId) {
   const runResults = await Promise.all(runs)
-
   const benchmarkResult = new Map()
   for (const result of runResults) {
     let suite = benchmarkResult.get(result.suite.id)
