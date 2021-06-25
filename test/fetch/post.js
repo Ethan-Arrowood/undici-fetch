@@ -11,12 +11,12 @@ tap.test('POST request', async t => {
 
   const server = http.createServer(async (req, res) => {
     t.equal(req.method, 'POST')
-    
-    let reqBody = '';
+
+    let reqBody = ''
     for await (const chunk of req) {
-        reqBody += chunk.toString();
+      reqBody += chunk.toString()
     }
-    
+
     t.equal(reqBody, body)
 
     res.end()
@@ -31,8 +31,8 @@ tap.test('POST request', async t => {
 
   // we just need to check if the server receives the body we pass
   await fetch(`http://localhost:${server.address().port}/`, {
-      method: 'POST',
-      body: body
+    method: 'POST',
+    body: body
   })
 
   t.end()
