@@ -68,27 +68,29 @@ export const commonHeaderKeys = [
   'Warning'
 ]
 
-const entities = [
-  {
-    id: 'undici-fetch',
-    path: getPath('../index.js'),
-    import: 'Headers'
-  },
-  {
-    id: 'node-fetch',
-    path: 'node-fetch',
-    import: 'Headers'
-  },
-  {
-    id: 'mapHeaders',
-    path: getPath('headers/implementations/mapHeaders.js'),
-    import: 'Headers'
-  }
-]
+export async function benchmarkHeaders () {
+  const entities = [
+    {
+      id: 'undici-fetch',
+      path: getPath('../index.js'),
+      import: 'Headers'
+    },
+    {
+      id: 'node-fetch',
+      path: 'node-fetch',
+      import: 'Headers'
+    },
+    {
+      id: 'mapHeaders',
+      path: getPath('headers/implementations/mapHeaders.js'),
+      import: 'Headers'
+    }
+  ]
 
-/** Shuffle list for accurate sorting benchmarks */
-commonHeaderKeys.sort(() => Math.random() - 0.5)
+  /** Shuffle list for accurate sorting benchmarks */
+  commonHeaderKeys.sort(() => Math.random() - 0.5)
 
-const runs = entities.map(module => suites.map(suite => suite(module, commonHeaderKeys))).flat()
+  const runs = entities.map(module => suites.map(suite => suite(module, commonHeaderKeys))).flat()
 
-benchmark(runs, 'undici-fetch')
+  benchmark(runs, 'undici-fetch')
+}
