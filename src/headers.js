@@ -65,7 +65,7 @@ class Headers {
 
   append (...args) {
     if (args.length !== 2) throw TypeError('Expected at least 2 arguments!')
-    const [name, value] = args;
+    const [name, value] = args
     const normalizedName = normalizeAndValidateHeaderName(name)
     const normalizedValue = normalizeAndValidateHeaderValue(name, value)
 
@@ -116,7 +116,7 @@ class Headers {
 
   set (...args) {
     if (args.length !== 2) throw TypeError('Expected at least 2 arguments!')
-    const [name, value] = args;
+    const [name, value] = args
 
     const normalizedName = normalizeAndValidateHeaderName(name)
     const normalizedValue = normalizeAndValidateHeaderValue(name, value)
