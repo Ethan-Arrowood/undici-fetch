@@ -151,7 +151,6 @@ class Headers {
   * [Symbol.iterator] () {
     for (let i = 0; i < this[kHeadersList].length; i += 2) {
       const value = this[kHeadersList][i + 1]
-      console.log(value)
       yield [this[kHeadersList][i], Array.isArray(value) ? value.join(',') : value]
     }
   }
