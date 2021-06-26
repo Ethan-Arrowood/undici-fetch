@@ -67,15 +67,11 @@ tap.test('Headers initialization', t => {
   })
 
   t.test('allows header values to be an array of strings', t => {
-    t.plan(2)
+    t.plan(1)
 
     t.doesNotThrow(() => new Headers([
       ['a', ['b', 'c']],
       ['d', ['e', 'f']]
-    ]))
-
-    t.throws(() => new Headers([
-      ['a', [1, 2]]
     ]))
   })
 })
