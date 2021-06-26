@@ -75,7 +75,7 @@ new Headers(headers)
 #### `Headers.append(name, value)`
 
 * **name** `string`
-* **value** `string | string[]`
+* **value** `string`
 
 Returns: `void`
 
