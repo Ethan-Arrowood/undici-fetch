@@ -35,7 +35,7 @@ interface BodyMixin<Data = unknown> {
 
 type HeadersInit = Headers | Iterable<[string, string]> | string[] | Record<string, string> | undefined
 
-declare class Headers implements Iterable<[string, string | string[]]> {
+declare class Headers implements Iterable<[string, string]> {
   constructor (init?: HeadersInit);
   append (name: string, value: string): void;
   delete (name: string): void;
