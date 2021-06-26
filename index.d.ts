@@ -33,15 +33,15 @@ interface BodyMixin<Data = unknown> {
   text: () => Promise<string>
 }
 
-type HeadersInit = Headers | Iterable<[string, string]> | string[] | Record<string, string> | undefined
+type HeadersInit = Headers | Iterable<[string, string | string[]]> | string[] | Record<string, string | string[]> | undefined
 
-declare class Headers implements Iterable<[string, string]> {
+declare class Headers implements Iterable<[string, string | string[]]> {
   constructor (init?: HeadersInit);
-  append (name: string, value: string): void;
+  append (name: string, value: string | string[]): void;
   delete (name: string): void;
   get (name: string): string | null;
   has (name: string): boolean;
-  set (name: string, value: string): void;
+  set (name: string, value: string | string[]): void;
   entries (): IterableIterator<[string, string]>;
   forEach (
     callbackfn: (value: string, key: string, iterable: Headers) => void,

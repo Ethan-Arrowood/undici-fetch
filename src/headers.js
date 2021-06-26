@@ -11,8 +11,23 @@ function normalizeAndValidateHeaderName (name) {
   return normalizedHeaderName
 }
 
+const headerRegex = /^[\n\t\r\x20]+|[\n\t\r\x20]+$/g
+
 function normalizeAndValidateHeaderValue (name, value) {
-  const normalizedHeaderValue = value.replace(/^[\n\t\r\x20]+|[\n\t\r\x20]+$/g, '')
+  if (Array.isArray(value)) {
+    const normalizedHeaderValues = []
+    for (let i = 0; i < value.length; i++) {
+      if (typeof value[i] !== 'string') throw TypeError('all headers must be strings')
+
+      const normalized = value[i].replace(headerRegex, '')
+      validateHeaderValue(name, normalized)
+      normalizedHeaderValues.push(normalized)
+    }
+
+    return normalizedHeaderValues
+  }
+
+  const normalizedHeaderValue = value.replace(headerRegex, '')
   validateHeaderValue(name, normalizedHeaderValue)
   return normalizedHeaderValue
 }
@@ -76,10 +91,16 @@ class Headers {
   get (name) {
     const normalizedName = normalizeAndValidateHeaderName(name)
 
-    const i = binarySearch(this[kHeadersList], normalizedName)
+    let i = binarySearch(this[kHeadersList], normalizedName)
 
     if (this[kHeadersList][i] === normalizedName) {
-      return this[kHeadersList][i + 1]
+      const all = []
+      while (this[kHeadersList][i] === normalizedName) {
+        all.push(this[kHeadersList][i + 1])
+        i += 2
+      }
+
+      return all.join(',')
     }
 
     return null
@@ -129,7 +150,9 @@ class Headers {
 
   * [Symbol.iterator] () {
     for (let i = 0; i < this[kHeadersList].length; i += 2) {
-      yield [this[kHeadersList][i], this[kHeadersList][i + 1]]
+      const value = this[kHeadersList][i + 1]
+      console.log(value)
+      yield [this[kHeadersList][i], Array.isArray(value) ? value.join(',') : value]
     }
   }
 }

@@ -52,7 +52,7 @@ Represents a WHATWG Fetch Spec [Headers Class](https://fetch.spec.whatwg.org/#he
 
 ### `new Headers([init])`
 
-* **init** `Headers | Iterable<[string, string]> | string[] | Record<string, string>` (optional) - Initial header list to be cloned into the new instance
+* **init** `Headers | Iterable<[string, string | string[]]> | string[] | Record<string, string | string[]>` (optional) - Initial header list to be cloned into the new instance
 
 ```js
 new Headers()
@@ -68,6 +68,10 @@ const headers = new Headers({
 })
 
 new Headers(headers)
+
+new Headers([
+	['key', ['value', 'value2']]
+])
 ```
 
 ### Instance Methods
@@ -75,7 +79,7 @@ new Headers(headers)
 #### `Headers.append(name, value)`
 
 * **name** `string`
-* **value** `string`
+* **value** `string | string[]`
 
 Returns: `void`
 
@@ -83,6 +87,9 @@ Non-destructive operation for adding header entries. When called multiple times 
 
 ```js
 const headers = new Headers()
+
+headers.append('key', ['value', 'value2'])
+headers.get('key') // -> 'value,value2'
 
 headers.append('undici', 'fetch')
 headers.get('undici') // -> 'fetch'

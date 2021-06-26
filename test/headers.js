@@ -9,7 +9,7 @@ const {
 const { headers: { kHeadersList } } = require('../src/symbols')
 
 tap.test('Headers initialization', t => {
-  t.plan(5)
+  t.plan(6)
 
   t.test('allows undefined', t => {
     t.plan(1)
@@ -65,10 +65,23 @@ tap.test('Headers initialization', t => {
     t.doesNotThrow(() => new Headers(1))
     t.doesNotThrow(() => new Headers('1'))
   })
+
+  t.test('allows header values to be an array of strings', t => {
+    t.plan(2)
+
+    t.doesNotThrow(() => new Headers([
+      ['a', ['b', 'c']],
+      ['d', ['e', 'f']]
+    ]))
+
+    t.throws(() => new Headers([
+      ['a', [1, 2]]
+    ]))
+  })
 })
 
 tap.test('Headers append', t => {
-  t.plan(3)
+  t.plan(4)
 
   t.test('adds valid header entry to instance', t => {
     t.plan(2)
@@ -93,6 +106,13 @@ tap.test('Headers append', t => {
     t.doesNotThrow(() => headers.append(name, value2))
     t.doesNotThrow(() => headers.append(name, value3))
     t.equal(headers.get(name), [value1, value2, value3].join(', '))
+  })
+
+  t.test('allows appending an array of headers', t => {
+    t.plan(1)
+    const headers = new Headers()
+
+    t.doesNotThrow(() => headers.append('key', ['a', 'b']))
   })
 
   t.test('throws on invalid entry', t => {
@@ -142,7 +162,7 @@ tap.test('Headers delete', t => {
 })
 
 tap.test('Headers get', t => {
-  t.plan(3)
+  t.plan(4)
 
   t.test('returns null if not found in instance', t => {
     t.plan(1)
@@ -161,6 +181,14 @@ tap.test('Headers get', t => {
     t.equal(headers.get(name), value1)
     headers.append(name, value2)
     t.equal(headers.get(name), [value1, value2].join(', '))
+  })
+
+  t.test('returns array if multiple headers have the same name', t => {
+    t.plan(1)
+    const headers = new Headers()
+
+    headers.append('key', ['a', 'b'])
+    t.equal(headers.get('key'), 'a,b')
   })
 
   t.test('throws on invalid entry', t => {
@@ -196,7 +224,7 @@ tap.test('Headers has', t => {
 })
 
 tap.test('Headers set', t => {
-  t.plan(3)
+  t.plan(4)
 
   t.test('sets valid header entry to instance', t => {
     t.plan(2)
@@ -220,6 +248,13 @@ tap.test('Headers set', t => {
     t.equal(headers.get(name), value1)
     t.doesNotThrow(() => headers.set(name, value2))
     t.equal(headers.get(name), value2)
+  })
+
+  t.test('allows setting an array as header values', t => {
+    t.plan(1)
+    const headers = new Headers()
+
+    t.doesNotThrow(() => headers.set('key', ['a', 'b']))
   })
 
   t.test('throws on invalid entry', t => {
@@ -317,19 +352,21 @@ tap.test('Headers as Iterable', t => {
   })
 
   t.test('returns combined and sorted entries using for...of loop', t => {
-    t.plan(4)
+    t.plan(5)
     const init = [
       ['a', '1'],
       ['b', '2'],
       ['c', '3'],
       ['abc', '4'],
-      ['b', '5']
+      ['b', '5'],
+      ['d', ['6', '7']]
     ]
     const expected = [
       ['a', '1'],
       ['abc', '4'],
       ['b', '2, 5'],
-      ['c', '3']
+      ['c', '3'],
+      ['d', '6,7']
     ]
     let i = 0
     for (const header of new Headers(init)) {
