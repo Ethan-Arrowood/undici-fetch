@@ -14,17 +14,6 @@ function normalizeAndValidateHeaderName (name) {
 const headerRegex = /^[\n\t\r\x20]+|[\n\t\r\x20]+$/g
 
 function normalizeAndValidateHeaderValue (name, value) {
-  if (Array.isArray(value)) {
-    const normalizedHeaderValues = []
-    for (let i = 0; i < value.length; i++) {
-      const normalized = `${value[i]}`.replace(headerRegex, '')
-      validateHeaderValue(name, normalized)
-      normalizedHeaderValues.push(normalized)
-    }
-
-    return normalizedHeaderValues
-  }
-
   const normalizedHeaderValue = `${value}`.replace(headerRegex, '')
   validateHeaderValue(name, normalizedHeaderValue)
   return normalizedHeaderValue
@@ -91,16 +80,10 @@ class Headers {
   get (name) {
     const normalizedName = normalizeAndValidateHeaderName(name)
 
-    let i = binarySearch(this[kHeadersList], normalizedName)
+    const i = binarySearch(this[kHeadersList], normalizedName)
 
     if (this[kHeadersList][i] === normalizedName) {
-      const all = []
-      while (this[kHeadersList][i] === normalizedName) {
-        all.push(this[kHeadersList][i + 1])
-        i += 2
-      }
-
-      return all.join(',')
+      return this[kHeadersList][i + 1]
     }
 
     return null
@@ -153,8 +136,7 @@ class Headers {
 
   * [Symbol.iterator] () {
     for (let i = 0; i < this[kHeadersList].length; i += 2) {
-      const value = this[kHeadersList][i + 1]
-      yield [this[kHeadersList][i], Array.isArray(value) ? value.join(',') : value]
+      yield [this[kHeadersList][i], this[kHeadersList][i + 1]]
     }
   }
 }
