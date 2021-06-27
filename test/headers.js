@@ -66,18 +66,32 @@ tap.test('Headers initialization', t => {
     t.doesNotThrow(() => new Headers('1'))
   })
 
-  t.test('allows header values to be an array of strings', t => {
-    t.plan(1)
+  t.test('allows a myriad of header values to be passed', t => {
+    t.plan(5)
+
+    // Headers constructor uses Headers.append
 
     t.doesNotThrow(() => new Headers([
       ['a', ['b', 'c']],
       ['d', ['e', 'f']]
-    ]))
+    ]), 'allows any array values')
+    t.doesNotThrow(() => new Headers([
+      ['key', null]
+    ]), 'allows null values')
+    t.throws(() => new Headers([
+      ['key']
+    ]), 'throws when 2 arguments are not passed')
+    t.throws(() => new Headers([
+      ['key', 'value', 'value2']
+    ]), 'throws when too many arguments are passed')
+    t.throws(() => new Headers([
+      ['key', Symbol('undici-fetch')]
+    ]), 'throws when a value is a symbol')
   })
 })
 
 tap.test('Headers append', t => {
-  t.plan(4)
+  t.plan(3)
 
   t.test('adds valid header entry to instance', t => {
     t.plan(2)
@@ -102,13 +116,6 @@ tap.test('Headers append', t => {
     t.doesNotThrow(() => headers.append(name, value2))
     t.doesNotThrow(() => headers.append(name, value3))
     t.equal(headers.get(name), [value1, value2, value3].join(', '))
-  })
-
-  t.test('allows appending an array of headers', t => {
-    t.plan(1)
-    const headers = new Headers()
-
-    t.doesNotThrow(() => headers.append('key', ['a', 'b']))
   })
 
   t.test('throws on invalid entry', t => {
@@ -158,7 +165,7 @@ tap.test('Headers delete', t => {
 })
 
 tap.test('Headers get', t => {
-  t.plan(4)
+  t.plan(3)
 
   t.test('returns null if not found in instance', t => {
     t.plan(1)
@@ -177,14 +184,6 @@ tap.test('Headers get', t => {
     t.equal(headers.get(name), value1)
     headers.append(name, value2)
     t.equal(headers.get(name), [value1, value2].join(', '))
-  })
-
-  t.test('returns array if multiple headers have the same name', t => {
-    t.plan(1)
-    const headers = new Headers()
-
-    headers.append('key', ['a', 'b'])
-    t.equal(headers.get('key'), 'a,b')
   })
 
   t.test('throws on invalid entry', t => {
@@ -246,11 +245,15 @@ tap.test('Headers set', t => {
     t.equal(headers.get(name), value2)
   })
 
-  t.test('allows setting an array as header values', t => {
-    t.plan(1)
+  t.test('allows setting a myriad of values', t => {
+    t.plan(5)
     const headers = new Headers()
 
-    t.doesNotThrow(() => headers.set('key', ['a', 'b']))
+    t.doesNotThrow(() => headers.set('a', ['b', 'c']), 'sets array values properly')
+    t.doesNotThrow(() => headers.set('b', null), 'allows setting null values')
+    t.throws(() => headers.set('c'), 'throws when 2 arguments are not passed')
+    t.throws(() => headers.set('c', 'd', 'e'), 'throws when too many arguments are passed')
+    t.throws(() => headers.set('f', Symbol('g'), 'throws when value is a Symbol'))
   })
 
   t.test('throws on invalid entry', t => {
