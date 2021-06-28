@@ -9,7 +9,7 @@ const {
 const { headers: { kHeadersList } } = require('../src/symbols')
 
 tap.test('Headers initialization', t => {
-  t.plan(5)
+  t.plan(6)
 
   t.test('allows undefined', t => {
     t.plan(1)
@@ -64,6 +64,29 @@ tap.test('Headers initialization', t => {
     t.doesNotThrow(() => new Headers(function () {}))
     t.doesNotThrow(() => new Headers(1))
     t.doesNotThrow(() => new Headers('1'))
+  })
+
+  t.test('allows a myriad of header values to be passed', t => {
+    t.plan(5)
+
+    // Headers constructor uses Headers.append
+
+    t.doesNotThrow(() => new Headers([
+      ['a', ['b', 'c']],
+      ['d', ['e', 'f']]
+    ]), 'allows any array values')
+    t.doesNotThrow(() => new Headers([
+      ['key', null]
+    ]), 'allows null values')
+    t.throws(() => new Headers([
+      ['key']
+    ]), 'throws when 2 arguments are not passed')
+    t.throws(() => new Headers([
+      ['key', 'value', 'value2']
+    ]), 'throws when too many arguments are passed')
+    t.throws(() => new Headers([
+      ['key', Symbol('undici-fetch')]
+    ]), 'throws when a value is a symbol')
   })
 })
 
@@ -196,7 +219,7 @@ tap.test('Headers has', t => {
 })
 
 tap.test('Headers set', t => {
-  t.plan(3)
+  t.plan(4)
 
   t.test('sets valid header entry to instance', t => {
     t.plan(2)
@@ -220,6 +243,17 @@ tap.test('Headers set', t => {
     t.equal(headers.get(name), value1)
     t.doesNotThrow(() => headers.set(name, value2))
     t.equal(headers.get(name), value2)
+  })
+
+  t.test('allows setting a myriad of values', t => {
+    t.plan(5)
+    const headers = new Headers()
+
+    t.doesNotThrow(() => headers.set('a', ['b', 'c']), 'sets array values properly')
+    t.doesNotThrow(() => headers.set('b', null), 'allows setting null values')
+    t.throws(() => headers.set('c'), 'throws when 2 arguments are not passed')
+    t.throws(() => headers.set('c', 'd', 'e'), 'throws when too many arguments are passed')
+    t.throws(() => headers.set('f', Symbol('g'), 'throws when value is a Symbol'))
   })
 
   t.test('throws on invalid entry', t => {
@@ -317,19 +351,21 @@ tap.test('Headers as Iterable', t => {
   })
 
   t.test('returns combined and sorted entries using for...of loop', t => {
-    t.plan(4)
+    t.plan(5)
     const init = [
       ['a', '1'],
       ['b', '2'],
       ['c', '3'],
       ['abc', '4'],
-      ['b', '5']
+      ['b', '5'],
+      ['d', ['6', '7']]
     ]
     const expected = [
       ['a', '1'],
       ['abc', '4'],
       ['b', '2, 5'],
-      ['c', '3']
+      ['c', '3'],
+      ['d', '6,7']
     ]
     let i = 0
     for (const header of new Headers(init)) {

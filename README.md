@@ -81,8 +81,13 @@ Returns: `void`
 
 Non-destructive operation for adding header entries. When called multiple times with the same _name_, the values will be collected in a list and returned together when retrieved using [Headers.get](#headersgetname).
 
+When _value_ is not a `string`, the _value_ will be stringified.
+
 ```js
 const headers = new Headers()
+
+headers.append('key', ['value', 'value2'])
+headers.get('key') // -> 'value,value2'
 
 headers.append('undici', 'fetch')
 headers.get('undici') // -> 'fetch'
@@ -156,6 +161,8 @@ headers.has('undici') // -> true
 Returns: `void`
 
 Destructive operation that will override any existing values for the given entry _name_. For a non-destructive alternative see [Headers.append](#headersappendname-value).
+
+When _value_ is not a `string`, the _value_ will be stringified.
 
 ```js
 const headers = new Headers()

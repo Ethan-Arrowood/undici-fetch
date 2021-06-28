@@ -11,8 +11,10 @@ function normalizeAndValidateHeaderName (name) {
   return normalizedHeaderName
 }
 
+const headerRegex = /^[\n\t\r\x20]+|[\n\t\r\x20]+$/g
+
 function normalizeAndValidateHeaderValue (name, value) {
-  const normalizedHeaderValue = value.replace(/^[\n\t\r\x20]+|[\n\t\r\x20]+$/g, '')
+  const normalizedHeaderValue = `${value}`.replace(headerRegex, '')
   validateHeaderValue(name, normalizedHeaderValue)
   return normalizedHeaderValue
 }
@@ -50,7 +52,9 @@ class Headers {
     }
   }
 
-  append (name, value) {
+  append (...args) {
+    if (args.length !== 2) throw TypeError('Expected at least 2 arguments!')
+    const [name, value] = args
     const normalizedName = normalizeAndValidateHeaderName(name)
     const normalizedValue = normalizeAndValidateHeaderValue(name, value)
 
@@ -93,7 +97,10 @@ class Headers {
     return this[kHeadersList][i] === normalizedName
   }
 
-  set (name, value) {
+  set (...args) {
+    if (args.length !== 2) throw TypeError('Expected at least 2 arguments!')
+    const [name, value] = args
+
     const normalizedName = normalizeAndValidateHeaderName(name)
     const normalizedValue = normalizeAndValidateHeaderValue(name, value)
 
