@@ -99,6 +99,8 @@ declare class Response<Data = unknown> implements BodyMixin {
   readonly status: number
   readonly statusText: string
   readonly type: string
+  readonly url: string
+  readonly redirected: boolean
 
   readonly body: ControlledAsyncIterable<Data> | null
   readonly bodyUsed: boolean
@@ -118,7 +120,9 @@ declare class Response<Data = unknown> implements BodyMixin {
 export default fetch
 export { setGlobalDispatcher, getGlobalDispatcher } from 'undici'
 export type {
-  BodyMixin,
+  BodyMixin
+}
+export {
   Headers,
   Request,
   Response
