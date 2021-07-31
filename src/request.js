@@ -2,7 +2,7 @@
 
 const { METHODS } = require('http')
 
-const { ControlledAsyncIterable, BodyMixin, extractBody } = require('./body')
+const { extractBody } = require('./body')
 const { Headers } = require('./headers')
 
 const {
@@ -71,7 +71,7 @@ class Request {
 
       const [extractedBody, contentType] = extractBody(this[kBody], this[kKeepalive])
 
-      this[kBody] = new ControlledAsyncIterable(extractedBody)
+      this[kBody] = extractedBody
 
       if (contentType !== null && !this[kHeaders].has('content-type')) {
         this[kHeaders].append('content-type', contentType)
@@ -117,7 +117,5 @@ class Request {
     return request
   }
 }
-
-BodyMixin(Request.prototype)
 
 module.exports = { Request }

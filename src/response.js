@@ -1,6 +1,6 @@
 'use strict'
 
-const { extractBody, BodyMixin, ControlledAsyncIterable } = require('./body')
+const { extractBody, BodyMixin } = require('./body')
 const { Headers } = require('./headers')
 const {
   response: {
@@ -45,12 +45,20 @@ class Response {
 
       const [extractedBody, contentType] = extractBody(this[kBody])
 
-      this[kBody] = new ControlledAsyncIterable(extractedBody)
+      this[kBody] = extractedBody
 
       if (contentType !== null && !this[kHeaders].has('content-type')) {
         this[kHeaders].append('content-type', contentType)
       }
     }
+  }
+
+  get body () {
+    return this[kBody]
+  }
+
+  get bodyUsed () {
+    return this[kBody].bodyUsed
   }
 
   get type () {
@@ -80,6 +88,22 @@ class Response {
 
   get headers () {
     return this[kHeaders]
+  }
+
+  json () {
+    return this[kBody].json()
+  }
+
+  text () {
+    return this[kBody].text()
+  }
+
+  arrayBuffer () {
+    return this[kBody].arrayBuffer()
+  }
+
+  blob () {
+    return this[kBody].blob()
   }
 
   clone () {
