@@ -381,7 +381,7 @@ Represents a WHATWG Fetch Spec [Response Class](https://fetch.spec.whatwg.org/#r
   * **statusText** `string` (optional) - Defaults to `''`
   * **headers** `Headers | HeadersInit` (optional)
 
-Creates a new `Response` object. This is the result resolved from a successful `fetch()` call. Remember that this class extends from [Body](#class-body) so you can use methods such as `.text()` and `.json()`.
+Creates a new `Response` object. This is the result resolved from a successful `fetch()` call. Remember that this class extends from [Body](#function-bodymixin) so you can use methods such as `.text()` and `.json()`.
 
 ```js
 const response = new Response('undici-fetch')
