@@ -22,7 +22,7 @@ async function fetch (resource, init) {
     const { statusCode, headers, body } = await Undici.request(request.url, {
       method: request.method,
       headers: request.headers[kHeadersList],
-      body: request.body?.data,
+      body: request.body && request.body.data,
       signal: request.signal
     })
 

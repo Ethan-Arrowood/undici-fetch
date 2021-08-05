@@ -1,7 +1,10 @@
 'use strict'
 
 function isAsyncIterable (obj) {
-  return typeof obj?.[Symbol.asyncIterator] === 'function' || typeof obj?.[Symbol.iterator] === 'function'
+  if (Symbol.iterator in Object(obj)) {
+    return typeof obj[Symbol.asyncIterator] === 'function' || typeof obj[Symbol.iterator] === 'function'
+  }
+  return false
 }
 
 /**

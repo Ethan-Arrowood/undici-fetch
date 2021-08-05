@@ -82,7 +82,9 @@ async function consumeBody (controlledAsyncIterable) {
 }
 
 function isUnusable (controlledAsyncIterable) {
-  return controlledAsyncIterable?.disturbed ?? false
+  if (!controlledAsyncIterable) return false
+  if (controlledAsyncIterable.disturbed !== null && controlledAsyncIterable.disturbed !== void 0) return true
+  return false
 }
 
 function extractBody (body, keepalive = false) {
