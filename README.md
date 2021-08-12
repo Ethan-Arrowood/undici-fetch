@@ -1,5 +1,7 @@
 # undici-fetch
 
+❗️ Notice - this project is now apart of the core [undici](https://github.com/nodejs/undici) project 🚀
+
 ```sh
 npm i undici-fetch
 ```
